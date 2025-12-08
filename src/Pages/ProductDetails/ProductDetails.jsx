@@ -156,7 +156,7 @@ const ProductDetails = () => {
                                 </button>
                             ) : (
                                 <Link 
-                                    to={`/dashboard/booking/${product._id}`} 
+                                    to={`/book-product/${product._id}`} 
                                     className="btn btn-primary w-full text-lg font-bold text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
                                 >
                                     Book This Product
