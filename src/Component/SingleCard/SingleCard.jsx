@@ -6,7 +6,7 @@ const ProductCard = ({ product }) => {
     const { _id, productName, images, price, category, availableQuantity } = product;
 
     return (
-        <div className="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 group overflow-hidden">
+        <div className=" rounded-3xl card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 group overflow-hidden">
 
             {/* Image Section */}
             <figure className="h-[250px] w-full overflow-hidden relative">
@@ -44,7 +44,7 @@ const ProductCard = ({ product }) => {
                 <div className="card-actions justify-end mt-3">
                     <Link
                         to={`/product-details/${_id}`}
-                        className="btn btn-primary w-full btn-sm text-white font-bold"
+                        className="rounded-2xl font-bold"
                     >
                         View Details
                     </Link>

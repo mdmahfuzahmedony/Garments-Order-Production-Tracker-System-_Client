@@ -8,9 +8,12 @@ import AllProduct from "../Pages/AllProduct/AllProduct";
 import ProductDetails from "../Pages/ProductDetails/ProductDetails";
 import BookingPage from "../Pages/BookingPage/BookingPage";
 import User_home from "../Pages/DashBoard/user-home/User_home";
-import Myorder from "../Pages/DashBoard/Myorder/Myorder";
+// import Myorder from "../Pages/DashBoard/Myorder/Myorder";
 import Dashboard from "../Pages/DashBoard/DashBoard";
 import MyProfile from "../Pages/DashBoard/MyProfile/MyProfile";
+import ManageUsers from "../Pages/DashBoard/Admin/ManagesUsers";
+import AllOrders from "../Pages/DashBoard/Admin/AllOrder";
+import AllProducts from "../Pages/DashBoard/Admin/AllProducts";
 
 
 
@@ -52,14 +55,27 @@ export const router = createBrowserRouter([
             path:"user-home",
             Component:User_home
           },
-          {
-            path:"my-orders",
-            Component:Myorder
-          },
+          // {
+          //   path:"my-orders",
+          //   Component:Myorder
+          // },
           {
           path:"my-profile",
           Component:MyProfile
+          },
+          {
+            path:"manage-users",
+            Component:ManageUsers
+          },
+          {
+            path:"all-orders",
+            Component:AllOrders
+          },
+          {
+           path:"all-products",
+           Component:AllProducts
           }
+          
 
         ]
       }

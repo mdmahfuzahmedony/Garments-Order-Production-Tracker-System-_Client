@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Myorder = () => {
+const MyProfile = () => {
   return (
     <div>
       
@@ -8,4 +8,4 @@ const Myorder = () => {
   );
 };
 
-export default Myorder;
+export default MyProfile;

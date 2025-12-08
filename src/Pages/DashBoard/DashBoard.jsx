@@ -1,91 +1,128 @@
-import React, { useContext } from 'react';
-import { Link, NavLink, Outlet } from 'react-router';
-import { AuthContext } from '../../Provider/Authprovider';
-import { FaShoppingCart, FaUser, FaHome, FaSignOutAlt } from 'react-icons/fa';
+import React, { useContext } from "react";
+import { NavLink, Outlet } from "react-router";
+import { AuthContext } from "../../Provider/Authprovider";
+import useAdmin from "../../Hooks/useAdmin/useAdmin"; // হুক ইম্পোর্ট
+// import useManager from '../../hooks/useManager'; // হুক ইম্পোর্ট
+import {
+  FaHome,
+  FaUsers,
+  FaBoxOpen,
+  FaClipboardList,
+  FaShoppingCart,
+  FaUser,
+} from "react-icons/fa";
 
 const Dashboard = () => {
-    const { user, logOut } = useContext(AuthContext);
+  const { user, logOut } = useContext(AuthContext);
 
-    const handleLogOut = () => {
-        logOut()
-            .then(() => { })
-            .catch(error => console.log(error));
-    }
+  // ১. হুক ব্যবহার করে রোল বের করা
+  const [isAdmin] = useAdmin();
+  // const [isManager] = useManager();
+  const isManager = false; // আপাতত হার্ডকোড (টেস্টিংয়ের জন্য)
 
-    const menuItems = <>
-        {/* User Home */}
+  let menuItems;
+
+  // ২. কন্ডিশনাল মেনু লজিক
+  if (isAdmin) {
+    // --- ADMIN MENU ---
+    menuItems = (
+      <>
         <li>
-            <NavLink to="/dashboard/user-home" className={({ isActive }) => isActive ? "active font-bold" : ""}>
-                <FaHome /> User Home
-            </NavLink>
+         
         </li>
-
-        {/* My Orders */}
         <li>
-            <NavLink to="/dashboard/my-orders" className={({ isActive }) => isActive ? "active font-bold" : ""}>
-                <FaShoppingCart /> My Orders
-            </NavLink>
+          <NavLink to="/dashboard/manage-users">
+            <FaUsers /> Manage Users
+          </NavLink>
         </li>
-
-        {/* My Profile */}
         <li>
-            <NavLink to="/dashboard/my-profile" className={({ isActive }) => isActive ? "active font-bold" : ""}>
-                <FaUser /> My Profile
-            </NavLink>
+          <NavLink to="/dashboard/all-products">
+            <FaBoxOpen /> All Products
+          </NavLink>
         </li>
-
-        <div className="divider"></div>
-
-        {/* Back to Home */}
         <li>
-            <NavLink to="/">
-                <FaHome /> Main Home
-            </NavLink>
+          <NavLink to="/dashboard/all-orders">
+            <FaClipboardList /> All Orders
+          </NavLink>
         </li>
-        
-        {/* Logout */}
-        <li>
-            <button onClick={handleLogOut} className="text-error">
-                <FaSignOutAlt /> Logout
-            </button>
-        </li>
-    </>;
-
-    return (
-        <div className="drawer lg:drawer-open">
-            <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-            
-            {/* --- RIGHT SIDE CONTENT --- */}
-            <div className="drawer-content flex flex-col p-5 bg-base-100">
-                {/* Mobile Menu Button */}
-                <label htmlFor="my-drawer-2" className="btn btn-primary drawer-button lg:hidden mb-4">
-                    Open Menu
-                </label>
-                
-                {/* Child Pages Load Here */}
-                <Outlet />
-            </div> 
-            
-            {/* --- LEFT SIDEBAR --- */}
-            <div className="drawer-side">
-                <label htmlFor="my-drawer-2" className="drawer-overlay"></label> 
-                <ul className="menu p-4 w-72 min-h-full bg-base-200 text-base-content">
-                    {/* User Info Header */}
-                    <div className="flex flex-col items-center mb-6 pt-4">
-                        <div className="avatar">
-                            <div className="w-16 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                                <img src={user?.photoURL || "https://i.ibb.co/T0x2y5t/user.png"} alt="User" />
-                            </div>
-                        </div>
-                        <h3 className="font-bold mt-2">{user?.displayName}</h3>
-                        <p className="text-xs text-gray-500">{user?.email}</p>
-                    </div>
-
-                    {menuItems}
-                </ul>
-            </div>
-        </div>
+      </>
     );
+  } else if (isManager) {
+    // --- MANAGER MENU ---
+    menuItems = (
+      <>
+        <li>
+          <NavLink to="/dashboard/manager-home">
+            <FaHome /> Manager Home
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/dashboard/all-products">
+            <FaBoxOpen /> Manage Products
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/dashboard/all-orders">
+            <FaClipboardList /> Manage Orders
+          </NavLink>
+        </li>
+      </>
+    );
+  } else {
+    // --- USER (BUYER) MENU ---
+    menuItems = (
+      <>
+        <li>
+          <NavLink to="/dashboard/user-home">
+            <FaHome /> User Home
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/dashboard/my-orders">
+            <FaShoppingCart /> My Orders
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/dashboard/my-profile">
+            <FaUser /> My Profile
+          </NavLink>
+        </li>
+      </>
+    );
+  }
+
+  return (
+    <div className="drawer lg:drawer-open">
+      <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
+      <div className="drawer-content p-5 bg-base-100">
+        <label
+          htmlFor="my-drawer-2"
+          className="btn btn-primary drawer-button lg:hidden mb-4"
+        >
+          Open Menu
+        </label>
+        <Outlet />
+      </div>
+      <div className="drawer-side">
+        <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
+        <ul className="menu p-4 w-72 min-h-full bg-base-200 text-base-content">
+          {/* User Profile Info */}
+          <div className="text-center mb-6">
+            <h2 className="font-bold text-xl">
+              {isAdmin
+                ? "Admin Panel"
+                : isManager
+                ? "Manager Panel"
+                : "User Dashboard"}
+            </h2>
+          </div>
+          {/* মেনু রেন্ডার হবে এখানে */}
+          {menuItems}
+      
+        </ul>
+      </div>
+    </div>
+  );
 };
 
 export default Dashboard;
