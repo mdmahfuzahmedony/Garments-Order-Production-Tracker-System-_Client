@@ -2,17 +2,13 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Link } from 'react-router';
-// import ProductCard from '../components/sing'; // পাথ ঠিক রেখো
-
-
-
 
 const AllProduct = () => {
     // 1. State for Search and Sort
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortOrder, setSortOrder] = useState(''); // 'asc' or 'desc'
+    const [sortOrder, setSortOrder] = useState(''); 
 
-    // 2. Fetching Data using TanStack Query
+    // 2. Fetching Data
     const { data: products = [], isLoading, error } = useQuery({
         queryKey: ['allProducts'],
         queryFn: async () => {
@@ -25,19 +21,16 @@ const AllProduct = () => {
     if (isLoading) return <div className="text-center mt-20"><span className="loading loading-spinner loading-lg"></span></div>;
     if (error) return <div className="text-center mt-20 text-red-500">Something went wrong: {error.message}</div>;
 
-    console.log(products)
-
-    // 4. Client-side Filter & Sort Logic
+    // 4. Client-side Filter & Sort Logic (FIXED)
     let displayedProducts = products
- 
-        // Filter by Search Name
-        .filter(item => 
-            item.productName.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        // Sort by Price
+        .filter(item => {
+            // ফিক্স ১: name অথবা productName যেটা পাবে সেটা নেবে। না পেলে খালি স্ট্রিং "" ধরবে।
+            const name = item.name || item.productName || "";
+            return name.toLowerCase().includes(searchTerm.toLowerCase());
+        })
         .sort((a, b) => {
-            if (sortOrder === 'asc') return a.price - b.price; // Low to High
-            if (sortOrder === 'desc') return b.price - a.price; // High to Low
+            if (sortOrder === 'asc') return a.price - b.price; 
+            if (sortOrder === 'desc') return b.price - a.price; 
             return 0;
         });
 
@@ -47,7 +40,7 @@ const AllProduct = () => {
 
             <div className="flex flex-col md:flex-row gap-6">
                 
-                {/* --- Left Side: Sidebar (Search & Filter) --- */}
+                {/* --- Sidebar (Search & Filter) --- */}
                 <div className="w-full sticky md:w-1/4 bg-base-200 p-5 rounded-lg h-fit">
                     <h3 className="text-xl font-semibold mb-4">Filter Options</h3>
                     
@@ -81,7 +74,6 @@ const AllProduct = () => {
                         </select>
                     </div>
 
-                    {/* Reset Button */}
                     <button 
                         className="btn btn-neutral w-full mt-6"
                         onClick={() => { setSearchTerm(''); setSortOrder(''); }}
@@ -90,7 +82,7 @@ const AllProduct = () => {
                     </button>
                 </div>
 
-                {/* --- Right Side: Product Grid --- */}
+                {/* --- Product Grid --- */}
                 <div className="w-full md:w-3/4">
                     <p className="mb-4 font-semibold text-gray-500">
                         Showing {displayedProducts.length} products
@@ -101,14 +93,16 @@ const AllProduct = () => {
                             {displayedProducts.map((product) => (
                                 <div key={product._id} className="card bg-base-100 shadow-xl border hover:shadow-2xl transition-all duration-300">
                                     <figure className="px-4 pt-4 h-64 overflow-hidden bg-gray-100">
+                                        {/* ফিক্স ২: ইমেজের সোর্স ঠিক করা হয়েছে */}
                                         <img 
-                                            src={product.images && product.images[0]} 
-                                            alt={product.productName} 
+                                            src={product.image || (product.images && product.images[0]) || "https://via.placeholder.com/150"} 
+                                            alt={product.name || product.productName} 
                                             className="rounded-xl h-full w-full object-cover hover:scale-105 transition-transform" 
                                         />
                                     </figure>
                                     <div className="card-body items-center text-center">
-                                        <h2 className="card-title text-lg">{product.productName}</h2>
+                                        {/* ফিক্স ৩: নামের সোর্স ঠিক করা হয়েছে */}
+                                        <h2 className="card-title text-lg">{product.name || product.productName}</h2>
                                         <div className="badge badge-secondary badge-outline">{product.category}</div>
                                         
                                         <div className="my-2">

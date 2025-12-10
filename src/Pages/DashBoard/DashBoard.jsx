@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
 import { NavLink, Outlet } from "react-router";
 import { AuthContext } from "../../Provider/Authprovider";
-import useAdmin from "../../Hooks/useAdmin/useAdmin"; // হুক ইম্পোর্ট
-// import useManager from '../../hooks/useManager'; // হুক ইম্পোর্ট
+import useAdmin from "../../Hooks/useAdmin/useAdmin";
+import useManager from "../../Hooks/useManager/useManager"; // আপনার useManager হুকটি ইম্পোর্ট করুন
 import {
   FaHome,
   FaUsers,
@@ -10,6 +10,11 @@ import {
   FaClipboardList,
   FaShoppingCart,
   FaUser,
+  FaPlusCircle,
+  FaTasks,
+  FaSpinner,
+  FaCheckDouble,
+  FaSignOutAlt,
 } from "react-icons/fa";
 
 const Dashboard = () => {
@@ -17,8 +22,14 @@ const Dashboard = () => {
 
   // ১. হুক ব্যবহার করে রোল বের করা
   const [isAdmin] = useAdmin();
-  // const [isManager] = useManager();
-  const isManager = false; // আপাতত হার্ডকোড (টেস্টিংয়ের জন্য)
+  const [isManager] = useManager(); // হুকটি এনাবল করা হলো
+
+  // লগআউট হ্যান্ডলার
+  const handleLogOut = () => {
+    logOut()
+      .then(() => {})
+      .catch((error) => console.log(error));
+  };
 
   let menuItems;
 
@@ -27,9 +38,7 @@ const Dashboard = () => {
     // --- ADMIN MENU ---
     menuItems = (
       <>
-        <li>
-         
-        </li>
+      
         <li>
           <NavLink to="/dashboard/manage-users">
             <FaUsers /> Manage Users
@@ -48,22 +57,41 @@ const Dashboard = () => {
       </>
     );
   } else if (isManager) {
-    // --- MANAGER MENU ---
+    // --- MANAGER MENU (Requirement 10-15) ---
     menuItems = (
       <>
+        {/* 11. Add Product Page */}
         <li>
-          <NavLink to="/dashboard/manager-home">
-            <FaHome /> Manager Home
+          <NavLink to="/dashboard/add-product">
+            <FaPlusCircle /> Add Product
           </NavLink>
         </li>
+
+        {/* 12. Manage Products */}
         <li>
-          <NavLink to="/dashboard/all-products">
-            <FaBoxOpen /> Manage Products
+          <NavLink to="/dashboard/manage-products">
+            <FaTasks /> Manage Products
           </NavLink>
         </li>
+
+        {/* 13. Pending Orders */}
         <li>
-          <NavLink to="/dashboard/all-orders">
-            <FaClipboardList /> Manage Orders
+          <NavLink to="/dashboard/pending-orders">
+            <FaSpinner /> Pending Orders
+          </NavLink>
+        </li>
+
+        {/* 14. Approved Orders */}
+        <li>
+          <NavLink to="/dashboard/approved-orders">
+            <FaCheckDouble /> Approved Orders
+          </NavLink>
+        </li>
+
+        {/* 15. My Profile */}
+        <li>
+          <NavLink to="/dashboard/profile">
+            <FaUser /> My Profile
           </NavLink>
         </li>
       </>
@@ -105,20 +133,43 @@ const Dashboard = () => {
       </div>
       <div className="drawer-side">
         <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
-        <ul className="menu p-4 w-72 min-h-full bg-base-200 text-base-content">
-          {/* User Profile Info */}
-          <div className="text-center mb-6">
-            <h2 className="font-bold text-xl">
-              {isAdmin
-                ? "Admin Panel"
-                : isManager
-                ? "Manager Panel"
-                : "User Dashboard"}
-            </h2>
+        <ul className="menu p-4 w-72 min-h-full bg-base-200 text-base-content flex flex-col justify-between">
+          <div>
+            {/* User Profile Info Heading */}
+            <div className="text-center mb-6 mt-4 mb-2">
+              <h2 className="font-bold text-xl text-primary">
+                {isAdmin
+                  ? "Admin Panel"
+                  : isManager
+                  ? "Manager Panel"
+                  : "User Dashboard"}
+              </h2>
+              {user?.displayName && (
+                <p className="text-sm bg-gray-600 py-2 mt-1">{user.displayName}</p>
+              )}
+            </div>
+
+            {/* ডায়নামিক মেনু রেন্ডার */}
+            {menuItems}
           </div>
-          {/* মেনু রেন্ডার হবে এখানে */}
-          {menuItems}
-      
+
+          {/* Shared Links & Logout */}
+          <div>
+            <div className="divider"></div>
+            <li>
+              <NavLink to="/">
+                <FaHome /> Home
+              </NavLink>
+            </li>
+            <li>
+              <button
+                onClick={handleLogOut}
+                className="text-red-500 hover:bg-red-100"
+              >
+                <FaSignOutAlt /> Logout
+              </button>
+            </li>
+          </div>
         </ul>
       </div>
     </div>

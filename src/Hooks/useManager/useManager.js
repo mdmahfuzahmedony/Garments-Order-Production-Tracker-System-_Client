@@ -6,14 +6,15 @@ import { AuthContext } from "../../Provider/Authprovider";
 const useManager = () => {
     const { user, loading } = useContext(AuthContext);
     
-    const { data: isAdmin, isLoading: isAdminLoading } = useQuery({
-        queryKey: [user?.email, 'isAdmin'],
-        enabled: !loading && !!user?.email, // ইউজার থাকলেই কল হবে
+    const { data: isManager, isLoading: isManagerLoading } = useQuery({
+        queryKey: [user?.email, 'isManager'],
+        enabled: !loading && !!user?.email,
         queryFn: async () => {
-            const res = await axios.get(`http://localhost:2001/users/admin/${user.email}`);
-            return res.data.admin; // সার্ভার রিটার্ন করবে { admin: true/false }
+            // ভুল ১ সমাধান: URL এখন /users/manager/...
+            const res = await axios.get(`http://localhost:2001/users/manager/${user.email}`);
+            return res.data.manager; 
         }
     });
-    return [isAdmin, isAdminLoading];
+    return [isManager, isManagerLoading];
 };
 export default useManager;
