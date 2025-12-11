@@ -30,9 +30,11 @@ const WhyChooseUs = () => {
   ];
 
   return (
-    <section className="py-24 bg-white font-sans overflow-hidden">
+    // 1. Main Background: Light = White, Dark = Deep Navy (#020d14)
+    <section className="py-24 font-sans overflow-hidden transition-colors duration-300 bg-white dark:bg-[#020d14]">
       <div className="max-w-[1500px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          
           {/* ---------------- LEFT SIDE: IMAGE COMPOSITION ---------------- */}
           <div className="relative">
             {/* Main Image */}
@@ -43,24 +45,29 @@ const WhyChooseUs = () => {
                 className="w-full h-[600px] object-cover hover:scale-105 transition duration-700"
               />
 
-              {/* Dark Gradient Overlay for text readability if needed */}
+              {/* Dark Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-[#03131E]/60 to-transparent"></div>
             </div>
 
             {/* Floating Stats Card (Animation Effect) */}
-            <div className="absolute bottom-10 -right-6 md:-right-10 bg-white p-6 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] max-w-xs border-l-4 border-[#8CD6B3] animate-bounce-slow">
+            <div className="absolute bottom-10 -right-6 md:-right-10 p-6 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] max-w-xs border-l-4 border-[#8CD6B3] animate-bounce-slow transition-colors duration-300
+            bg-white dark:bg-[#0E2A3B] dark:shadow-none dark:border-t dark:border-r dark:border-b dark:border-gray-700">
+              
               <div className="flex items-center gap-4 mb-3">
-                <div className="w-12 h-12 rounded-full bg-[#E5F7EF] flex items-center justify-center text-[#8CD6B3] text-xl">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl transition-colors duration-300
+                bg-[#E5F7EF] text-[#8CD6B3] dark:bg-gray-700 dark:text-[#8CD6B3]">
                   <FaChartLine />
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs font-bold uppercase">
+                  <p className="text-xs font-bold uppercase transition-colors duration-300 text-gray-500 dark:text-gray-400">
                     Productivity
                   </p>
-                  <h4 className="text-[#03131E] text-2xl font-bold">+ 35%</h4>
+                  <h4 className="text-2xl font-bold transition-colors duration-300 text-[#03131E] dark:text-white">
+                    + 35%
+                  </h4>
                 </div>
               </div>
-              <p className="text-gray-400 text-xs leading-relaxed">
+              <p className="text-xs leading-relaxed transition-colors duration-300 text-gray-400 dark:text-gray-300">
                 Factories using GarmentsTracker see a significant rise in daily
                 output within 30 days.
               </p>
@@ -75,7 +82,7 @@ const WhyChooseUs = () => {
             <span className="text-[#8CD6B3] font-bold tracking-widest uppercase text-sm mb-2 block">
               Why Choose Us
             </span>
-            <h2 className="text-3xl md:text-5xl font-bold text-[#03131E] mb-6 leading-tight">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight transition-colors duration-300 text-[#03131E] dark:text-white">
               Replace Chaos With <br />
               <span className="relative inline-block">
                 Control
@@ -95,7 +102,7 @@ const WhyChooseUs = () => {
               </span>
             </h2>
 
-            <p className="text-gray-500 text-lg mb-10">
+            <p className="text-lg mb-10 transition-colors duration-300 text-gray-500 dark:text-gray-400">
               Traditional Excel sheets and manual ledgers are slowing you down.
               Upgrade to a system that understands the complexity of apparel
               manufacturing.
@@ -104,18 +111,20 @@ const WhyChooseUs = () => {
             {/* Benefit Items */}
             <div className="space-y-8">
               {benefits.map((item) => (
-                <div key={item.id} className="flex items-start gap-5">
+                <div key={item.id} className="flex items-start gap-5 group">
                   {/* Icon Box */}
-                  <div className="flex-shrink-0 w-14 h-14 rounded-full bg-[#03131E] flex items-center justify-center text-[#8CD6B3] text-xl shadow-lg mt-1">
+                  <div className="flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center text-xl shadow-lg mt-1 transition-colors duration-300
+                  bg-[#03131E] text-[#8CD6B3]
+                  dark:bg-white dark:text-[#03131E]">
                     {item.icon}
                   </div>
 
                   {/* Text */}
                   <div>
-                    <h4 className="text-xl font-bold text-[#03131E] mb-2">
+                    <h4 className="text-xl font-bold mb-2 transition-colors duration-300 text-[#03131E] dark:text-white">
                       {item.title}
                     </h4>
-                    <p className="text-gray-500 leading-relaxed text-sm md:text-base">
+                    <p className="leading-relaxed text-sm md:text-base transition-colors duration-300 text-gray-500 dark:text-gray-400">
                       {item.desc}
                     </p>
                   </div>
@@ -125,7 +134,10 @@ const WhyChooseUs = () => {
 
             {/* Bottom CTA */}
             <div className="mt-12">
-              <button className="bg-[#8CD6B3] text-[#03131E] px-8 py-3 rounded font-bold hover:bg-[#03131E] hover:text-white transition duration-300 shadow-lg shadow-[#8CD6B3]/30">
+              <button className="px-8 py-3 rounded font-bold transition duration-300 shadow-lg shadow-[#8CD6B3]/30
+              bg-[#8CD6B3] text-[#03131E] 
+              hover:bg-[#03131E] hover:text-white
+              dark:hover:bg-white dark:hover:text-[#03131E]">
                 Schedule a Demo
               </button>
             </div>
