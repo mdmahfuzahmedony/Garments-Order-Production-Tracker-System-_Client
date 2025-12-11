@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { AuthContext } from "../../../Provider/Authprovider";
+import { AuthContext } from "../../../Provider/AuthProvider";
 
 const Add_Product = () => {
   const { user } = useContext(AuthContext);

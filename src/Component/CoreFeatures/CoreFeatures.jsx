@@ -36,29 +36,35 @@ const CoreFeatures = () => {
   ];
 
   return (
-    <section className="py-24 bg-gray-50 font-sans relative overflow-hidden">
-      {/* Background Decoration (Optional Dotted Pattern) */}
+    // 1. Main Background: Light = Gray-50, Dark = Very Dark Navy
+    <section className="py-24 font-sans relative overflow-hidden transition-colors duration-300 bg-gray-50 dark:bg-[#020d14]">
+      
+      {/* 
+         2. Background Decoration: 
+         'currentColor' ব্যবহার করা হয়েছে যাতে ডার্ক/লাইট মোডে ডটগুলোর কালার অটোমেটিক টেক্সট কালার থেকে নেয়।
+      */}
       <div
-        className="absolute top-0 left-0 w-full h-full opacity-5"
+        className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none text-[#03131E] dark:text-gray-500 transition-colors duration-300"
         style={{
-          backgroundImage: "radial-gradient(#03131E 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(currentColor 1px, transparent 1px)",
           backgroundSize: "20px 20px",
         }}
       ></div>
 
       <div className="max-w-[1500px] mx-auto px-6 relative z-10">
+        
         {/* Header Section */}
         <div className="text-center mb-16 max-w-2xl mx-auto">
           <span className="text-[#8CD6B3] font-bold tracking-widest uppercase text-sm">
             Powerful Features
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-[#03131E] mt-3 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold mt-3 mb-4 transition-colors duration-300 text-[#03131E] dark:text-white">
             Everything You Need to Run a <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#03131E] to-[#8CD6B3]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#03131E] to-[#8CD6B3] dark:from-white dark:to-[#8CD6B3]">
               Modern Factory
             </span>
           </h2>
-          <p className="text-gray-500">
+          <p className="transition-colors duration-300 text-gray-500 dark:text-gray-400">
             Stop using pen and paper. Switch to a fully automated system
             designed for garment industries.
           </p>
@@ -69,34 +75,43 @@ const CoreFeatures = () => {
           {features.map((item) => (
             <div
               key={item.id}
-              className="group relative bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden"
+              className="group relative p-8 rounded-2xl shadow-sm border hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden
+              bg-white border-gray-100 
+              dark:bg-[#0E2A3B] dark:border-gray-800"
             >
               {/* Top Accent Line */}
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#03131E] to-[#8CD6B3] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
 
               {/* Background Big Number (Watermark effect) */}
-              <div className="absolute -right-4 -top-4 text-9xl font-bold text-gray-100 opacity-50 select-none group-hover:text-[#8CD6B3]/10 transition-colors duration-300">
+              <div className="absolute -right-4 -top-4 text-9xl font-bold opacity-50 select-none transition-colors duration-300
+              text-gray-100 group-hover:text-[#8CD6B3]/10
+              dark:text-gray-800 dark:group-hover:text-[#8CD6B3]/10">
                 {item.id}
               </div>
 
               {/* Icon Box */}
-              <div className="w-14 h-14 rounded-xl bg-[#03131E] text-white flex items-center justify-center text-2xl mb-6 relative z-10 shadow-lg group-hover:bg-[#8CD6B3] group-hover:text-[#03131E] transition-colors duration-300">
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl mb-6 relative z-10 shadow-lg transition-colors duration-300
+              bg-[#03131E] text-white 
+              group-hover:bg-[#8CD6B3] group-hover:text-[#03131E]
+              dark:bg-black dark:text-white">
                 {item.icon}
               </div>
 
               {/* Content */}
               <div className="relative z-10">
-                <h3 className="text-xl font-bold text-[#03131E] mb-3">
+                <h3 className="text-xl font-bold mb-3 transition-colors duration-300 text-[#03131E] dark:text-white">
                   {item.title}
                 </h3>
-                <p className="text-gray-500 text-sm leading-relaxed mb-6">
+                <p className="text-sm leading-relaxed mb-6 transition-colors duration-300 text-gray-500 dark:text-gray-400">
                   {item.desc}
                 </p>
 
                 {/* Learn More Link */}
                 <a
                   href="#"
-                  className="inline-flex items-center text-[#03131E] font-semibold text-sm group-hover:text-[#8CD6B3] transition-colors"
+                  className="inline-flex items-center font-semibold text-sm transition-colors duration-300
+                  text-[#03131E] group-hover:text-[#8CD6B3]
+                  dark:text-white dark:group-hover:text-[#8CD6B3]"
                 >
                   Learn more{" "}
                   <BsArrowRight className="ml-2 transform group-hover:translate-x-1 transition-transform" />

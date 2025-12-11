@@ -1,13 +1,14 @@
 import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 // Fix: react-router এর জায়গায় react-router-dom হবে
-import { Link, useNavigate, useLocation } from "react-router"; 
-import { AuthContext } from "../../Provider/Authprovider";
+import { Link, useNavigate, useLocation } from "react-router";
+import { AuthContext } from "../../Provider/AuthProvider";
 import Swal from "sweetalert2";
 import axios from "axios";
 
 const Register = () => {
-  const { createUser, updateUserProfile, googleSignIn } = useContext(AuthContext);
+  const { createUser, updateUserProfile, googleSignIn } =
+    useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,7 +40,8 @@ const Register = () => {
           };
 
           // ৩. ডাটাবেসে সেভ করা
-          axios.post("http://localhost:2001/users", userInfo)
+          axios
+            .post("http://localhost:2001/users", userInfo)
             .then((res) => {
               console.log("2. Backend Response:", res.data); // Debug Log
 
@@ -63,7 +65,7 @@ const Register = () => {
                 navigate("/");
               }
             })
-            .catch(err => console.error("Axios Error:", err));
+            .catch((err) => console.error("Axios Error:", err));
         });
       })
       .catch((error) => {

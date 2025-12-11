@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { NavLink, Outlet } from "react-router";
-import { AuthContext } from "../../Provider/Authprovider";
+import { AuthContext } from "../../Provider/AuthProvider";
 import useAdmin from "../../Hooks/useAdmin/useAdmin";
 import useManager from "../../Hooks/useManager/useManager"; // আপনার useManager হুকটি ইম্পোর্ট করুন
 import {
@@ -38,7 +38,6 @@ const Dashboard = () => {
     // --- ADMIN MENU ---
     menuItems = (
       <>
-      
         <li>
           <NavLink to="/dashboard/manage-users">
             <FaUsers /> Manage Users
@@ -145,7 +144,9 @@ const Dashboard = () => {
                   : "User Dashboard"}
               </h2>
               {user?.displayName && (
-                <p className="text-sm bg-gray-600 py-2 mt-1">{user.displayName}</p>
+                <p className="text-sm bg-gray-600 py-2 mt-1">
+                  {user.displayName}
+                </p>
               )}
             </div>
 
