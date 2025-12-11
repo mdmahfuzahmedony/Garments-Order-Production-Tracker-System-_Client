@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 // ফিক্স ১: 'react-router' এর বদলে 'react-router-dom' হবে
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router";
 
 // ফিক্স ২: আপনার ফাইলের নাম যদি 'AuthProvider.jsx' হয় তবে নিচের লাইন ঠিক আছে।
 // যদি ফাইলের নাম 'Authprovider.jsx' (ছোট হাতের p) হয়, তবে 'AuthProvider' এর বদলে 'Authprovider' লিখবেন।
