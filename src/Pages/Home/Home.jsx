@@ -7,8 +7,8 @@ import HeroSection from "../../Component/Hero/HeroSection";
 import StatsCounter from "../../Component/StatsCounter/StatsCounter";
 import CoreFeatures from "../../Component/CoreFeatures/CoreFeatures";
 import WhyChooseUs from "../../Component/WhyChooseUs/WhyChooseUs";
-import TestimonialSection from "../../../../../Assignment_10/Assigment_10_client_side/src/Component/TestimonialSection";
 import WorkProcess from "../../Component/WorkProcess/WorkProcess";
+import Testimonials from "../../Component/Testimonials/Testimonials";
 
 
 
@@ -23,7 +23,7 @@ const Home = () => {
       <WorkProcess></WorkProcess>
       <ServicesSection></ServicesSection>
       <BlogSection></BlogSection>
-      <TestimonialSection></TestimonialSection>
+      <Testimonials></Testimonials>
      <CTASection></CTASection>
 
     
