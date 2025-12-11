@@ -9,7 +9,7 @@ import axios from "axios";
 // import useAxiosSecure from "../Hooks/useAxiosSecure"; 
 import {
     AuthContext
-} from "../../Provider/TempAuthProvider";
+} from "../../Provider/";
 
 const useManager = () => {
     const {
@@ -23,16 +23,16 @@ const useManager = () => {
         isLoading: isManagerLoading
     } = useQuery({
         // ফিক্স ১: user?.email এর মাঝে স্পেস সরানো হয়েছে
-        queryKey: [user ? .email, 'isManager'],
+        queryKey: [user ?.email, 'isManager'],
 
         // ফিক্স ২: enabled লজিকে স্পেস সরানো হয়েছে
-        enabled: !loading && !!user ? .email,
+        enabled: !loading && !!user ?.email,
 
         queryFn: async () => {
             // ফিক্স ৩: ব্যাকএন্ড কল (যদি সাধারণ axios ব্যবহার করেন)
             // কিন্তু ভালো প্র্যাকটিস হলো axiosSecure ব্যবহার করা
             const res = await axios.get(`http://localhost:2001/users/manager/${user.email}`);
-            return res.data ? .manager; // এখানেও অপশনাল চেইনিং দেওয়া নিরাপদ
+            return res.data ?.manager; // এখানেও অপশনাল চেইনিং দেওয়া নিরাপদ
         }
     });
 

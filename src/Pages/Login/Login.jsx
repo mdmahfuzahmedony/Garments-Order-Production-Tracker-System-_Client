@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useLocation } from "react-router";
-import { AuthContext } from "../../Provider/TempAuthProvider";
+import { AuthContext } from "../../Provider/";
 import Swal from "sweetalert2";
 
 const Login = () => {

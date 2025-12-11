@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth';
 
 import app from '../Firebase/Firebase'; // তোমার ফায়ারবেস কনফিগ ফাইলের পাথ চেক করে নিও
+import { AuthContext } from './AuthProvider';
 
 // Context তৈরি
 export const AuthContext = createContext(null);

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router"; // react-router-dom হ�
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Swal from "sweetalert2"; // সুন্দর অ্যালার্টের জন্য (অপশনাল)
-import { AuthContext } from "../../Provider/TempAuthProvider";
+import { AuthContext } from "../../Provider/";
 
 const BookingPage = () => {
   const { id } = useParams();

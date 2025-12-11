@@ -5,7 +5,7 @@ import { Link, useNavigate, useLocation } from "react-router";
 
 // ফিক্স ২: আপনার ফাইলের নাম যদি 'AuthProvider.jsx' হয় তবে নিচের লাইন ঠিক আছে।
 // যদি ফাইলের নাম 'Authprovider.jsx' (ছোট হাতের p) হয়, তবে 'AuthProvider' এর বদলে 'Authprovider' লিখবেন।
-import { AuthContext } from "../../Provider/TempAuthProvider";
+import { AuthContext } from "../../Provider/AuthProvider";
 
 import Swal from "sweetalert2";
 import axios from "axios";
