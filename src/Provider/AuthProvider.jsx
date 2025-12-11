@@ -1,4 +1,4 @@
-import React, {useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react'; // ১. এখানে createContext যোগ করা হয়েছে
 import { 
     GoogleAuthProvider, 
     createUserWithEmailAndPassword, 
@@ -10,16 +10,17 @@ import {
     updateProfile 
 } from 'firebase/auth';
 
-import app from '../Firebase/Firebase'; // তোমার ফায়ারবেস কনফিগ ফাইলের পাথ চেক করে নিও
-import { AuthContext } from './AuthProvider';
+import app from '../Firebase/Firebase'; 
 
-// Context তৈরি
-// export const AuthContext = createContext(null);
+// ২. ভুল লাইনটি মুছে ফেলা হয়েছে: import { AuthContext } from './A';
+
+// ৩. Context তৈরি এবং Export করা হচ্ছে
+export const AuthContext = createContext(null);
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-const Authprovider = ({ children }) => {
+const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -41,7 +42,7 @@ const Authprovider = ({ children }) => {
         return signInWithPopup(auth, googleProvider);
     };
 
-    // 4. Log Out (Rename to avoid conflict)
+    // 4. Log Out
     const logOut = () => {
         setLoading(true);
         return signOut(auth);
@@ -55,12 +56,12 @@ const Authprovider = ({ children }) => {
         });
     };
 
-    // 6. Observer (User State Check)
+    // 6. Observer
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
-            console.log('Current User:', currentUser);
-            setLoading(false); // লোডিং বন্ধ করা মাস্ট
+            // console.log('Current User:', currentUser);
+            setLoading(false);
         });
         return () => {
             return unsubscribe();
@@ -75,7 +76,7 @@ const Authprovider = ({ children }) => {
         googleSignIn,
         logOut,
         updateUserProfile,
-        setLoading // মাঝে মাঝে ম্যানুয়ালি লোডিং সেট করার জন্য লাগতে পারে
+        setLoading
     };
 
     return (
@@ -85,4 +86,4 @@ const Authprovider = ({ children }) => {
     );
 };
 
-export default Authprovider;
+export default AuthProvider;
