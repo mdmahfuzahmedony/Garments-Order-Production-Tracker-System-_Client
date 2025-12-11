@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, {useEffect, useState } from 'react';
 import { 
     GoogleAuthProvider, 
     createUserWithEmailAndPassword, 
@@ -14,7 +14,7 @@ import app from '../Firebase/Firebase'; // তোমার ফায়ারবে
 import { AuthContext } from './AuthProvider';
 
 // Context তৈরি
-export const AuthContext = createContext(null);
+// export const AuthContext = createContext(null);
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
