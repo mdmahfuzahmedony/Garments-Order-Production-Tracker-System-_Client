@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Link, NavLink } from 'react-router'; // Note: 'react-router-dom' is usually standard, check your version
+import { Link, NavLink } from 'react-router';
 import { AuthContext } from '../../Provider/AuthProvider'; 
 import { FaMapMarkerAlt, FaEnvelope, FaFacebookF, FaInstagram, FaTwitter, FaYoutube, FaSun, FaMoon, FaSignOutAlt } from "react-icons/fa";
-// import { GiBallOfWool } from "react-icons/gi";
 
 const Navbar = () => {
     const { user, logOut } = useContext(AuthContext);
-    // ডিফল্ট থিম লোকাল স্টোরেজ থেকে চেক করা হচ্ছে
+
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -91,9 +90,7 @@ const Navbar = () => {
 
     return (
         <div className="font-sans">
-            
-            {/* ---------------- PART 1: TOP BAR (Scrolls away) ---------------- */}
-            {/* এই অংশটি স্টিকি নয়, স্ক্রল করলে উপরে চলে যাবে */}
+        
             <div className="bg-[#0E2A3B] text-white py-2.5 px-4 hidden md:block transition-colors duration-300">
                 <div className="max-w-[1500px] mx-auto flex justify-between items-center text-xs lg:text-sm">
                     {/* Left Info */}
@@ -117,9 +114,6 @@ const Navbar = () => {
                     </div>
                 </div>
             </div>
-
-            {/* ---------------- PART 2: MAIN NAVBAR (Sticky) ---------------- */}
-            {/* sticky top-0 z-50 ক্লাস দিয়ে এটাকে উপরে ফিক্সড করা হয়েছে */}
             <div className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-md transition-all duration-300">
                 <div className="navbar max-w-[1500px] mx-auto py-3 md:py-4">
                     
@@ -141,7 +135,7 @@ const Navbar = () => {
                         <Link to="/" className="flex items-center gap-2 group">
                             {/* <GiBallOfWool className="text-3xl md:text-4xl text-[#8CD6B3]" /> */}
                             <span className="text-xl md:text-2xl font-bold text-[#03131E] dark:text-white transition-colors">
-                                Garments<span className="font-light text-gray-500 dark:text-gray-400">Tracker</span>
+                            <p className='font-black text-white'>TexTrack</p>
                             </span>
                         </Link>
                     </div>

@@ -22,7 +22,7 @@ const HeroSection = () => {
           {/* Top Label */}
           <div className="inline-block mb-6">
             <span className="text-white text-sm font-medium uppercase tracking-wide border-b-[3px] border-[#8CD6B3] pb-1">
-              Since 2005
+              Since 2023
             </span>
           </div>
 
