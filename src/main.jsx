@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { RouterProvider } from "react-router/dom";
 import { router } from './Layout/Router';
-import Authprovider from './Provider/Authprovider';
+import Authprovider from './Provider/AuthProvider';
 import { ToastContainer } from 'react-toastify';
 
 // 1. এই লাইনটা ইম্পোর্ট করো (TanStack Query সেটআপের জন্য)
