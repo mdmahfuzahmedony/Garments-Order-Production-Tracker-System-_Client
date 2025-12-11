@@ -58,10 +58,14 @@ const Testimonials = () => {
           {reviews.map((review) => (
             <div
               key={review.id}
-              className="relative p-8 rounded-2xl transition-all duration-300 group hover:-translate-y-2
+              // ১. 'relative' এবং 'overflow-hidden' দেওয়া হয়েছে বর্ডার এনিমেশনের জন্য
+              className="relative p-8 rounded-2xl transition-all duration-300 group hover:-translate-y-2 overflow-hidden
                             bg-white shadow-xl shadow-gray-200/50 
                             dark:bg-[#0E2A3B] dark:shadow-none dark:border dark:border-gray-800"
             >
+              {/* --- TOP ACCENT LINE ANIMATION (Added here) --- */}
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#03131E] to-[#8CD6B3] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+
               {/* Quote Icon */}
               <div className="absolute top-6 right-8 text-4xl opacity-20 text-[#03131E] dark:text-[#8CD6B3]">
                 <FaQuoteLeft />
