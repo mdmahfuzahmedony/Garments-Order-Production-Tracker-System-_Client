@@ -22,110 +22,102 @@ import Pending_Orders from "../Pages/DashBoard/Manager/Pending_Orders";
 import Update_Product from "../Pages/DashBoard/Manager/Update_Product";
 
 
-
-
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: MainLayout,
     children: [
       {
+        index:true,
+        Component:Home
+
+      },
+      {
         path: "/home",
-        Component:Home,
+        Component: Home,
       },
       {
-       path:"/garments-products",
-       Component:AllProduct
+        path: "/garments-products",
+        Component: AllProduct,
       },
       {
-        path:"/product-details/:id",
-        Component:ProductDetails
+        path: "/product-details/:id",
+        Component: ProductDetails,
       },
       {
         path: "/login",
-        Component:Login,
+        Component: Login,
       },
       {
         path: "/register",
-        Component:Register,
+        Component: Register,
       },
       {
-        path:"/book-product/:id",
-        Component:BookingPage,
+        path: "/book-product/:id",
+        Component: BookingPage,
       },
+    
       {
-        path:"/dashboard",
-        element:<Dashboard></Dashboard>,
-        children:[
-        
-        ////admin -part
+        path: "/dashboard",
+        element: <Dashboard></Dashboard>,
+        children: [
+          ////admin -part
           {
-            path:"manage-users",
-            Component:ManageUsers
+            path: "manage-users",
+            Component: ManageUsers,
           },
           {
-            path:"all-orders",
-            Component:AllOrders
+            path: "all-orders",
+            Component: AllOrders,
           },
           {
-           path:"all-products",
-           Component:AllProducts
+            path: "all-products",
+            Component: AllProducts,
           },
-          
 
           //buyerpart
 
           {
-          path:"my-profile",
-          Component:MyProfile
+            path: "my-profile",
+            Component: MyProfile,
           },
           {
-            path:"my-orders",
-            Component:MyOrders
+            path: "my-orders",
+            Component: MyOrders,
           },
           {
-            path:"track-order",
-            Component:TrackOrder
+            path: "track-order",
+            Component: TrackOrder,
           },
-          
+
           //--------manager
 
           {
-            path:"add-product",
-            Component:Add_Product
-
-          }
-          , {
-            path:"approved-orders",
-            Component:Approve_Orders
-
-          },
-           {
-            path:"manage-products",
-            Component:Manage_Products
-
-          },
-           {
-            path:"profile",
-            Component:My_Profile
-
-          },
-           {
-            path:"pending-orders",
-            Component:Pending_Orders
-
+            path: "add-product",
+            Component: Add_Product,
           },
           {
-            path:"update-product/:id",
-            Component:Update_Product
-          }
-
-        ]
-      }
+            path: "approved-orders",
+            Component: Approve_Orders,
+          },
+          {
+            path: "manage-products",
+            Component: Manage_Products,
+          },
+          {
+            path: "profile",
+            Component: My_Profile,
+          },
+          {
+            path: "pending-orders",
+            Component: Pending_Orders,
+          },
+          {
+            path: "update-product/:id",
+            Component: Update_Product,
+          },
+        ],
+      },
     ],
-
-
-
   },
 ]);
-

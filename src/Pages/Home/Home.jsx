@@ -1,11 +1,34 @@
-import React from 'react'
+import React from "react";
+import BlogSection from "../../Component/Blog/BlogSection";
+import CTASection from "../../Component/CTA/CTAction";
+import ServicesSection from "../../Component/Service/ServicesSection";
+import AboutSection from "../../Component/About/AboutSection";
+import HeroSection from "../../Component/Hero/HeroSection";
+import StatsCounter from "../../Component/StatsCounter/StatsCounter";
+import CoreFeatures from "../../Component/CoreFeatures/CoreFeatures";
+import WhyChooseUs from "../../Component/WhyChooseUs/WhyChooseUs";
+import TestimonialSection from "../../../../../Assignment_10/Assigment_10_client_side/src/Component/TestimonialSection";
+import WorkProcess from "../../Component/WorkProcess/WorkProcess";
+
+
 
 const Home = () => {
-    return (
-        <div>
-            <h1>Home</h1>
-        </div>
-    )
-}
+  return (
+    <div>
+      <HeroSection></HeroSection>
+      <StatsCounter></StatsCounter>
+      <AboutSection></AboutSection>
+      <CoreFeatures></CoreFeatures>
+      <WhyChooseUs></WhyChooseUs>
+      <WorkProcess></WorkProcess>
+      <ServicesSection></ServicesSection>
+      <BlogSection></BlogSection>
+      <TestimonialSection></TestimonialSection>
+     <CTASection></CTASection>
+
+    
+    </div>
+  );
+};
 
 export default Home;
