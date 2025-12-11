@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useParams, Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { AuthContext } from "../../Provider/AuthProvider"; // তোমার AuthContext পাথ ঠিক করো
+import { AuthContext } from "../../Provider/TempAuthProvider"; // তোমার AuthContext পাথ ঠিক করো
 import ProductCard from "../../Component/SingleCard/SingleCard"; // আগের তৈরি করা কার্ড ইম্পোর্ট করো
 
 const ProductDetails = () => {

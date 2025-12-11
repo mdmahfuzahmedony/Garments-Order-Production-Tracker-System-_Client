@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { AuthContext } from "../../../Provider/AuthProvider";
+import { AuthContext } from "../../../Provider/TempAuthProvider";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import {
