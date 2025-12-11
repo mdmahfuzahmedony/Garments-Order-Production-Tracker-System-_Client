@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AuthContext } from "../../../Provider/";
+import { AuthContext } from "../../../Provider/AuthProvider";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { FaEye, FaHistory, FaMapMarkerAlt, FaTrashAlt } from "react-icons/fa";

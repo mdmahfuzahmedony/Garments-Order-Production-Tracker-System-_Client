@@ -3,7 +3,7 @@ import {
 } from "react";
 import {
     AuthContext
-} from "../../Provider/";
+} from "../../Provider/AuthProvider";
 
 const useAuth = () => {
     const auth = useContext(AuthContext);

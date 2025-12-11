@@ -9,7 +9,7 @@ import axios from "axios";
 // import useAxiosSecure from "../Hooks/useAxiosSecure"; 
 import {
     AuthContext
-} from "../../Provider/";
+} from "../../Provider/AuthProvider";
 
 const useManager = () => {
     const {

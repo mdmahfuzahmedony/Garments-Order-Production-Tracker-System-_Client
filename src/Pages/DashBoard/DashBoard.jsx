@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { NavLink, Outlet } from "react-router";
-import { AuthContext } from "../../Provider/";
+import { AuthContext } from "../../Provider/AuthProvider";
 import useAdmin from "../../Hooks/useAdmin/useAdmin";
 import useManager from "../../Hooks/useManager/useManager"; // আপনার useManager হুকটি ইম্পোর্ট করুন
 import {

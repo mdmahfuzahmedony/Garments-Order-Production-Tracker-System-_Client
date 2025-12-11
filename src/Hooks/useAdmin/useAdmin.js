@@ -7,7 +7,7 @@ import {
 import axios from "axios";
 import {
     AuthContext
-} from "../../Provider/";
+} from "../../Provider/AuthProvider";
 
 const useAdmin = () => {
     const {

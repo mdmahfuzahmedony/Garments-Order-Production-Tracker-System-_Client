@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link, NavLink } from "react-router";
-import { AuthContext } from "../../Provider/";
+import { AuthContext } from "../../Provider/AuthProvider";
 import {
   FaMapMarkerAlt,
   FaEnvelope,
