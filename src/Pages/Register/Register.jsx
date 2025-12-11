@@ -1,14 +1,17 @@
 import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
-// Fix: react-router এর জায়গায় react-router-dom হবে
-import { Link, useNavigate, useLocation } from "react-router";
-import { AuthContext } from "../../Provider/AuthProvider";
+// ফিক্স ১: 'react-router' এর বদলে 'react-router-dom' হবে
+import { Link, useNavigate, useLocation } from "react-router-dom";
+
+// ফিক্স ২: আপনার ফাইলের নাম যদি 'AuthProvider.jsx' হয় তবে নিচের লাইন ঠিক আছে।
+// যদি ফাইলের নাম 'Authprovider.jsx' (ছোট হাতের p) হয়, তবে 'AuthProvider' এর বদলে 'Authprovider' লিখবেন।
+import { AuthContext } from "../../Provider/AuthProvider"; 
+
 import Swal from "sweetalert2";
 import axios from "axios";
 
 const Register = () => {
-  const { createUser, updateUserProfile, googleSignIn } =
-    useContext(AuthContext);
+  const { createUser, updateUserProfile, googleSignIn } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -27,8 +30,6 @@ const Register = () => {
     // ১. ফায়ারবেসে ইউজার তৈরি
     createUser(email, password)
       .then((result) => {
-        console.log("1. Firebase User Created"); // Debug Log
-
         // ২. প্রোফাইল আপডেট
         updateUserProfile(name, photoURL).then(() => {
           const userInfo = {
@@ -43,10 +44,7 @@ const Register = () => {
           axios
             .post("http://localhost:2001/users", userInfo)
             .then((res) => {
-              console.log("2. Backend Response:", res.data); // Debug Log
-
               if (res.data.insertedId) {
-                // সফলভাবে ডাটাবেসে সেভ হয়েছে
                 reset();
                 Swal.fire({
                   icon: "success",
@@ -56,7 +54,6 @@ const Register = () => {
                 });
                 navigate("/");
               } else {
-                // ডাটাবেসে আগে থেকেই ইউজার ছিল
                 Swal.fire({
                   icon: "info",
                   title: "User Already in Database",
@@ -69,12 +66,11 @@ const Register = () => {
         });
       })
       .catch((error) => {
-        // সবচেয়ে গুরুত্বপূর্ণ জায়গা: যদি ইমেইল আগে থেকেই Firebase-এ থাকে
         console.error("Firebase Error:", error);
         Swal.fire({
           icon: "error",
           title: "Registration Failed",
-          text: error.message, // এখানে লেখা আসবে "Email already in use"
+          text: error.message,
         });
       });
   };
@@ -86,7 +82,7 @@ const Register = () => {
         const userInfo = {
           name: user.displayName,
           email: user.email,
-          role: "buyer",
+          role: "buyer", // ডিফল্ট রোল বায়ার
           status: "active",
           image: user.photoURL,
         };
@@ -105,7 +101,6 @@ const Register = () => {
   };
 
   return (
-    // আপনার আগের JSX ডিজাইন ঠিক আছে, সেটিই রাখুন...
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 transition-colors duration-300 px-4 py-10">
       <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
         <div className="text-center mb-8">
