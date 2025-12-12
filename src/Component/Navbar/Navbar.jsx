@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, NavLink } from "react-router";
+// ফিক্স ১: 'react-router' এর বদলে 'react-router-dom' হবে
+import { Link, NavLink } from "react-router"; 
 import { AuthContext } from "../../Provider/AuthProvider";
 import {
   FaMapMarkerAlt,
@@ -21,10 +22,11 @@ const Navbar = () => {
 
   // 1. Dark/Light Mode Logic
   useEffect(() => {
+    const html = document.documentElement;
     if (theme === "dark") {
-      document.documentElement.classList.add("dark");
+      html.classList.add("dark");
     } else {
-      document.documentElement.classList.remove("dark");
+      html.classList.remove("dark");
     }
     localStorage.setItem("theme", theme);
   }, [theme]);
@@ -36,13 +38,11 @@ const Navbar = () => {
   const handleLogOut = () => {
     logOut()
       .then(() => {
-        console.log("User logged out successfully");
         setIsProfileOpen(false);
       })
       .catch((error) => console.error(error));
   };
 
-  // 2. Navigation Links
   const navOptions = (
     <>
       <li>
@@ -122,9 +122,8 @@ const Navbar = () => {
 
   return (
     <div className="font-sans">
-      <div className="bg-[#0E2A3B] text-white py-2.5 px-4 hidden md:block transition-colors duration-300">
+      <div className="bg-[#020d14] text-white py-2.5 px-4 hidden md:block transition-colors duration-300">
         <div className="max-w-[1500px] mx-auto flex justify-between items-center text-xs lg:text-sm">
-          {/* Left Info */}
           <div className="flex gap-6">
             <div className="flex items-center gap-2">
               <FaMapMarkerAlt className="text-[#8CD6B3]" />
@@ -135,47 +134,25 @@ const Navbar = () => {
               <span>mdmahfuzahmedony@gmail.com</span>
             </div>
           </div>
-
-          {/* Right Socials */}
           <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-[#8CD6B3] transition">
-              <FaFacebookF />
-            </a>
-            <a href="#" className="hover:text-[#8CD6B3] transition">
-              <FaTwitter />
-            </a>
-            <a href="#" className="hover:text-[#8CD6B3] transition">
-              <FaInstagram />
-            </a>
-            <a href="#" className="hover:text-[#8CD6B3] transition">
-              <FaYoutube />
-            </a>
+            <a href="#" className="hover:text-[#8CD6B3] transition"><FaFacebookF /></a>
+            <a href="#" className="hover:text-[#8CD6B3] transition"><FaTwitter /></a>
+            <a href="#" className="hover:text-[#8CD6B3] transition"><FaInstagram /></a>
+            <a href="#" className="hover:text-[#8CD6B3] transition"><FaYoutube /></a>
           </div>
         </div>
       </div>
-      <div className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-md transition-all duration-300">
+      
+      <div className="sticky top-0 z-50 bg-white dark:bg-[#020d14] border-b-2 border-gray-800 shadow-md transition-all duration-300">
         <div className="navbar max-w-[1500px] mx-auto py-3 md:py-4">
-          {/* Navbar Start: Logo & Mobile Menu */}
           <div className="navbar-start">
-            {/* Mobile Dropdown */}
             <div className="dropdown">
               <label
                 tabIndex={0}
                 className="btn btn-ghost lg:hidden text-[#03131E] dark:text-white pl-0"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h8m-8 6h16"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
                 </svg>
               </label>
               <ul
@@ -186,23 +163,19 @@ const Navbar = () => {
               </ul>
             </div>
 
-            {/* Logo Design */}
             <Link to="/" className="flex items-center gap-2 group">
-              {/* <GiBallOfWool className="text-3xl md:text-4xl text-[#8CD6B3]" /> */}
-              <span className="text-xl md:text-2xl font-bold text-[#03131E] dark:text-white transition-colors">
-                <p className="font-black text-white">TexTrack</p>
+              <span className="text-xl md:text-2xl font-bold transition-colors">
+                {/* ফিক্স ২: টেক্সট কালার ঠিক করা হয়েছে যাতে লাইট মোডে দেখা যায় */}
+                <p className="font-black text-[#03131E] dark:text-white">TexTrack</p>
               </span>
             </Link>
           </div>
 
-          {/* Navbar Center: Desktop Menu */}
           <div className="navbar-center hidden lg:flex">
             <ul className="menu menu-horizontal px-1 gap-6">{navOptions}</ul>
           </div>
 
-          {/* Navbar End: Theme Toggle + User/Login */}
           <div className="navbar-end gap-3 md:gap-4">
-            {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
               className="btn btn-ghost btn-circle btn-sm text-[#03131E] dark:text-yellow-400 transition-transform hover:rotate-180"
@@ -210,10 +183,8 @@ const Navbar = () => {
               {theme === "light" ? <FaMoon size={18} /> : <FaSun size={20} />}
             </button>
 
-            {/* User Logic */}
             {user ? (
               <div className="relative">
-                {/* User Avatar Image */}
                 <div
                   className="avatar cursor-pointer online"
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -229,16 +200,12 @@ const Navbar = () => {
                   </div>
                 </div>
 
-                {/* Custom Profile Modal / Dropdown */}
                 {isProfileOpen && (
                   <div className="absolute right-0 mt-4 w-72 bg-white dark:bg-[#0E2A3B] rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden transform transition-all duration-300 z-50 origin-top-right">
-                    {/* Modal Header */}
                     <div className="bg-[#03131E] p-5 text-center relative">
                       <div className="w-16 h-16 mx-auto rounded-full border-4 border-[#8CD6B3] overflow-hidden mb-3 shadow-md">
                         <img
-                          src={
-                            user.photoURL || "https://via.placeholder.com/150"
-                          }
+                          src={user.photoURL || "https://via.placeholder.com/150"}
                           alt="Profile"
                           className="w-full h-full object-cover"
                         />
@@ -251,7 +218,6 @@ const Navbar = () => {
                       </p>
                     </div>
 
-                    {/* Modal Body */}
                     <div className="p-2">
                       <button
                         onClick={handleLogOut}
@@ -264,7 +230,6 @@ const Navbar = () => {
                 )}
               </div>
             ) : (
-              // Login/Register Buttons
               <div className="flex items-center gap-3">
                 <Link
                   to="/login"

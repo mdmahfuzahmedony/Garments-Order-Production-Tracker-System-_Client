@@ -12,8 +12,6 @@ import {
 
 import app from '../Firebase/Firebase'; 
 
-// ২. ভুল লাইনটি মুছে ফেলা হয়েছে: import { AuthContext } from './A';
-
 // ৩. Context তৈরি এবং Export করা হচ্ছে
 export const AuthContext = createContext(null);
 
