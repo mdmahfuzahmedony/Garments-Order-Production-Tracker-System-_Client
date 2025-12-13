@@ -12,9 +12,6 @@ const Add_Product = () => {
   const onSubmit = async (data) => {
     setLoading(true);
 
-    // এখানে ImgBB বা কোনো আপলোডের ঝামেলা নেই।
-    // ইউজার যে লিংক দেবে, সরাসরি সেটাই ডাটাবেসে যাবে।
-
     const productData = {
       name: data.name,
       description: data.description,
@@ -22,7 +19,7 @@ const Add_Product = () => {
       price: parseFloat(data.price),
       availableQuantity: parseInt(data.quantity),
       moq: parseInt(data.moq),
-      image: data.photoUrl, // সরাসরি লিংক
+      image: data.photoUrl,
       videoLink: data.videoLink,
       paymentOption: data.paymentOption,
       showOnHome: data.showOnHome,
@@ -31,7 +28,6 @@ const Add_Product = () => {
       managerName: user?.displayName,
     };
 
-    // ডাটাবেসে সেভ করা
     axios
       .post("http://localhost:2001/garments-products", productData)
       .then((dbRes) => {
@@ -54,33 +50,33 @@ const Add_Product = () => {
   };
 
   return (
-    <div className="w-full p-4 lg:p-8 bg-base-200 rounded-lg shadow-md">
-      <h2 className="text-3xl font-bold mb-6 text-center text-primary">
+    <div className="w-full max-w-5xl mx-auto p-4 lg:p-10 bg-base-200 rounded-2xl shadow-xl mt-5">
+      <h2 className="text-3xl text-green-600 font-bold mb-8 text-center text-primary border-b-2 border-primary/20 pb-4">
         Add New Product
       </h2>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Row 1 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Row 1: Name & Category */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-bold">Product Name</span>
+              <span className="label-text font-bold text-base-content">Product Name</span>
             </label>
             <input
               type="text"
               {...register("name", { required: true })}
-              placeholder="Product Title"
-              className="input input-bordered w-full"
+              placeholder="Ex: Men's Cotton Shirt"
+              className="input input-bordered w-full bg-base-100 text-base-content focus:border-primary focus:outline-none shadow-sm"
             />
           </div>
 
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-bold">Category</span>
+              <span className="label-text font-bold text-base-content">Category</span>
             </label>
             <select
               {...register("category")}
-              className="select select-bordered w-full"
+              className="select select-bordered w-full bg-base-100 text-base-content focus:border-primary focus:outline-none shadow-sm"
             >
               <option value="Shirt">Shirt</option>
               <option value="Pant">Pant</option>
@@ -90,39 +86,40 @@ const Add_Product = () => {
           </div>
         </div>
 
-        {/* Row 2 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Row 2: Price, Qty, MOQ */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-bold">Price ($)</span>
+              <span className="label-text font-bold text-base-content">Price ($)</span>
             </label>
             <input
               type="number"
+              step="0.01"
               {...register("price", { required: true })}
-              placeholder="0"
-              className="input input-bordered w-full"
+              placeholder="0.00"
+              className="input input-bordered w-full bg-base-100 text-base-content focus:border-primary focus:outline-none shadow-sm"
             />
           </div>
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-bold">Available Qty</span>
+              <span className="label-text font-bold text-base-content">Available Qty</span>
             </label>
             <input
               type="number"
               {...register("quantity", { required: true })}
               placeholder="0"
-              className="input input-bordered w-full"
+              className="input input-bordered w-full bg-base-100 text-base-content focus:border-primary focus:outline-none shadow-sm"
             />
           </div>
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-bold">MOQ</span>
+              <span className="label-text font-bold text-base-content">MOQ</span>
             </label>
             <input
               type="number"
               {...register("moq", { required: true })}
               placeholder="Min Order Qty"
-              className="input input-bordered w-full"
+              className="input input-bordered w-full bg-base-100 text-base-content focus:border-primary focus:outline-none shadow-sm"
             />
           </div>
         </div>
@@ -130,33 +127,32 @@ const Add_Product = () => {
         {/* Description */}
         <div className="form-control">
           <label className="label">
-            <span className="label-text font-bold">Description</span>
+            <span className="label-text font-bold text-base-content">Description</span>
           </label>
           <textarea
             {...register("description", { required: true })}
-            className="textarea textarea-bordered h-24"
-            placeholder="Product details..."
+            className="textarea textarea-bordered h-32 bg-base-100 text-base-content focus:border-primary focus:outline-none shadow-sm"
+            placeholder="Write detailed product description here..."
           ></textarea>
         </div>
 
         {/* Row 3: Image URL & Video */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* ফাইলের বদলে এখন টেক্সট ইনপুট (Direct Link) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-bold">Product Image URL</span>
+              <span className="label-text font-bold text-base-content">Product Image URL</span>
             </label>
             <input
               type="text"
               {...register("photoUrl", { required: true })}
               placeholder="Paste image link here (http://...)"
-              className="input input-bordered w-full"
+              className="input input-bordered w-full bg-base-100 text-base-content focus:border-primary focus:outline-none shadow-sm"
             />
           </div>
 
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-bold">
+              <span className="label-text font-bold text-base-content">
                 Demo Video Link (Optional)
               </span>
             </label>
@@ -164,40 +160,41 @@ const Add_Product = () => {
               type="text"
               {...register("videoLink")}
               placeholder="https://youtube.com/..."
-              className="input input-bordered w-full"
+              className="input input-bordered w-full bg-base-100 text-base-content focus:border-primary focus:outline-none shadow-sm"
             />
           </div>
         </div>
 
         {/* Row 4: Payment & Checkbox */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-          <div className="form-control">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center bg-base-100 p-4 rounded-xl border border-base-300">
+          <div className="form-control w-full">
             <label className="label">
-              <span className="label-text font-bold">Payment Options</span>
+              <span className="label-text font-bold text-base-content">Payment Options</span>
             </label>
             <select
               {...register("paymentOption")}
-              className="select select-bordered w-full"
+              className="select select-bordered w-full bg-base-200 text-base-content focus:border-primary focus:outline-none"
             >
               <option value="Cash on Delivery">Cash on Delivery</option>
-              <option value="PayFirst">PayFirst</option>
+              <option value="PayFirst">PayFirst (Online)</option>
             </select>
           </div>
-          <div className="form-control">
-            <label className="label cursor-pointer justify-start gap-4 mt-8">
+          
+          <div className="form-control w-full flex justify-center">
+            <label className="label cursor-pointer gap-4 p-4 rounded-lg hover:bg-base-200 transition">
               <input
                 type="checkbox"
                 {...register("showOnHome")}
-                className="checkbox checkbox-primary"
+                className="checkbox checkbox-primary checkbox-lg"
               />
-              <span className="label-text font-bold">Show on Home Page</span>
+              <span className="label-text font-bold text-lg text-base-content">Show on Home Page</span>
             </label>
           </div>
         </div>
 
         <button
           type="submit"
-          className="btn btn-primary w-full mt-6 text-lg"
+          className="btn bg-green-600 w-full mt-8 text-lg font-bold shadow-lg hover:shadow-primary/50 text-white"
           disabled={loading}
         >
           {loading ? (

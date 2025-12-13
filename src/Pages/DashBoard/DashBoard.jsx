@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
-import { NavLink, Outlet } from "react-router";
+import { NavLink, Outlet } from "react-router"; // react-router-dom ব্যবহার করুন
 import { AuthContext } from "../../Provider/AuthProvider";
 import useAdmin from "../../Hooks/useAdmin/useAdmin";
-import useManager from "../../Hooks/useManager/useManager"; // আপনার useManager হুকটি ইম্পোর্ট করুন
+import useManager from "../../Hooks/useManager/useManager";
 import {
   FaHome,
   FaUsers,
@@ -15,6 +15,7 @@ import {
   FaSpinner,
   FaCheckDouble,
   FaSignOutAlt,
+  FaShippingFast,
 } from "react-icons/fa";
 
 const Dashboard = () => {
@@ -22,7 +23,7 @@ const Dashboard = () => {
 
   // ১. হুক ব্যবহার করে রোল বের করা
   const [isAdmin] = useAdmin();
-  const [isManager] = useManager(); // হুকটি এনাবল করা হলো
+  const [isManager] = useManager();
 
   // লগআউট হ্যান্ডলার
   const handleLogOut = () => {
@@ -30,6 +31,13 @@ const Dashboard = () => {
       .then(() => {})
       .catch((error) => console.log(error));
   };
+
+  // --- ACTIVE LINK STYLE (Green Background) ---
+  // এই ফাংশনটি চেক করবে রুট অ্যাক্টিভ কিনা। অ্যাক্টিভ হলে সবুজ ব্যাকগ্রাউন্ড দিবে।
+  const navStyle = ({ isActive }) =>
+    isActive
+      ? "flex items-center gap-3 px-4 py-3 rounded-lg bg-green-500 text-white font-bold shadow-md transition-all duration-300" // Active Style
+      : "flex items-center gap-3 px-4 py-3 rounded-lg text-base-content hover:bg-base-300 hover:text-green-600 transition-all duration-300 font-medium"; // Inactive Style
 
   let menuItems;
 
@@ -39,57 +47,48 @@ const Dashboard = () => {
     menuItems = (
       <>
         <li>
-          <NavLink to="/dashboard/manage-users">
+          <NavLink to="/dashboard/manage-users" className={navStyle}>
             <FaUsers /> Manage Users
           </NavLink>
         </li>
         <li>
-          <NavLink to="/dashboard/all-products">
+          <NavLink to="/dashboard/all-products" className={navStyle}>
             <FaBoxOpen /> All Products
           </NavLink>
         </li>
         <li>
-          <NavLink to="/dashboard/all-orders">
+          <NavLink to="/dashboard/all-orders" className={navStyle}>
             <FaClipboardList /> All Orders
           </NavLink>
         </li>
       </>
     );
   } else if (isManager) {
-    // --- MANAGER MENU (Requirement 10-15) ---
+    // --- MANAGER MENU ---
     menuItems = (
       <>
-        {/* 11. Add Product Page */}
         <li>
-          <NavLink to="/dashboard/add-product">
+          <NavLink to="/dashboard/add-product" className={navStyle}>
             <FaPlusCircle /> Add Product
           </NavLink>
         </li>
-
-        {/* 12. Manage Products */}
         <li>
-          <NavLink to="/dashboard/manage-products">
+          <NavLink to="/dashboard/manage-products" className={navStyle}>
             <FaTasks /> Manage Products
           </NavLink>
         </li>
-
-        {/* 13. Pending Orders */}
         <li>
-          <NavLink to="/dashboard/pending-orders">
+          <NavLink to="/dashboard/pending-orders" className={navStyle}>
             <FaSpinner /> Pending Orders
           </NavLink>
         </li>
-
-        {/* 14. Approved Orders */}
         <li>
-          <NavLink to="/dashboard/approved-orders">
+          <NavLink to="/dashboard/approved-orders" className={navStyle}>
             <FaCheckDouble /> Approved Orders
           </NavLink>
         </li>
-
-        {/* 15. My Profile */}
         <li>
-          <NavLink to="/dashboard/profile">
+          <NavLink to="/dashboard/profile" className={navStyle}>
             <FaUser /> My Profile
           </NavLink>
         </li>
@@ -100,20 +99,17 @@ const Dashboard = () => {
     menuItems = (
       <>
         <li>
-          <NavLink to="/dashboard/user-home">
-            <FaHome /> User Home
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/dashboard/my-orders">
-            <FaShoppingCart /> My Orders
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/dashboard/my-profile">
+          <NavLink to="/dashboard/my-profile" className={navStyle}>
             <FaUser /> My Profile
           </NavLink>
         </li>
+
+        <li>
+          <NavLink to="/dashboard/my-orders" className={navStyle}>
+            <FaShoppingCart /> My Orders
+          </NavLink>
+        </li>
+
       </>
     );
   }
@@ -121,55 +117,74 @@ const Dashboard = () => {
   return (
     <div className="drawer lg:drawer-open">
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-      <div className="drawer-content p-5 bg-base-100">
-        <label
-          htmlFor="my-drawer-2"
-          className="btn btn-primary drawer-button lg:hidden mb-4"
-        >
-          Open Menu
-        </label>
-        <Outlet />
+      
+      {/* --- Main Content Area --- */}
+      <div className="drawer-content flex flex-col items-center justify-start bg-base-100 min-h-screen">
+        {/* Mobile Menu Button */}
+        <div className="w-full lg:hidden p-4 bg-base-200 flex justify-between items-center sticky top-0 z-50 shadow-md">
+            <h2 className="font-bold text-lg">Dashboard</h2>
+            <label htmlFor="my-drawer-2" className="btn btn-square btn-ghost text-green-600">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-6 h-6 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </label>
+        </div>
+        
+        {/* Outlet Content */}
+        <div className="w-full p-5">
+           <Outlet />
+        </div>
       </div>
-      <div className="drawer-side">
+
+      {/* --- Sidebar Area --- */}
+      <div className="drawer-side z-50">
         <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
-        <ul className="menu p-4 w-72 min-h-full bg-base-200 text-base-content flex flex-col justify-between">
+        
+        <ul className="menu p-4 w-72 min-h-full bg-base-200 text-base-content flex flex-col justify-between shadow-2xl border-r border-base-300">
+          
+          {/* Top Section */}
           <div>
-            {/* User Profile Info Heading */}
-            <div className="text-center mb-6 mt-4 mb-2">
-              <h2 className="font-bold text-xl text-primary">
-                {isAdmin
-                  ? "Admin Panel"
-                  : isManager
-                  ? "Manager Panel"
-                  : "User Dashboard"}
-              </h2>
-              {user?.displayName && (
-                <p className="text-sm bg-gray-600 py-2 mt-1">
-                  {user.displayName}
-                </p>
-              )}
+            {/* User Profile Info */}
+            <div className="flex flex-col items-center justify-center mb-8 mt-4">
+               <div className="avatar online mb-3">
+                  <div className="w-20 rounded-full ring ring-green-500 ring-offset-base-100 ring-offset-2">
+                    <img src={user?.photoURL || "https://i.ibb.co/5GzXkwq/user.png"} alt="User" />
+                  </div>
+               </div>
+               
+               <h2 className="font-bold text-xl text-base-content text-center">
+                 {user?.displayName || "User"}
+               </h2>
+               
+               <span className="badge badge-outline mt-2 font-bold uppercase text-xs">
+                 {isAdmin ? "Admin" : isManager ? "Manager" : "Buyer"}
+               </span>
             </div>
 
-            {/* ডায়নামিক মেনু রেন্ডার */}
-            {menuItems}
+            <div className="divider">MENU</div>
+
+            {/* Menu Items */}
+            <div className="space-y-2">
+                {menuItems}
+            </div>
           </div>
 
-          {/* Shared Links & Logout */}
-          <div>
+          {/* Bottom Section (Home & Logout) */}
+          <div className="mt-10">
             <div className="divider"></div>
-            <li>
-              <NavLink to="/">
-                <FaHome /> Home
-              </NavLink>
-            </li>
-            <li>
-              <button
-                onClick={handleLogOut}
-                className="text-red-500 hover:bg-red-100"
-              >
-                <FaSignOutAlt /> Logout
-              </button>
-            </li>
+            <ul className="space-y-2">
+                <li>
+                <NavLink to="/" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base-content hover:bg-base-300 font-medium">
+                    <FaHome /> Go Home
+                </NavLink>
+                </li>
+                <li>
+                <button
+                    onClick={handleLogOut}
+                    className="flex w-full items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-100 hover:text-red-700 font-bold transition-all"
+                >
+                    <FaSignOutAlt /> Logout
+                </button>
+                </li>
+            </ul>
           </div>
         </ul>
       </div>

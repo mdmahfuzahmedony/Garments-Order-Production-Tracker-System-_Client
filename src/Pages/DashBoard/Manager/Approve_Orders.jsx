@@ -1,226 +1,307 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import { FaTruck, FaHistory, FaMapMarkerAlt, FaClipboardList } from 'react-icons/fa';
-import useAuth from '../../../Hooks/useAuth/useAuth';
+import React, { useContext, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { 
+    FaPlusCircle, 
+    FaEye, 
+    FaTimes, 
+    FaMapMarkerAlt, 
+    FaClipboardList 
+} from "react-icons/fa";
+import { AuthContext } from "../../../Provider/AuthProvider";
 
 const Approve_Orders = () => {
-    const { user } = useAuth();
-    const [selectedOrder, setSelectedOrder] = useState(null); // ট্র্যাকিং আপডেটের জন্য
-    const [timelineOrder, setTimelineOrder] = useState(null); // টাইমলাইন দেখার জন্য
+    const { user } = useContext(AuthContext);
+    
+    // মডাল এবং সিলেকশন স্টেট
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [modalType, setModalType] = useState(null); // 'add' or 'view'
+    
+    // ট্র্যাকিং ফর্ম স্টেট
+    const [trackingInput, setTrackingInput] = useState({
+        status: "",
+        location: "",
+        note: ""
+    });
 
-    // ১. ম্যানেজারের অ্যাপ্রুভ করা অর্ডার লোড করা
-    const { data: orders = [], refetch, isLoading } = useQuery({
-        queryKey: ['approved-orders', user?.email],
-        enabled: !!user?.email,
+    const { data: approvedOrders = [], refetch, isLoading } = useQuery({
+        queryKey: ['manager-approved', user?.email],
         queryFn: async () => {
-            const res = await axios.get(`http://localhost:2001/bookings/manager/approved/${user.email}`);
+            const res = await axios.get(`http://localhost:2001/bookings/manager/approved/${user?.email}`);
             return res.data;
         }
     });
 
-    // ২. ট্র্যাকিং আপডেট সাবমিট ফাংশন
-    const handleAddTracking = async (event) => {
-        event.preventDefault();
-        const form = event.target;
-        const status = form.status.value;
-        const location = form.location.value;
-        const note = form.note.value;
+    // নির্দিষ্ট স্ট্যাটাস অপশনগুলো (আপনার রিকোয়ারমেন্ট অনুযায়ী)
+    const statusOptions = [
+        "Cutting Completed",
+        "Sewing Started",
+        "Finishing",
+        "QC Checked",
+        "Packed",
+        "Shipped / Out for Delivery",
+        "Delivered"
+    ];
 
-        const trackingData = { status, location, note };
+    // মডাল ওপেন হ্যান্ডলার
+    const openModal = (order, type) => {
+        setSelectedOrder(order);
+        setModalType(type);
+        if (type === 'add') {
+            setTrackingInput({
+                status: order.status || "",
+                location: "",
+                note: ""
+            });
+        }
+        document.getElementById('tracking_modal').showModal();
+    };
+
+    // ট্র্যাকিং আপডেট সাবমিট হ্যান্ডলার
+    const handleAddTracking = async (e) => {
+        e.preventDefault();
+        
+        const updateData = {
+            status: trackingInput.status,
+            note: trackingInput.note,
+            location: trackingInput.location
+        };
 
         try {
-            const res = await axios.put(`http://localhost:2001/bookings/tracking/${selectedOrder._id}`, trackingData);
+            const res = await axios.put(`http://localhost:2001/bookings/tracking/${selectedOrder._id}`, updateData);
+
             if (res.data.modifiedCount > 0) {
-                refetch();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Tracking Updated',
-                    text: `Status changed to ${status}`,
-                    background: '#1f2937', color: '#fff'
-                });
                 document.getElementById('tracking_modal').close();
+                Swal.fire({
+                    icon: "success",
+                    title: "Tracking Updated",
+                    text: `Status changed to ${trackingInput.status}`,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                refetch();
             }
         } catch (error) {
             console.error(error);
+            Swal.fire("Error", "Failed to update tracking", "error");
         }
     };
 
-    // ডেট ফরম্যাট
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('en-GB', {
-            day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true
-        });
-    };
-
-    if (isLoading) return <div className="text-center mt-20 text-white">Loading...</div>;
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-screen bg-base-200">
+                <span className="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+        );
+    }
 
     return (
-        <div className="w-full p-6 min-h-screen bg-gray-900 text-gray-200">
-            <h2 className="text-3xl font-bold mb-6 text-center text-white">Approved Orders & Tracking</h2>
-            
-            <div className="overflow-x-auto bg-gray-800 shadow-xl rounded-xl border border-gray-700">
-                <table className="table w-full">
-                    {/* Table Head */}
-                    <thead className="bg-gray-700 text-white">
+        <div className="p-4 md:p-10 bg-base-200 min-h-screen">
+            <div className="flex items-center justify-between mb-8">
+                <h2 className="text-3xl font-bold text-base-content">Approved Orders</h2>
+                <div className="badge badge-primary badge-lg">{approvedOrders.length} Items</div>
+            </div>
+
+            {/* --- TABLE VIEW (Requirement Followed) --- */}
+            <div className="overflow-x-auto shadow-xl rounded-xl border border-base-300 bg-base-100">
+                <table className="table bg-base-100 align-middle w-full">
+                    {/* Columns: Order ID | User | Product | Quantity | Approved Date | Actions */}
+                    <thead className="bg-primary text-white text-sm uppercase font-bold">
                         <tr>
-                            <th>Order ID</th>
+                            <th className="py-4 pl-4">Order ID</th>
                             <th>User Info</th>
                             <th>Product</th>
-                            <th>Quantity</th>
+                            <th className="text-center">Quantity</th>
                             <th>Approved Date</th>
-                            <th className="text-center">Current Status</th>
-                            <th className="text-center">Actions</th>
+                            <th className="text-center pr-4">Actions</th>
                         </tr>
                     </thead>
                     
-                    {/* Table Body */}
-                    <tbody>
-                        {orders.length === 0 ? (
-                            <tr>
-                                <td colSpan="7" className="text-center py-8 font-bold text-gray-500">
-                                    No Approved orders found.
+                    <tbody className="divide-y divide-base-300 text-base-content">
+                        {approvedOrders.map((order) => (
+                            <tr key={order._id} className="hover:bg-base-200 transition duration-200">
+                                
+                                {/* 1. Order ID */}
+                                <td className="pl-4 font-mono font-bold text-xs opacity-70">
+                                    #{order._id.slice(-6).toUpperCase()}
                                 </td>
-                            </tr>
-                        ) : (
-                            orders.map((order) => (
-                                <tr key={order._id} className="hover:bg-gray-700 border-b border-gray-600">
-                                    <td className="text-xs font-mono opacity-70">{order._id.slice(-6)}...</td>
-                                    <td>
-                                        <div className="font-bold text-white text-xs">{order.userEmail}</div>
-                                        <div className="text-xs opacity-70">{order.userName}</div>
-                                    </td>
-                                    <td>
-                                        <div className="flex items-center gap-2">
-                                            <div className="avatar">
-                                                <div className="mask mask-squircle w-8 h-8">
-                                                    <img src={order.productImage} alt="Product" />
-                                                </div>
+
+                                {/* 2. User */}
+                                <td>
+                                    <div className="flex flex-col">
+                                        <span className="font-bold">{order.userName}</span>
+                                        <span className="text-xs opacity-60">{order.userEmail}</span>
+                                        <span className="text-xs opacity-60">{order.phone}</span>
+                                    </div>
+                                </td>
+
+                                {/* 3. Product */}
+                                <td>
+                                    <div className="flex items-center gap-3">
+                                        <div className="avatar">
+                                            <div className="mask mask-squircle w-10 h-10 bg-base-300">
+                                                <img src={order.productImage || "https://via.placeholder.com/50"} alt="Prod" />
                                             </div>
-                                            <span className="font-bold text-xs">{order.productName?.slice(0, 15)}...</span>
                                         </div>
-                                    </td>
-                                    <td className="font-bold text-center">{order.quantity}</td>
-                                    <td className="text-xs text-yellow-300">{formatDate(order.approvedAt)}</td>
-                                    
-                                    <td className="text-center">
-                                        <span className={`badge ${order.status === 'Shipped' ? 'badge-primary' : 'badge-success'} badge-sm text-white`}>
-                                            {order.status || 'Approved'}
-                                        </span>
-                                    </td>
-                                    
-                                    <td className="flex justify-center gap-2">
+                                        <div className="font-semibold text-sm">{order.productName}</div>
+                                    </div>
+                                </td>
+
+                                {/* 4. Quantity */}
+                                <td className="text-center font-bold">
+                                    <span className="badge badge-ghost font-mono">{order.quantity}</span>
+                                </td>
+
+                                {/* 5. Approved Date */}
+                                <td className="text-sm">
+                                    {order.approvedAt 
+                                        ? new Date(order.approvedAt).toLocaleDateString() 
+                                        : <span className="text-xs italic opacity-50">Not recorded</span>
+                                    }
+                                    <br/>
+                                    <span className={`badge badge-xs ${order.status === 'Delivered' ? 'badge-success' : 'badge-info text-white'}`}>
+                                        {order.status}
+                                    </span>
+                                </td>
+
+                                {/* 6. Actions */}
+                                <td className="pr-4 text-center">
+                                    <div className="flex items-center justify-center gap-2">
                                         {/* Add Tracking Button */}
                                         <button 
-                                            onClick={() => {
-                                                setSelectedOrder(order);
-                                                document.getElementById('tracking_modal').showModal();
-                                            }} 
-                                            className="btn btn-xs btn-warning text-black"
-                                            title="Add Tracking Info"
+                                            onClick={() => openModal(order, 'add')}
+                                            className="btn btn-sm btn-primary text-white tooltip tooltip-left"
+                                            data-tip="Add Tracking Update"
+                                            disabled={order.status === 'Delivered'}
                                         >
-                                            <FaTruck /> Add Status
+                                            <FaPlusCircle /> Add
                                         </button>
 
-                                        {/* View Timeline Button */}
+                                        {/* View Tracking Button */}
                                         <button 
-                                            onClick={() => {
-                                                setTimelineOrder(order);
-                                                document.getElementById('timeline_modal').showModal();
-                                            }} 
-                                            className="btn btn-xs btn-info text-white"
-                                            title="View Timeline"
+                                            onClick={() => openModal(order, 'view')}
+                                            className="btn btn-sm btn-ghost text-info tooltip tooltip-top"
+                                            data-tip="View Timeline"
                                         >
-                                            <FaHistory /> View
+                                            <FaEye className="text-lg" />
                                         </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
 
-            {/* 1. Modal: Add Tracking Info */}
-            <dialog id="tracking_modal" className="modal">
-                <div className="modal-box bg-gray-800 text-white border border-gray-600">
-                    <h3 className="font-bold text-lg text-yellow-400 mb-4">Update Tracking Status</h3>
+            {/* --- MODAL (For Add Tracking & View Timeline) --- */}
+            <dialog id="tracking_modal" className="modal modal-bottom sm:modal-middle">
+                <div className="modal-box bg-base-100 text-base-content">
+                    <form method="dialog">
+                        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                    </form>
+
                     {selectedOrder && (
-                        <form onSubmit={handleAddTracking}>
-                            {/* Status Select */}
-                            <div className="form-control mb-3">
-                                <label className="label"><span className="label-text text-gray-300">New Status</span></label>
-                                <select name="status" className="select select-bordered w-full bg-gray-700" required defaultValue={selectedOrder.status}>
-                                    <option value="Cutting Completed">Cutting Completed</option>
-                                    <option value="Sewing Started">Sewing Started</option>
-                                    <option value="Finishing">Finishing</option>
-                                    <option value="QC Checked">QC Checked</option>
-                                    <option value="Packed">Packed</option>
-                                    <option value="Shipped">Shipped</option>
-                                    <option value="Out for Delivery">Out for Delivery</option>
-                                </select>
+                        <>
+                            {/* --- Header --- */}
+                            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                                {modalType === 'add' ? <FaPlusCircle className="text-primary"/> : <FaClipboardList className="text-info"/>}
+                                {modalType === 'add' ? "Update Tracking Status" : "Tracking Timeline"}
+                            </h3>
+                            
+                            <div className="text-xs mb-4 opacity-70">
+                                Order ID: #{selectedOrder._id.slice(-6).toUpperCase()} | Product: {selectedOrder.productName}
                             </div>
 
-                            {/* Location Input */}
-                            <div className="form-control mb-3">
-                                <label className="label"><span className="label-text text-gray-300">Location (Factory/Hub)</span></label>
-                                <div className="join w-full">
-                                    <div className="join-item btn btn-square bg-gray-600 border-none"><FaMapMarkerAlt /></div>
-                                    <input type="text" name="location" placeholder="e.g. Dhaka Hub" className="input input-bordered join-item w-full bg-gray-700" required />
-                                </div>
-                            </div>
-
-                            {/* Note Input */}
-                            <div className="form-control mb-4">
-                                <label className="label"><span className="label-text text-gray-300">Note (Optional)</span></label>
-                                <textarea name="note" className="textarea textarea-bordered bg-gray-700" placeholder="Any special note..."></textarea>
-                            </div>
-
-                            <button className="btn btn-warning w-full">Update Status</button>
-                        </form>
-                    )}
-                    <div className="modal-action">
-                        <form method="dialog"><button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button></form>
-                    </div>
-                </div>
-            </dialog>
-
-            {/* 2. Modal: View Timeline */}
-            <dialog id="timeline_modal" className="modal">
-                <div className="modal-box w-11/12 max-w-2xl bg-gray-800 text-white border border-gray-600">
-                    <h3 className="font-bold text-2xl text-center mb-6 text-blue-400">Order Tracking History</h3>
-                    
-                    {timelineOrder && (!timelineOrder.trackingHistory || timelineOrder.trackingHistory.length === 0) ? (
-                        <div className="text-center py-10 text-gray-400">No tracking history available yet.</div>
-                    ) : (
-                        <ul className="steps steps-vertical w-full">
-                            {/* Initial Approved Step */}
-                            <li className="step step-primary" data-content="✓">
-                                <div className="text-left ml-4 mb-4">
-                                    <div className="font-bold text-green-400">Order Approved</div>
-                                    <div className="text-xs text-gray-400">{formatDate(timelineOrder?.approvedAt)}</div>
-                                </div>
-                            </li>
-
-                            {/* Dynamic Steps from History */}
-                            {timelineOrder?.trackingHistory?.map((track, index) => (
-                                <li key={index} className="step step-primary" data-content="●">
-                                    <div className="text-left ml-4 mb-4 p-3 bg-gray-700 rounded-lg w-full">
-                                        <div className="font-bold text-yellow-400 text-lg">{track.status}</div>
-                                        <div className="text-sm flex items-center gap-2"><FaMapMarkerAlt className="text-red-400"/> {track.location}</div>
-                                        {track.note && <div className="text-xs italic text-gray-300 mt-1">Note: "{track.note}"</div>}
-                                        <div className="text-xs text-right mt-2 text-blue-300">{formatDate(track.date)}</div>
+                            {/* --- VIEW 1: ADD TRACKING FORM --- */}
+                            {modalType === 'add' && (
+                                <form onSubmit={handleAddTracking} className="space-y-4">
+                                    {/* Status Dropdown */}
+                                    <div className="form-control">
+                                        <label className="label"><span className="label-text font-bold">Update Status</span></label>
+                                        <select 
+                                            className="select select-bordered w-full"
+                                            value={trackingInput.status}
+                                            onChange={(e) => setTrackingInput({...trackingInput, status: e.target.value})}
+                                            required
+                                        >
+                                            <option disabled value="">Select Status</option>
+                                            {statusOptions.map((status, idx) => (
+                                                <option key={idx} value={status}>{status}</option>
+                                            ))}
+                                        </select>
                                     </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
 
-                    <div className="modal-action">
-                        <form method="dialog"><button className="btn btn-neutral">Close</button></form>
-                    </div>
+                                    {/* Location Input */}
+                                    <div className="form-control">
+                                        <label className="label"><span className="label-text font-bold">Current Location</span></label>
+                                        <div className="relative">
+                                            <FaMapMarkerAlt className="absolute left-3 top-3 text-gray-400"/>
+                                            <input 
+                                                type="text" 
+                                                className="input input-bordered w-full pl-10"
+                                                placeholder="e.g. Cutting Department, Warehouse A"
+                                                value={trackingInput.location}
+                                                onChange={(e) => setTrackingInput({...trackingInput, location: e.target.value})}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Note Input */}
+                                    <div className="form-control">
+                                        <label className="label"><span className="label-text font-bold">Note (Optional)</span></label>
+                                        <textarea 
+                                            className="textarea textarea-bordered"
+                                            placeholder="Any specific details..."
+                                            value={trackingInput.note}
+                                            onChange={(e) => setTrackingInput({...trackingInput, note: e.target.value})}
+                                        ></textarea>
+                                    </div>
+
+                                    <button type="submit" className="btn btn-primary w-full mt-2 text-white">
+                                        Save Update
+                                    </button>
+                                </form>
+                            )}
+
+                            {/* --- VIEW 2: TIMELINE VIEW --- */}
+                            {modalType === 'view' && (
+                                <div className="py-4">
+                                    <ul className="steps steps-vertical w-full">
+                                        {/* Default Step */}
+                                        <li className="step step-primary" data-content="✓">
+                                            <div className="text-left ml-2">
+                                                <div className="font-bold">Order Approved</div>
+                                                <div className="text-xs opacity-60">
+                                                    {new Date(selectedOrder.approvedAt || selectedOrder.updatedAt).toLocaleString()}
+                                                </div>
+                                            </div>
+                                        </li>
+
+                                        {/* History Steps */}
+                                        {selectedOrder.trackingHistory?.map((step, index) => (
+                                            <li key={index} className="step step-primary" data-content="●">
+                                                <div className="text-left ml-2 mb-4 bg-base-200 p-3 rounded-lg w-full">
+                                                    <div className="font-bold text-primary">{step.status}</div>
+                                                    <div className="text-xs font-mono opacity-70 mb-1">
+                                                        {new Date(step.date).toLocaleString()}
+                                                    </div>
+                                                    <div className="text-sm">{step.note}</div>
+                                                    <div className="text-xs mt-1 flex items-center gap-1 text-secondary">
+                                                        <FaMapMarkerAlt /> {step.location}
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    {(!selectedOrder.trackingHistory || selectedOrder.trackingHistory.length === 0) && (
+                                        <p className="text-center text-sm opacity-50 mt-2">No tracking updates added yet.</p>
+                                    )}
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             </dialog>
         </div>

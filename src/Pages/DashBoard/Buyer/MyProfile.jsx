@@ -9,13 +9,13 @@ import {
   FaCalendarAlt,
   FaMapMarkerAlt,
   FaShoppingBag,
+  FaCrown,
 } from "react-icons/fa";
 import Swal from "sweetalert2";
 
 const MyProfile = () => {
   const { user } = useContext(AuthContext);
 
-  // ১. ডাটাবেস থেকে ইউজারের বিস্তারিত তথ্য আনা
   const {
     data: dbUser = {},
     refetch,
@@ -29,11 +29,10 @@ const MyProfile = () => {
     },
   });
 
-  // ২. ম্যানেজার হওয়ার রিকোয়েস্ট হ্যান্ডলার
   const handleRequestManager = () => {
     Swal.fire({
       title: "Become a Seller?",
-      text: "Do you want to apply for a Manager account to sell products?",
+      text: "Do you want to apply for a Manager account?",
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -45,12 +44,8 @@ const MyProfile = () => {
           .patch(`http://localhost:2001/users/request-manager/${dbUser._id}`)
           .then((res) => {
             if (res.data.modifiedCount > 0) {
-              refetch(); // ডাটা রিফ্রেশ যাতে বাটন চেঞ্জ হয়
-              Swal.fire(
-                "Applied!",
-                "Your request has been sent to Admin.",
-                "success"
-              );
+              refetch();
+              Swal.fire("Applied!", "Request sent to Admin.", "success");
             }
           });
       }
@@ -59,156 +54,156 @@ const MyProfile = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-screen bg-base-100">
         <span className="loading loading-spinner loading-lg text-primary"></span>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-4 lg:p-10 bg-base-100 rounded-2xl shadow-xl mt-5">
-      {/* --- Header Section (Gradient Background) --- */}
-      <div className="relative bg-gradient-to-r from-blue-500 to-cyan-500 rounded-t-2xl h-40 mb-16">
-        <div className="absolute -bottom-12 left-10 flex items-end gap-6">
+    <div className="w-full max-w-5xl mx-auto p-4 lg:p-10 bg-base-100 min-h-screen">
+      {/* --- Profile Header Card --- */}
+      <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl bg-base-200">
+        {/* Banner / Gradient Background */}
+        <div className="h-48 bg-gradient-to-r from-primary to-secondary w-full object-cover"></div>
+
+        {/* Profile Info Wrapper */}
+        <div className="px-6 pb-6 relative flex flex-col md:flex-row items-center md:items-end -mt-16 md:-mt-12 gap-6">
+          
+          {/* Avatar Image */}
           <div className="avatar online">
-            <div className="w-32 rounded-full ring ring-white ring-offset-base-100 ring-offset-2 bg-white">
+            <div className="w-32 md:w-40 rounded-full ring-4 ring-base-100 bg-base-100 shadow-lg">
               <img
                 src={user?.photoURL || "https://i.ibb.co/5GzXkwq/user.png"}
                 alt="Profile"
               />
             </div>
           </div>
-          <div className="mb-2">
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white mt-10 lg:mt-0">
+
+          {/* Name & Role */}
+          <div className="text-center md:text-left flex-1">
+            <h1 className="text-3xl md:text-4xl font-bold text-base-content flex items-center gap-2 justify-center md:justify-start">
               {user?.displayName}
+              {dbUser?.role === 'manager' && <FaCrown className="text-yellow-500 text-2xl" title="Manager" />}
             </h1>
-            <p className="text-gray-600 font-medium flex items-center gap-2">
-              <FaEnvelope className="text-blue-500" /> {user?.email}
+            <p className="text-base-content/70 font-medium flex items-center gap-2 justify-center md:justify-start mt-1">
+              <FaEnvelope className="text-primary" /> {user?.email}
             </p>
           </div>
-        </div>
 
-        {/* Role Badge */}
-        <div className="absolute top-4 right-4">
-          <div className="badge badge-lg badge-warning font-bold uppercase shadow-md p-3">
-            {dbUser?.role || "Buyer"}
+          {/* Role Badge */}
+          <div className="mt-4 md:mt-0">
+            <span className="badge badge-primary badge-lg p-4 font-bold uppercase shadow-md tracking-wider">
+              {dbUser?.role || "Buyer"}
+            </span>
           </div>
         </div>
       </div>
 
       {/* --- Details Grid Section --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
         {/* Account Info Card */}
-        <div className="card bg-base-200 shadow-sm border border-base-300">
+        <div className="card bg-base-200 shadow-xl border border-base-300 hover:shadow-2xl transition-all duration-300">
           <div className="card-body">
-            <h3 className="card-title border-b pb-2 mb-2 text-gray-700">
-              <FaIdBadge className="text-primary" /> Account Details
+            <h3 className="card-title text-base-content border-b border-base-content/10 pb-2 mb-2">
+              <FaIdBadge className="text-secondary" /> Account Details
             </h3>
-            <div className="space-y-3 text-sm lg:text-base">
-              <p className="flex justify-between">
-                <span className="font-semibold text-gray-500">User ID:</span>
-                <span className="font-mono">
-                  {dbUser?._id?.slice(0, 10)}...
+            <div className="space-y-4 text-base-content/80">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold">User ID:</span>
+                <span className="font-mono bg-base-300 px-2 py-1 rounded text-xs">
+                  {dbUser?._id}
                 </span>
-              </p>
-              <p className="flex justify-between">
-                <span className="font-semibold text-gray-500">Status:</span>
-                <span className="text-green-600 font-bold bg-green-100 px-2 rounded-md">
-                  Active
-                </span>
-              </p>
-              <p className="flex justify-between">
-                <span className="font-semibold text-gray-500">
-                  Member Since:
-                </span>
-                <span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-semibold">Status:</span>
+                <span className="badge badge-success text-white">Active</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-semibold">Member Since:</span>
+                <span className="font-medium">
                   {user?.metadata?.creationTime
                     ? new Date(user.metadata.creationTime).toLocaleDateString()
                     : "N/A"}
                 </span>
-              </p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Activity / Personal Info Card */}
-        <div className="card bg-base-200 shadow-sm border border-base-300">
+        {/* Personal Info / Activity Card */}
+        <div className="card bg-base-200 shadow-xl border border-base-300 hover:shadow-2xl transition-all duration-300">
           <div className="card-body">
-            <h3 className="card-title border-b pb-2 mb-2 text-gray-700">
-              <FaUser className="text-primary" /> Personal Information
+            <h3 className="card-title text-base-content border-b border-base-content/10 pb-2 mb-2">
+              <FaUser className="text-accent" /> Personal Information
             </h3>
-            <div className="space-y-3 text-sm lg:text-base">
-              <p className="flex items-center gap-3">
-                <FaShoppingBag className="text-orange-500" />
-                <span className="font-semibold text-gray-500">
-                  Total Orders:
-                </span>
-                <span className="font-bold">Check My Orders</span>
-              </p>
-              <p className="flex items-center gap-3">
-                <FaMapMarkerAlt className="text-red-500" />
-                <span className="font-semibold text-gray-500">Address:</span>
-                <span className="italic text-gray-400">Not set yet</span>
-              </p>
-              <p className="flex items-center gap-3">
-                <FaCalendarAlt className="text-purple-500" />
-                <span className="font-semibold text-gray-500">Last Login:</span>
-                <span>
-                  {user?.metadata?.lastSignInTime
-                    ? new Date(
-                        user.metadata.lastSignInTime
-                      ).toLocaleDateString()
-                    : "Today"}
-                </span>
-              </p>
+            <div className="space-y-4 text-base-content/80">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-100 rounded-lg dark:bg-orange-900/30">
+                  <FaShoppingBag className="text-orange-500" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-sm">Total Orders</p>
+                  <p className="text-xs opacity-70">Check My Orders page</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-red-100 rounded-lg dark:bg-red-900/30">
+                  <FaMapMarkerAlt className="text-red-500" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-sm">Address</p>
+                  <p className="text-xs opacity-70 italic">Not set yet</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-100 rounded-lg dark:bg-purple-900/30">
+                  <FaCalendarAlt className="text-purple-500" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-sm">Last Login</p>
+                  <p className="text-xs opacity-70">
+                     {user?.metadata?.lastSignInTime
+                      ? new Date(user.metadata.lastSignInTime).toLocaleDateString()
+                      : "Today"}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* --- Action Section (Apply for Manager) --- */}
-      <div className="mt-10">
-        <div className="divider">Actions</div>
-
-        <div className="flex justify-center">
-          {/* Condition 1: User has NOT requested yet */}
-          {(!dbUser.role ||
-            dbUser.role === "user" ||
-            dbUser.role === "buyer") &&
-            !dbUser.requestedRole && (
-              <div className="w-full max-w-2xl bg-blue-50 border border-blue-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      {/* --- Action Section (Manager Request) --- */}
+      <div className="mt-10 mb-10">
+        {(!dbUser.role || dbUser.role === "user" || dbUser.role === "buyer") && !dbUser.requestedRole && (
+          <div className="card bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-base-300 dark:to-base-200 border border-blue-100 dark:border-base-content/10 shadow-lg">
+             <div className="card-body flex-row items-center justify-between flex-wrap gap-4">
                 <div>
-                  <h4 className="text-lg font-bold text-blue-800">
-                    Interested in Selling?
-                  </h4>
-                  <p className="text-sm text-blue-600">
-                    Upgrade your account to Manager to add and manage products.
-                  </p>
+                   <h2 className="card-title text-primary">Interested in Selling?</h2>
+                   <p className="text-base-content/70 text-sm">Upgrade your account to Manager to start your business.</p>
                 </div>
-                <button
-                  onClick={handleRequestManager}
-                  className="btn btn-primary px-8 shadow-lg hover:scale-105 transition-transform"
+                <button 
+                  onClick={handleRequestManager} 
+                  className="btn btn-primary text-white shadow-lg hover:shadow-primary/50"
                 >
                   Apply for Manager
                 </button>
-              </div>
-            )}
+             </div>
+          </div>
+        )}
 
-          {/* Condition 2: User HAS requested (Pending) */}
-          {dbUser.requestedRole === "manager" && (
-            <div className="w-full max-w-2xl bg-yellow-50 border border-yellow-200 rounded-xl p-6 flex items-center justify-center gap-3">
-              <span className="loading loading-ring loading-md text-warning"></span>
-              <div>
-                <h4 className="text-lg font-bold text-yellow-800">
-                  Application Pending
-                </h4>
-                <p className="text-sm text-yellow-600">
-                  Admin is reviewing your request to become a Manager.
-                </p>
-              </div>
+        {dbUser.requestedRole === "manager" && (
+          <div className="alert alert-warning shadow-lg mt-6">
+            <span className="loading loading-ring loading-md"></span>
+            <div>
+              <h3 className="font-bold">Application Pending</h3>
+              <div className="text-xs">Admin is reviewing your request to become a Manager.</div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

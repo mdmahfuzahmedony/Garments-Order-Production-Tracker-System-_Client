@@ -1,178 +1,267 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import { FaCheck, FaTimes, FaEye } from 'react-icons/fa';
-import useAuth from '../../../Hooks/useAuth/useAuth'; 
+import React, { useContext, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { 
+    FaCheck, 
+    FaTimes, 
+    FaEye, 
+    FaUser, 
+    FaBoxOpen, 
+    FaCalendarAlt,
+    FaMoneyBillWave
+} from "react-icons/fa";
+import { AuthContext } from "../../../Provider/AuthProvider";
 
 const Pending_Orders = () => {
-    const { user } = useAuth(); 
-    const [selectedOrder, setSelectedOrder] = useState(null);
+    const { user } = useContext(AuthContext);
+    const [selectedOrder, setSelectedOrder] = useState(null); // মডালের জন্য স্টেট
 
-    const { data: orders = [], refetch, isLoading } = useQuery({
-        queryKey: ['my-pending-orders', user?.email],
-        enabled: !!user?.email, 
+    const { data: pendingOrders = [], refetch, isLoading } = useQuery({
+        queryKey: ['manager-pending', user?.email],
         queryFn: async () => {
-            const res = await axios.get(`http://localhost:2001/bookings/manager/pending/${user.email}`);
+            const res = await axios.get(`http://localhost:2001/bookings/manager/pending/${user?.email}`);
             return res.data;
         }
     });
 
-    const handleAction = (id, status) => {
+    // --- Approve Handler ---
+    const handleApprove = async (id) => {
+        try {
+            const res = await axios.patch(`http://localhost:2001/bookings/status/${id}`, { status: 'Approved' });
+            if (res.data.modifiedCount > 0) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Approved!',
+                    text: 'Order moved to Approved list.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                refetch();
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire("Error", "Failed to approve order", "error");
+        }
+    };
+
+    // --- Reject Handler (New Feature) ---
+    const handleReject = (id) => {
         Swal.fire({
-            title: `Are you sure you want to ${status}?`,
-            icon: status === 'Approved' ? 'question' : 'warning',
+            title: "Reject Order?",
+            text: "This action cannot be undone!",
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: status === 'Approved' ? '#22c55e' : '#d33',
-            confirmButtonText: `Yes, ${status} it!`
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, Reject it!"
         }).then((result) => {
             if (result.isConfirmed) {
-                axios.patch(`http://localhost:2001/bookings/status/${id}`, { status: status })
+                axios.patch(`http://localhost:2001/bookings/status/${id}`, { status: 'Rejected' })
                     .then(res => {
                         if (res.data.modifiedCount > 0) {
+                            Swal.fire("Rejected!", "Order has been rejected.", "success");
                             refetch();
-                            Swal.fire('Success', `Order has been ${status}.`, 'success');
                         }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        Swal.fire("Error", "Failed to reject order", "error");
                     });
             }
         });
     };
 
-    // ==========================================
-    // FIXED DATE FORMATTER FUNCTION
-    // ==========================================
-    const formatDate = (dateString) => {
-        // যদি তারিখ না থাকে (পুরানো ডাটা)
-        if (!dateString) return 'N/A';
-        
-        const date = new Date(dateString);
-        
-        // যদি তারিখটি ইনভ্যালিড হয়
-        if (isNaN(date.getTime())) return 'Invalid Date';
-
-        // সুন্দর ফরম্যাট: 12 Oct 2023, 10:30 PM
-        return date.toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        });
+    // --- View Modal Handler ---
+    const handleViewOrder = (order) => {
+        setSelectedOrder(order);
+        document.getElementById('view_order_modal').showModal();
     };
 
-    if (isLoading) return <div className="text-center mt-20 text-white">Loading...</div>;
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-screen bg-base-200">
+                <span className="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+        );
+    }
+
+    if (pendingOrders.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center h-[60vh] bg-base-200 text-base-content/60">
+                <FaBoxOpen className="text-6xl mb-4 opacity-50" />
+                <h2 className="text-2xl font-bold">No Pending Approvals</h2>
+                <p>All orders have been processed.</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="w-full p-6 min-h-screen bg-gray-900 text-gray-200">
-            <h2 className="text-3xl font-bold mb-6 text-center text-white">Pending Orders Management</h2>
+        <div className="p-4 md:p-10 bg-base-200 min-h-screen">
+            <div className="flex items-center justify-between mb-8">
+                <h2 className="text-3xl font-bold text-base-content">Pending Orders</h2>
+                <div className="badge badge-warning badge-lg font-bold">{pendingOrders.length} Pending</div>
+            </div>
             
-            <div className="overflow-x-auto bg-gray-800 shadow-xl rounded-xl border border-gray-700">
-                <table className="table w-full">
-                    <thead className="bg-gray-700 text-white">
+            <div className="overflow-x-auto shadow-xl rounded-xl border border-base-300 bg-base-100">
+                <table className="table bg-base-100 align-middle w-full">
+                    {/* --- Table Head (As per Requirement) --- */}
+                    <thead className="bg-primary text-white text-sm uppercase font-bold">
                         <tr>
-                            <th>Order ID</th>
-                            <th>User Info</th>
+                            <th className="py-4 pl-4">Order ID</th>
+                            <th>User</th>
                             <th>Product</th>
-                            <th>Quantity</th>
+                            <th className="text-center">Quantity</th>
                             <th>Order Date</th>
-                            <th className="text-center">Actions</th>
+                            <th className="text-center pr-4">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {orders.length === 0 ? (
-                            <tr>
-                                <td colSpan="6" className="text-center py-8 font-bold text-gray-500">
-                                    No Pending orders found.
+                    
+                    <tbody className="divide-y divide-base-300 text-base-content">
+                        {pendingOrders.map((order) => (
+                            <tr key={order._id} className="hover:bg-base-200 transition duration-200">
+                                
+                                {/* 1. Order ID */}
+                                <td className="pl-4 font-mono font-bold text-xs opacity-70">
+                                    #{order._id.slice(-6).toUpperCase()}
                                 </td>
-                            </tr>
-                        ) : (
-                            orders.map((order) => (
-                                <tr key={order._id} className="hover:bg-gray-700 border-b border-gray-600">
-                                    <td className="text-xs font-mono opacity-70">
-                                        {order._id.slice(-6)}...
-                                    </td>
-                                    <td className="text-sm">
-                                        <div className="font-bold text-white">{order.userEmail}</div>
-                                        <div className="text-xs opacity-70">{order.userName}</div>
-                                    </td>
-                                    <td>
-                                        <div className="flex items-center gap-3">
-                                            <div className="avatar">
-                                                <div className="mask mask-squircle w-10 h-10 bg-white">
-                                                    <img src={order.productImage} alt="Product" />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div className="font-bold text-white">{order.productName}</div>
-                                                <div className="text-xs text-green-400 font-bold">${order.price}</div>
+
+                                {/* 2. User */}
+                                <td>
+                                    <div className="flex flex-col">
+                                        <span className="font-bold">{order.userName}</span>
+                                        <span className="text-xs opacity-60">{order.userEmail}</span>
+                                    </div>
+                                </td>
+
+                                {/* 3. Product */}
+                                <td>
+                                    <div className="flex items-center gap-3">
+                                        <div className="avatar">
+                                            <div className="mask mask-squircle w-10 h-10 bg-base-300">
+                                                <img src={order.productImage || "https://via.placeholder.com/50"} alt="Prod" />
                                             </div>
                                         </div>
-                                    </td>
-                                    <td className="font-bold text-white">{order.quantity} pcs</td>
-                                    
-                                    {/* এখানে সঠিক তারিখ দেখানো হবে */}
-                                    <td className="text-xs font-mono text-yellow-300 font-semibold">
-                                        {formatDate(order.date)}
-                                    </td>
-                                    
-                                    <td className="flex justify-center gap-2">
+                                        <div className="font-semibold text-sm line-clamp-1 max-w-[150px]" title={order.productName}>
+                                            {order.productName}
+                                        </div>
+                                    </div>
+                                </td>
+
+                                {/* 4. Quantity */}
+                                <td className="text-center font-bold">
+                                    <span className="badge badge-ghost font-mono">{order.quantity}</span>
+                                </td>
+
+                                {/* 5. Order Date */}
+                                <td className="text-sm">
+                                    {new Date(order.orderDate).toLocaleDateString()}
+                                    <br/>
+                                    <span className="text-[10px] opacity-60">
+                                        {new Date(order.orderDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                    </span>
+                                </td>
+
+                                {/* 6. Actions (Approve, Reject, View) */}
+                                <td className="pr-4 text-center">
+                                    <div className="flex items-center justify-center gap-2">
+                                        {/* View Button */}
                                         <button 
-                                            onClick={() => {
-                                                setSelectedOrder(order);
-                                                document.getElementById('order_modal').showModal();
-                                            }} 
-                                            className="btn btn-xs btn-info text-white"
+                                            onClick={() => handleViewOrder(order)}
+                                            className="btn btn-sm btn-square btn-ghost text-info tooltip"
+                                            data-tip="View Details"
                                         >
-                                            <FaEye />
+                                            <FaEye className="text-lg" />
                                         </button>
+
+                                        {/* Approve Button */}
                                         <button 
-                                            onClick={() => handleAction(order._id, 'Approved')} 
-                                            className="btn btn-xs btn-success text-white"
+                                            onClick={() => handleApprove(order._id)}
+                                            className="btn btn-sm btn-square btn-ghost text-success tooltip"
+                                            data-tip="Approve"
+                                            // পেমেন্ট বাকি থাকলে অ্যাপ্রুভ বাটন ডিসেবল থাকবে (যদি COD না হয়)
+                                            disabled={order.paymentMethod !== 'Cash on Delivery' && order.paymentStatus === 'Unpaid'}
                                         >
-                                            <FaCheck />
+                                            <FaCheck className="text-lg" />
                                         </button>
+
+                                        {/* Reject Button */}
                                         <button 
-                                            onClick={() => handleAction(order._id, 'Rejected')} 
-                                            className="btn btn-xs btn-error text-white"
+                                            onClick={() => handleReject(order._id)}
+                                            className="btn btn-sm btn-square btn-ghost text-error tooltip"
+                                            data-tip="Reject"
                                         >
-                                            <FaTimes />
+                                            <FaTimes className="text-lg" />
                                         </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
 
-            {/* Modal */}
-            <dialog id="order_modal" className="modal">
-                <div className="modal-box w-11/12 max-w-2xl bg-gray-800 text-white border border-gray-600">
-                    <h3 className="font-bold text-2xl text-center mb-4 text-purple-400">Order Details</h3>
+            {/* --- View Details Modal --- */}
+            <dialog id="view_order_modal" className="modal modal-bottom sm:modal-middle">
+                <div className="modal-box bg-base-100 text-base-content">
+                    <form method="dialog">
+                        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                    </form>
+                    
                     {selectedOrder && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="flex justify-center items-center bg-gray-700 p-4 rounded-lg">
-                                <img src={selectedOrder.productImage} alt="Product" className="rounded-xl shadow-lg w-full max-h-60 object-contain" />
+                        <>
+                            <h3 className="font-bold text-lg mb-4 text-primary border-b border-base-300 pb-2">Order Details</h3>
+                            
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
+                                    <img src={selectedOrder.productImage} alt="" className="w-16 h-16 rounded object-cover"/>
+                                    <div>
+                                        <p className="font-bold">{selectedOrder.productName}</p>
+                                        <p className="text-xs opacity-70">ID: #{selectedOrder._id}</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <p className="font-bold flex items-center gap-1"><FaUser className="text-xs"/> Customer</p>
+                                        <p className="opacity-80">{selectedOrder.userName}</p>
+                                        <p className="opacity-60 text-xs">{selectedOrder.phone}</p>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold flex items-center gap-1"><FaMoneyBillWave className="text-xs"/> Payment</p>
+                                        <p className="opacity-80">{selectedOrder.paymentMethod}</p>
+                                        <span className={`badge badge-xs ${selectedOrder.paymentStatus === 'Paid' ? 'badge-success' : 'badge-warning'}`}>
+                                            {selectedOrder.paymentStatus}
+                                        </span>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <p className="font-bold flex items-center gap-1"><FaCalendarAlt className="text-xs"/> Address</p>
+                                        <p className="opacity-80 p-2 bg-base-200 rounded text-xs mt-1">
+                                            {selectedOrder.address}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-between items-center bg-primary/10 p-3 rounded-lg mt-4">
+                                    <span className="font-bold">Total Price:</span>
+                                    <span className="text-xl font-bold text-primary">${selectedOrder.totalPrice}</span>
+                                </div>
                             </div>
-                            <div className="space-y-3 text-sm">
-                                <p className="border-b border-gray-600 pb-2"><strong>Order ID:</strong> <span className="font-mono text-gray-400">{selectedOrder._id}</span></p>
-                                <p><strong>Customer:</strong> {selectedOrder.userName}</p>
-                                <p><strong>Email:</strong> {selectedOrder.userEmail}</p>
-                                <p><strong>Product:</strong> {selectedOrder.productName}</p>
-                                <p><strong>Quantity:</strong> <span className="text-yellow-400 font-bold">{selectedOrder.quantity}</span></p>
-                                <p><strong>Total Amount:</strong> <span className="text-green-400 font-bold">${selectedOrder.price * selectedOrder.quantity}</span></p>
-                                <p><strong>Address:</strong> {selectedOrder.address || 'Not Provided'}</p>
-                                <p><strong>Phone:</strong> {selectedOrder.phone || 'Not Provided'}</p>
-                                <p><strong>Order Date:</strong> {formatDate(selectedOrder.date)}</p>
+
+                            <div className="modal-action">
+                                <button 
+                                    onClick={() => {
+                                        document.getElementById('view_order_modal').close();
+                                        handleApprove(selectedOrder._id);
+                                    }}
+                                    className="btn btn-success text-white"
+                                    disabled={selectedOrder.paymentMethod !== 'Cash on Delivery' && selectedOrder.paymentStatus === 'Unpaid'}
+                                >
+                                    Approve Now
+                                </button>
                             </div>
-                        </div>
+                        </>
                     )}
-                    <div className="modal-action">
-                        <form method="dialog">
-                            <button className="btn btn-neutral text-white">Close</button>
-                        </form>
-                    </div>
                 </div>
             </dialog>
         </div>

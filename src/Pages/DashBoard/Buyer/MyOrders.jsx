@@ -1,315 +1,205 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AuthContext } from "../../../Provider/AuthProvider";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { FaEye, FaHistory, FaMapMarkerAlt, FaTrashAlt } from "react-icons/fa";
+import { Link } from "react-router"; // Link fixed
+import { AuthContext } from "../../../Provider/AuthProvider";
+import { FaEye, FaTrashAlt, FaBoxOpen } from "react-icons/fa";
 
 const MyOrders = () => {
   const { user } = useContext(AuthContext);
-  const [selectedOrder, setSelectedOrder] = useState(null); // মোডাল দেখার জন্য
 
-  // ১. নিজের অর্ডারগুলো লোড করা
-  const {
-    data: orders = [],
-    refetch,
-    isLoading,
-  } = useQuery({
+  // Fetch Orders
+  const { data: orders = [], refetch, isLoading } = useQuery({
     queryKey: ["my-orders", user?.email],
-    enabled: !!user?.email,
     queryFn: async () => {
-      const res = await axios.get(
-        `http://localhost:2001/bookings?email=${user.email}`
-      );
+      const res = await axios.get(`http://localhost:2001/bookings?email=${user?.email}`);
       return res.data;
     },
   });
 
-  // ২. অর্ডার ক্যান্সেল করার ফাংশন
+  // Payment Handler
+  const handlePayment = async (order) => {
+    try {
+      const res = await axios.post('http://localhost:2001/create-checkout-session', {
+        productName: order.productName,
+        price: order.totalPrice,
+        orderId: order._id,
+        image: order.productImage
+      });
+
+      if (res.data.url) {
+        window.location.replace(res.data.url);
+      }
+    } catch (error) {
+      console.error("Payment Error:", error);
+      Swal.fire("Error", "Could not initiate payment.", "error");
+    }
+  };
+
+  // Cancel Handler
   const handleCancelOrder = (id) => {
     Swal.fire({
-      title: "Cancel Order?",
-      text: "Are you sure you want to cancel this order?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, Cancel it!",
+        title: "Cancel Order?",
+        text: "Are you sure you want to cancel this order?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, Cancel"
     }).then((result) => {
-      if (result.isConfirmed) {
-        axios.delete(`http://localhost:2001/bookings/${id}`).then((res) => {
-          if (res.data.deletedCount > 0) {
-            refetch();
-            Swal.fire(
-              "Cancelled!",
-              "Your order has been cancelled.",
-              "success"
-            );
-          }
-        });
-      }
+        if (result.isConfirmed) {
+            axios.delete(`http://localhost:2001/bookings/${id}`)
+                .then(res => {
+                    if (res.data.deletedCount > 0) {
+                        Swal.fire("Cancelled!", "Your order has been cancelled.", "success");
+                        refetch();
+                    }
+                })
+                .catch(err => Swal.fire("Error", "Failed to cancel order", "error"));
+        }
     });
   };
 
-  // ডেট ফরম্যাট ফাংশন
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
-  if (isLoading)
+  if (isLoading) {
     return (
-      <div className="text-center mt-20 text-primary">
-        Loading your orders...
+      <div className="flex justify-center items-center h-screen bg-base-100">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
       </div>
     );
+  }
+
+  if (orders.length === 0) {
+    return (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] bg-base-100">
+            <FaBoxOpen className="text-6xl text-gray-300 mb-4" />
+            <h3 className="text-2xl font-bold text-base-content">No Orders Yet</h3>
+            <p className="text-base-content/60">You haven't placed any orders yet.</p>
+            <Link to="/garments-products" className="btn btn-primary mt-4">Browse Products</Link>
+        </div>
+    )
+  }
 
   return (
-    <div className="w-full p-6 min-h-screen bg-base-200">
-      <h2 className="text-3xl font-bold mb-6 text-center text-primary">
-        My Orders History
-      </h2>
-
-      <div className="overflow-x-auto bg-base-100 shadow-xl rounded-xl">
-        <table className="table w-full">
-          {/* Head */}
-          <thead className="bg-gray-700 text-white">
-            <tr>
-              <th>Order ID</th>
-              <th>Product Info</th>
-              <th>Qty & Price</th>
-              <th>Status</th>
-              <th>Payment</th>
-              <th className="text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order._id} className="hover">
-                <td className="text-xs font-mono font-bold opacity-70">
-                  {order._id.slice(-6)}...
-                </td>
-
-                {/* Product Info */}
-                <td>
-                  <div className="flex items-center gap-3">
-                    <div className="avatar">
-                      <div className="mask mask-squircle w-12 h-12">
-                        <img
-                          src={order.productImage || order.image}
-                          alt="Product"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-bold">{order.productName}</div>
-                      <div className="text-xs opacity-50">
-                        {formatDate(order.date)}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-
-                {/* Qty & Price */}
-                <td>
-                  <div className="font-bold text-sm">Qty: {order.quantity}</div>
-                  <div className="text-sm text-success font-bold">
-                    ${order.price * order.quantity}
-                  </div>
-                </td>
-
-                {/* Status */}
-                <td>
-                  <span
-                    className={`badge badge-sm text-white font-bold
-                                        ${
-                                          order.status === "Shipped"
-                                            ? "badge-success"
-                                            : order.status === "Approved"
-                                            ? "badge-info"
-                                            : order.status === "Rejected"
-                                            ? "badge-error"
-                                            : "badge-warning"
-                                        }`}
-                  >
-                    {order.status || "Pending"}
-                  </span>
-                </td>
-
-                {/* Payment Mode */}
-                <td>
-                  <div className="badge badge-ghost badge-sm">
-                    {order.paymentMethod || "Cash on Delivery"}
-                  </div>
-                </td>
-
-                {/* Actions */}
-                <td className="flex justify-center gap-2">
-                  {/* View / Track Button */}
-                  <button
-                    onClick={() => {
-                      setSelectedOrder(order);
-                      document.getElementById("details_modal").showModal();
-                    }}
-                    className="btn btn-xs btn-info text-white tooltip"
-                    data-tip="View Details & Track"
-                  >
-                    <FaEye /> View
-                  </button>
-
-                  {/* Cancel Button (Only if Pending) */}
-                  {(!order.status || order.status === "Pending") && (
-                    <button
-                      onClick={() => handleCancelOrder(order._id)}
-                      className="btn btn-xs btn-error text-white tooltip"
-                      data-tip="Cancel Order"
-                    >
-                      <FaTrashAlt />
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {orders.length === 0 && (
-          <div className="text-center py-10 text-gray-500 font-semibold text-lg">
-            You have not placed any orders yet.
-          </div>
-        )}
-      </div>
-
-      {/* Order Details & Tracking Timeline Modal */}
-      <dialog id="details_modal" className="modal">
-        <div className="modal-box w-11/12 max-w-3xl bg-white text-gray-800">
-          <h3 className="font-bold text-2xl text-center mb-6 text-primary">
-            Order Details & Timeline
-          </h3>
-
-          {selectedOrder && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Left Side: Order Info */}
-              <div className="bg-gray-100 p-5 rounded-xl shadow-inner">
-                <h4 className="font-bold text-lg mb-3 border-b pb-2">
-                  Order Information
-                </h4>
-                <img
-                  src={selectedOrder.productImage || selectedOrder.image}
-                  alt=""
-                  className="w-full h-40 object-cover rounded-lg mb-3"
-                />
-                <p>
-                  <strong>Product:</strong> {selectedOrder.productName}
-                </p>
-                <p>
-                  <strong>Order ID:</strong>{" "}
-                  <span className="font-mono bg-gray-200 px-1 rounded">
-                    {selectedOrder._id}
-                  </span>
-                </p>
-                <p>
-                  <strong>Amount:</strong> $
-                  {selectedOrder.price * selectedOrder.quantity}
-                </p>
-                <p>
-                  <strong>Payment:</strong>{" "}
-                  {selectedOrder.paymentMethod || "Cash on Delivery"}
-                </p>
-                <p>
-                  <strong>Placed On:</strong> {formatDate(selectedOrder.date)}
-                </p>
-              </div>
-
-              {/* Right Side: Tracking Timeline */}
-              <div>
-                <h4 className="font-bold text-lg mb-3 border-b pb-2 flex items-center gap-2">
-                  <FaHistory /> Tracking History
-                </h4>
-
-                <ul className="steps steps-vertical w-full">
-                  {/* Initial Step */}
-                  <li
-                    className={`step ${
-                      selectedOrder.status ? "step-primary" : "step-neutral"
-                    }`}
-                    data-content="●"
-                  >
-                    <div className="text-left ml-2">
-                      <div className="font-bold">Order Placed</div>
-                      <div className="text-xs text-gray-500">
-                        {formatDate(selectedOrder.date)}
-                      </div>
-                    </div>
-                  </li>
-
-                  {/* Approval Step */}
-                  {selectedOrder.approvedAt && (
-                    <li className="step step-primary" data-content="✓">
-                      <div className="text-left ml-2">
-                        <div className="font-bold">Order Approved</div>
-                        <div className="text-xs text-gray-500">
-                          {formatDate(selectedOrder.approvedAt)}
-                        </div>
-                      </div>
-                    </li>
-                  )}
-
-                  {/* Dynamic Tracking History */}
-                  {selectedOrder.trackingHistory &&
-                    selectedOrder.trackingHistory.map((track, idx) => (
-                      <li
-                        key={idx}
-                        className="step step-primary"
-                        data-content="✈"
-                      >
-                        <div className="text-left ml-2 bg-blue-50 p-2 rounded-lg w-full mb-2">
-                          <div className="font-bold text-blue-700">
-                            {track.status}
-                          </div>
-                          <div className="text-xs flex items-center gap-1">
-                            <FaMapMarkerAlt /> {track.location}
-                          </div>
-                          <div className="text-xs text-gray-400 mt-1">
-                            {formatDate(track.date)}
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-
-                  {/* Current Status if no history yet */}
-                  {(!selectedOrder.trackingHistory ||
-                    selectedOrder.trackingHistory.length === 0) &&
-                    selectedOrder.status &&
-                    selectedOrder.status !== "Pending" &&
-                    selectedOrder.status !== "Approved" && (
-                      <li className="step step-primary" data-content="★">
-                        <div className="text-left ml-2">
-                          <div className="font-bold text-primary">
-                            {selectedOrder.status}
-                          </div>
-                        </div>
-                      </li>
-                    )}
-                </ul>
-              </div>
-            </div>
-          )}
-
-          <div className="modal-action">
-            <form method="dialog">
-              <button className="btn btn-neutral">Close</button>
-            </form>
-          </div>
+    <div className="p-4 md:p-10 min-h-screen bg-base-100">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center gap-4 mb-8">
+            <h2 className="text-3xl font-bold text-primary">My Orders</h2>
+            <div className="badge badge-outline font-bold">{orders.length} Orders</div>
         </div>
-      </dialog>
+      
+        <div className="overflow-x-auto shadow-xl rounded-xl border border-base-200 bg-base-100">
+            <table className="table bg-base-100 align-middle w-full">
+            
+            {/* --- REQUIREMENT अनुযায়ী কলাম নাম --- */}
+            <thead className="bg-primary text-white text-sm uppercase font-bold">
+                <tr>
+                    <th className="py-4 pl-4">Order ID</th>
+                    <th>Product</th>
+                    <th className="text-center">Quantity</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th className="text-center pr-4">Actions</th>
+                </tr>
+            </thead>
+            
+            <tbody className="divide-y divide-base-200">
+                {orders.map((order) => (
+                <tr key={order._id} className="hover:bg-base-200/50 transition duration-200">
+                    
+                    {/* 1. Order ID */}
+                    <td className="pl-4 font-mono text-xs text-base-content/70">
+                        #{order._id.slice(-6).toUpperCase()}
+                    </td>
+
+                    {/* 2. Product */}
+                    <td>
+                        <div className="flex items-center gap-3">
+                            <div className="avatar">
+                                <div className="mask mask-squircle w-12 h-12 bg-base-300">
+                                    <img src={order.productImage || "https://via.placeholder.com/50"} alt="Product" />
+                                </div>
+                            </div>
+                            <div>
+                                <div className="font-bold text-sm text-base-content">{order.productName}</div>
+                                <div className="text-xs text-primary font-semibold">
+                                    Total: ${order.totalPrice}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    {/* 3. Quantity (আলাদা কলাম) */}
+                    <td className="text-center font-bold text-base-content">
+                        {order.quantity}
+                    </td>
+
+                    {/* 4. Status */}
+                    <td>
+                        <span className={`badge border-0 font-bold text-xs p-2 ${
+                            order.status === 'Pending' ? 'bg-warning/20 text-warning' : 
+                            order.status === 'Approved' ? 'bg-info/20 text-info' :
+                            order.status === 'Shipped' ? 'bg-primary/20 text-primary' :
+                            order.status === 'Delivered' ? 'bg-success/20 text-success' : 
+                            'badge-ghost'
+                        }`}>
+                            {order.status}
+                        </span>
+                    </td>
+
+                    {/* 5. Payment */}
+                    <td>
+                        {order.paymentStatus === "Paid" ? (
+                            <span className="badge badge-success text-white font-bold text-xs">PAID</span>
+                        ) : (
+                            <>
+                                {order.paymentMethod === "Cash on Delivery" ? (
+                                    <span className="badge badge-outline badge-info font-bold text-xs">
+                                        COD
+                                    </span>
+                                ) : (
+                                    <button 
+                                        onClick={() => handlePayment(order)}
+                                        className="btn btn-xs btn-primary text-white"
+                                    >
+                                        Pay Now
+                                    </button>
+                                )}
+                            </>
+                        )}
+                    </td>
+
+                    {/* 6. Actions (View & Cancel) */}
+                    <td className="pr-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                            {/* View Button (Track Order) */}
+                            <Link to={`/dashboard/track-order/${order._id}`}>
+                                <button className="btn btn-sm btn-square btn-ghost text-info tooltip" data-tip="View / Track">
+                                    <FaEye className="text-lg" />
+                                </button>
+                            </Link>
+
+                            {/* Cancel Button (Only if Pending) */}
+                            {order.status === 'Pending' ? (
+                                <button 
+                                    onClick={() => handleCancelOrder(order._id)}
+                                    className="btn btn-sm btn-square btn-ghost text-error tooltip"
+                                    data-tip="Cancel Order"
+                                >
+                                    <FaTrashAlt className="text-lg" />
+                                </button>
+                            ) : (
+                                // স্পেস বজায় রাখার জন্য একটি ডিজেবলড বাটন বা খালি ডিভ
+                                <div className="w-8"></div>
+                            )}
+                        </div>
+                    </td>
+                </tr>
+                ))}
+            </tbody>
+            </table>
+        </div>
+      </div>
     </div>
   );
 };

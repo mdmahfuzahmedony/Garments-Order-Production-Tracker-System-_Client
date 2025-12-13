@@ -1,65 +1,79 @@
 import React from 'react';
-import { Link } from 'react-router'; // Link import fix (react-router -> react-router-dom)
+import { Link } from 'react-router';
 
 const ProductCard = ({ product }) => {
-    // যদি কোনো কারণে product ডাটা না আসে, তাহলে কিছুই রেন্ডার করবে না (সেফটি)
-    if (!product) {
-        return null; 
+    // ১. প্রোডাক্ট না থাকলে বা অবজেক্ট না হলে রিটার্ন নাল
+    if (!product || typeof product !== "object") {
+        return null;
     }
 
-    // ডাটাবেজের ফিল্ডের নাম এবং কার্ডের নামের অমিল ঠিক করা হলো
-    // ডাটাবেসে আছে 'name', 'image', 'quantity'
-    // কার্ডে চাইছেন 'productName', 'images', 'availableQuantity'
-    const { _id, name, productName, image, images, price, category, quantity, availableQuantity } = product;
+    const {
+        _id,
+        name,
+        productName,
+        image,
+        images,
+        price,
+        category,
+        quantity,
+        availableQuantity
+    } = product;
 
-    // ১. নাম ঠিক করা (productName না থাকলে name নিবে, সেটাও না থাকলে 'No Name')
-    const displayName = productName || name || "Unnamed Product";
+    // ২. নাম ফিক্স (Name Fix)
+    const displayTitle = productName || name || "Unnamed Product";
 
-    // ২. ছবি ঠিক করা (images অ্যারে না থাকলে single image স্ট্রিং নিবে)
-    const displayImage = (images && images.length > 0) ? images[0] : (image || 'https://via.placeholder.com/300');
+    // ৩. ইমেজ ফিক্স (Image Fix) - এটাই মেইন সমস্যা ছিল
+    // যদি images অ্যারে হয় তবেই সেটার লেন্থ চেক করবে, নাহলে খালি অ্যারে ধরবে
+    const imageList = Array.isArray(images) ? images : [];
+    
+    // ডিসপ্লে ইমেজ লজিক: অ্যারেতে ইমেজ থাকলে প্রথমটা, না থাকলে সিঙ্গেল image, তাও না থাকলে প্লেসহোল্ডার
+    const displayImage = imageList.length > 0 
+        ? imageList[0] 
+        : (image || "https://via.placeholder.com/300");
 
-    // ৩. স্টক ঠিক করা
-    const currentStock = availableQuantity || quantity || 0;
+    // ৪. স্টক ফিক্স (Stock Fix)
+    const currentStock = availableQuantity ?? quantity ?? 0;
 
     return (
-        <div className="rounded-3xl card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 group overflow-hidden">
+        <div className="rounded-3xl card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 group overflow-hidden flex flex-col h-full">
 
             {/* Image Section */}
             <figure className="h-[250px] w-full overflow-hidden relative">
                 <img
                     src={displayImage}
-                    alt={displayName}
+                    alt={displayTitle}
                     className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
 
                 {/* Category Badge */}
                 <div className="absolute top-3 right-3 badge badge-secondary shadow-md font-semibold">
-                    {category || 'N/A'}
+                    {category || "N/A"}
                 </div>
             </figure>
 
             {/* Body Section */}
-            <div className="card-body">
-                {/* Product Title (Safe Check) */}
-                <h2 className="card-title text-lg font-bold text-gray-800" title={displayName}>
-                    {displayName.length > 25 ? displayName.slice(0, 25) + '...' : displayName}
-                </h2>
+            <div className="card-body flex flex-col justify-between">
+                <div>
+                    {/* Title with Length Check */}
+                    <h2 className="card-title text-lg font-bold text-gray-800" title={displayTitle}>
+                        {displayTitle.length > 25 ? displayTitle.slice(0, 25) + "..." : displayTitle}
+                    </h2>
 
-                {/* Price and Stock Info */}
-                <div className="flex justify-between items-center my-1">
-                    <p className="text-xl font-bold text-primary">
-                        ${price}
-                    </p>
-                    <div className={`badge badge-outline ${currentStock > 0 ? 'badge-success' : 'badge-error'}`}>
-                        {currentStock > 0 ? `Stock: ${currentStock}` : 'Out of Stock'}
+                    {/* Price & Stock */}
+                    <div className="flex justify-between items-center my-2">
+                        <p className="text-xl font-bold text-primary">${price}</p>
+
+                        <div className={`badge badge-outline ${currentStock > 0 ? "badge-success" : "badge-error"}`}>
+                            {currentStock > 0 ? `Stock: ${currentStock}` : "Out of Stock"}
+                        </div>
                     </div>
                 </div>
 
-                {/* View Details Button */}
-                <div className="card-actions justify-end mt-3">
+                {/* View Details */}
+                <div className="card-actions justify-end mt-2">
                     <Link
                         to={`/product-details/${_id}`}
-                        className="btn btn-sm btn-primary rounded-2xl font-bold text-white"
+                        className="btn btn-sm btn-primary rounded-2xl font-bold text-white w-full"
                     >
                         View Details
                     </Link>

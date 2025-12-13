@@ -1,5 +1,5 @@
 import React from "react";
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router"; // react-router-dom হবে
 import MainLayout from "./MainRouter";
 import Home from "../Pages/Home/Home";
 import Register from "../Pages/Register/Register";
@@ -20,17 +20,17 @@ import Manage_Products from "../Pages/DashBoard/Manager/Manage_Products";
 import My_Profile from "../Pages/DashBoard/Manager/My_Profile";
 import Pending_Orders from "../Pages/DashBoard/Manager/Pending_Orders";
 import Update_Product from "../Pages/DashBoard/Manager/Update_Product";
-
+import PaymentPage from "../Component/PaymentPage/PaymentPage";
+import PaymentSuccess from "../Pages/Payment/PaymentSuccess";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    Component: MainLayout,
+    element: <MainLayout />, // Component এর বদলে element ব্যবহার করা স্ট্যান্ডার্ড
     children: [
       {
-        index:true,
-        Component:Home
-
+        index: true,
+        Component: Home,
       },
       {
         path: "/home",
@@ -56,12 +56,22 @@ export const router = createBrowserRouter([
         path: "/book-product/:id",
         Component: BookingPage,
       },
-    
+      {
+        path: "/payment/:id",
+        Component: PaymentPage,
+      },
+
+      // DASHBOARD ROUTES
       {
         path: "/dashboard",
-        element: <Dashboard></Dashboard>,
+        element: <Dashboard />,
         children: [
-          ////admin -part
+          {
+            path: "payment/success/:id",
+            Component: PaymentSuccess,
+          },
+          
+          // --- Admin Part ---
           {
             path: "manage-users",
             Component: ManageUsers,
@@ -75,8 +85,7 @@ export const router = createBrowserRouter([
             Component: AllProducts,
           },
 
-          //buyerpart
-
+          // --- Buyer Part ---
           {
             path: "my-profile",
             Component: MyProfile,
@@ -85,13 +94,13 @@ export const router = createBrowserRouter([
             path: "my-orders",
             Component: MyOrders,
           },
+          // ✅ FIXED HERE (track-order/:orderId)
           {
-            path: "track-order",
+            path: "track-order/:orderId", 
             Component: TrackOrder,
           },
 
-          //--------manager
-
+          // --- Manager Part ---
           {
             path: "add-product",
             Component: Add_Product,

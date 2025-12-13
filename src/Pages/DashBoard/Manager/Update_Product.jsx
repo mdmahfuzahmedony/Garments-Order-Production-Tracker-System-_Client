@@ -1,14 +1,15 @@
 import React from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router"; // useNavigate যোগ করা হয়েছে
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { FaSearch } from "react-icons/fa";
+import { FaArrowLeft } from "react-icons/fa";
 
 const Update_Product = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
-  // ডাটা লোড করা
+  // ১. ডাটা লোড করা
   const {
     data: product = {},
     isLoading,
@@ -24,23 +25,30 @@ const Update_Product = () => {
   });
 
   if (isLoading) {
-    return <div className="text-center mt-20 text-white">Loading...</div>;
+    return (
+      <div className="text-center mt-20">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
   }
 
-  // আগের ডাটাগুলো ডিফল্ট ভ্যালু হিসেবে নেওয়ার জন্য
+  // ২. সেইফ ভ্যালু সেট করা (যাতে এরর না দেয়)
   const {
     name,
     category,
     price,
-    quantity,
+    availableQuantity, // ডাটাবেসে এই নামেই আছে
+    quantity, // ব্যাকওয়ার্ড কম্প্যাটিবিলিটির জন্য
     moq,
     description,
     image,
-    video,
+    videoLink, // ডাটাবেসে এই নামেই আছে
+    video, // ব্যাকওয়ার্ড কম্প্যাটিবিলিটির জন্য
     paymentOption,
     showOnHome,
   } = product;
 
+  // ৩. আপডেট হ্যান্ডলার
   const handleUpdateProduct = async (event) => {
     event.preventDefault();
     const form = event.target;
@@ -48,14 +56,14 @@ const Update_Product = () => {
     const updatedProductInfo = {
       name: form.name.value,
       category: form.category.value,
-      price: form.price.value,
-      quantity: form.quantity.value,
-      moq: form.moq.value,
+      price: parseFloat(form.price.value), // সংখ্যায় কনভার্ট করা ভালো
+      availableQuantity: parseInt(form.quantity.value), // ডাটাবেসে নাম availableQuantity
+      moq: parseInt(form.moq.value),
       description: form.description.value,
       image: form.image.value,
-      video: form.video.value,
+      videoLink: form.videoLink.value, // ডাটাবেসে নাম videoLink
       paymentOption: form.paymentOption.value,
-      showOnHome: form.showOnHome.checked, // চেকবক্সের জন্য checked ভ্যালু নিতে হয়
+      showOnHome: form.showOnHome.checked,
     };
 
     try {
@@ -63,15 +71,17 @@ const Update_Product = () => {
         `http://localhost:2001/garments-products/${id}`,
         updatedProductInfo
       );
+
       if (res.data.modifiedCount > 0) {
         refetch();
         Swal.fire({
           title: "Success!",
           text: "Product Updated Successfully",
           icon: "success",
-          background: "#1f2937", // Dark Alert
-          color: "#fff",
+          confirmButtonText: "Ok",
         });
+        // আপডেটের পর প্রোডাক্ট লিস্ট বা ডিটেইলসে নিয়ে যেতে চাইলে:
+        // navigate('/dashboard/all-products'); 
       }
     } catch (error) {
       console.error(error);
@@ -84,157 +94,129 @@ const Update_Product = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      {/* Top Search Bar (Requested) */}
-      <div className="max-w-6xl mx-auto mb-8 flex justify-between items-center bg-gray-800 p-4 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold text-purple-400">
-          Manage Product Update
-        </h2>
-        <div className="join">
-          <input
-            className="input input-bordered join-item bg-gray-700 text-white border-gray-600"
-            placeholder="Search product to update..."
-          />
-          <button className="btn join-item rounded-r-full bg-purple-600 border-none text-white hover:bg-purple-700">
-            <FaSearch />
-          </button>
-        </div>
+    <div className="min-h-screen bg-base-200 p-4 md:p-8">
+      
+      {/* Back Button & Header */}
+      <div className="max-w-5xl mx-auto mb-6 flex justify-between items-center">
+        <button onClick={() => navigate(-1)} className="btn btn-sm btn-outline">
+            <FaArrowLeft /> Back
+        </button>
+        <h2 className="text-2xl font-bold text-primary">Update Product</h2>
+        <div className="w-16"></div> {/* Spacer for centering */}
       </div>
 
-      <div className="max-w-6xl mx-auto bg-gray-800 p-10 rounded-xl shadow-2xl border border-gray-700">
-        <h2 className="text-4xl font-bold text-center mb-8 text-purple-500">
-          Update Product
-        </h2>
-
+      <div className="max-w-5xl mx-auto bg-base-100 p-8 rounded-xl shadow-xl border border-gray-200">
+        
         <form onSubmit={handleUpdateProduct}>
           {/* Row 1: Name & Category */}
-          <div className="flex flex-col md:flex-row gap-6 mb-6">
+          <div className="flex flex-col md:flex-row gap-6 mb-4">
             <div className="form-control w-full md:w-1/2">
               <label className="label">
-                <span className="label-text text-gray-300 font-semibold">
-                  Product Name
-                </span>
+                <span className="label-text font-bold">Product Name</span>
               </label>
               <input
                 type="text"
                 name="name"
                 defaultValue={name}
-                placeholder="Product Title"
-                className="input input-bordered w-full bg-gray-700 border-gray-600 text-white focus:outline-none focus:border-purple-500"
+                className="input input-bordered w-full"
                 required
               />
             </div>
             <div className="form-control w-full md:w-1/2">
               <label className="label">
-                <span className="label-text text-gray-300 font-semibold">
-                  Category
-                </span>
+                <span className="label-text font-bold">Category</span>
               </label>
               <select
                 name="category"
                 defaultValue={category || "Shirt"}
-                className="select select-bordered w-full bg-gray-700 border-gray-600 text-white"
+                className="select select-bordered w-full"
               >
-                <option>Shirt</option>
-                <option>Pant</option>
-                <option>T-Shirt</option>
-                <option>Jacket</option>
-                <option>Accessories</option>
+                <option value="Shirt">Shirt</option>
+                <option value="Pant">Pant</option>
+                <option value="Jacket">Jacket</option>
+                <option value="Accessories">Accessories</option>
               </select>
             </div>
           </div>
 
           {/* Row 2: Price, Qty, MOQ */}
-          <div className="flex flex-col md:flex-row gap-6 mb-6">
+          <div className="flex flex-col md:flex-row gap-6 mb-4">
             <div className="form-control w-full md:w-1/3">
               <label className="label">
-                <span className="label-text text-gray-300 font-semibold">
-                  Price ($)
-                </span>
+                <span className="label-text font-bold">Price ($)</span>
               </label>
               <input
                 type="number"
                 name="price"
                 defaultValue={price}
-                placeholder="0"
-                className="input input-bordered w-full bg-gray-700 border-gray-600 text-white"
+                className="input input-bordered w-full"
                 required
               />
             </div>
             <div className="form-control w-full md:w-1/3">
               <label className="label">
-                <span className="label-text text-gray-300 font-semibold">
-                  Available Qty
-                </span>
+                <span className="label-text font-bold">Available Qty</span>
               </label>
               <input
                 type="number"
                 name="quantity"
-                defaultValue={quantity}
-                placeholder="0"
-                className="input input-bordered w-full bg-gray-700 border-gray-600 text-white"
+                // availableQuantity না থাকলে quantity (আগের ডাটা) নিবে
+                defaultValue={availableQuantity || quantity}
+                className="input input-bordered w-full"
+                required
               />
             </div>
             <div className="form-control w-full md:w-1/3">
               <label className="label">
-                <span className="label-text text-gray-300 font-semibold">
-                  MOQ (Min Order Qty)
-                </span>
+                <span className="label-text font-bold">MOQ</span>
               </label>
               <input
                 type="number"
                 name="moq"
                 defaultValue={moq}
-                placeholder="Min Order Qty"
-                className="input input-bordered w-full bg-gray-700 border-gray-600 text-white"
+                className="input input-bordered w-full"
+                required
               />
             </div>
           </div>
 
           {/* Row 3: Description */}
-          <div className="form-control w-full mb-6">
+          <div className="form-control w-full mb-4">
             <label className="label">
-              <span className="label-text text-gray-300 font-semibold">
-                Description
-              </span>
+              <span className="label-text font-bold">Description</span>
             </label>
             <textarea
               name="description"
               defaultValue={description}
-              className="textarea textarea-bordered h-24 bg-gray-700 border-gray-600 text-white"
-              placeholder="Product details..."
+              className="textarea textarea-bordered h-24"
+              required
             ></textarea>
           </div>
 
           {/* Row 4: Image URL & Video Link */}
-          <div className="flex flex-col md:flex-row gap-6 mb-6">
+          <div className="flex flex-col md:flex-row gap-6 mb-4">
             <div className="form-control w-full md:w-1/2">
               <label className="label">
-                <span className="label-text text-gray-300 font-semibold">
-                  Product Image URL
-                </span>
+                <span className="label-text font-bold">Product Image URL</span>
               </label>
               <input
                 type="text"
                 name="image"
                 defaultValue={image}
-                placeholder="Paste image link here (http://...)"
-                className="input input-bordered w-full bg-gray-700 border-gray-600 text-white"
+                className="input input-bordered w-full"
                 required
               />
             </div>
             <div className="form-control w-full md:w-1/2">
               <label className="label">
-                <span className="label-text text-gray-300 font-semibold">
-                  Demo Video Link (Optional)
-                </span>
+                <span className="label-text font-bold">Demo Video Link</span>
               </label>
               <input
                 type="text"
-                name="video"
-                defaultValue={video}
-                placeholder="https://youtube.com/..."
-                className="input input-bordered w-full bg-gray-700 border-gray-600 text-white"
+                name="videoLink"
+                // videoLink না থাকলে video (আগের ডাটা) নিবে
+                defaultValue={videoLink || video}
+                className="input input-bordered w-full"
               />
             </div>
           </div>
@@ -243,21 +225,19 @@ const Update_Product = () => {
           <div className="flex flex-col md:flex-row gap-6 mb-8 items-center">
             <div className="form-control w-full md:w-1/2">
               <label className="label">
-                <span className="label-text text-gray-300 font-semibold">
-                  Payment Options
-                </span>
+                <span className="label-text font-bold">Payment Options</span>
               </label>
               <select
                 name="paymentOption"
-                defaultValue={paymentOption}
-                className="select select-bordered w-full bg-gray-700 border-gray-600 text-white"
+                defaultValue={paymentOption || "Cash on Delivery"}
+                className="select select-bordered w-full"
               >
+                {/* Add_Product এর সাথে মিলিয়ে অপশন রাখা হলো */}
                 <option value="Cash on Delivery">Cash on Delivery</option>
-                <option value="Bkash">Bkash</option>
-                <option value="Nagad">Nagad</option>
-                <option value="Card">Card</option>
+                <option value="PayFirst">PayFirst</option>
               </select>
             </div>
+            
             <div className="form-control w-full md:w-1/2 mt-8">
               <label className="cursor-pointer label justify-start gap-4">
                 <input
@@ -266,7 +246,7 @@ const Update_Product = () => {
                   defaultChecked={showOnHome}
                   className="checkbox checkbox-primary"
                 />
-                <span className="label-text text-gray-300 font-semibold text-lg">
+                <span className="label-text font-bold text-lg">
                   Show on Home Page
                 </span>
               </label>
@@ -275,7 +255,7 @@ const Update_Product = () => {
 
           {/* Submit Button */}
           <div className="form-control">
-            <button className="btn bg-purple-600 hover:bg-purple-700 text-white border-none w-full font-bold text-xl uppercase tracking-wider">
+            <button className="btn btn-primary w-full text-lg font-bold">
               Update Product
             </button>
           </div>

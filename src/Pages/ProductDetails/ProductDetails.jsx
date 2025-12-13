@@ -1,21 +1,17 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams, Link } from "react-router";
+import { useParams, Link } from "react-router"; // react-router-dom হতে পারে, চেক করে নিয়েন
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { AuthContext } from "../../Provider/AuthProvider"; // তোমার AuthContext পাথ ঠিক করো
-import ProductCard from "../../Component/SingleCard/SingleCard"; // আগের তৈরি করা কার্ড ইম্পোর্ট করো
+// import { AuthContext } from "../../Provider/AuthProvider"; 
+import ProductCard from "../../Component/SingleCard/SingleCard";
 
 const ProductDetails = () => {
   const { id } = useParams();
-  // const { user } = useContext(AuthContext); // ইউজার ইনফো লাগবে রোলের জন্য
-
-  // TODO: তোমার যদি useAdmin বা useManager হুক থাকে, সেগুলো এখানে কল করবে
-  // const [isAdmin] = useAdmin();
-  // const [isManager] = useManager();
-  // টেস্টিংয়ের জন্য আমি ধরে নিচ্ছি ইউজার বায়ার
+  
+  // Auth logic (আপনার প্রয়োজন অনুযায়ী আনকমেন্ট করুন)
   const isAdmin = false;
   const isManager = false;
-  const user = { email: "test@user.com" }; // ডামি ইউজার (লগইন থাকলে এটা Context থেকে আসবে)
+  const user = { email: "test@user.com" };
 
   const [activeImage, setActiveImage] = useState("");
 
@@ -27,9 +23,7 @@ const ProductDetails = () => {
   } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
-      const res = await axios.get(
-        `http://localhost:2001/garments-products/${id}`
-      );
+      const res = await axios.get(`http://localhost:2001/garments-products/${id}`);
       return res.data;
     },
   });
@@ -45,8 +39,15 @@ const ProductDetails = () => {
 
   // 3. Set Default Image when product loads
   useEffect(() => {
-    if (product?.images?.length > 0) {
-      setActiveImage(product.images[0]);
+    if (product) {
+      // যদি images array থাকে তবে প্রথমটা, নাহলে single image string, নাহলে placeholder
+      if (Array.isArray(product.images) && product.images.length > 0) {
+        setActiveImage(product.images[0]);
+      } else if (product.image) {
+        setActiveImage(product.image);
+      } else {
+        setActiveImage("https://via.placeholder.com/400");
+      }
     }
   }, [product]);
 
@@ -56,38 +57,54 @@ const ProductDetails = () => {
         <span className="loading loading-spinner loading-lg"></span>
       </div>
     );
-  if (error)
+    
+  if (error || !product)
     return (
       <div className="text-center mt-20 text-red-500">
         Error loading product!
       </div>
     );
 
-  // 4. Filter Related Products (Same Category, excluding current product)
+  // --- DATA NORMALIZATION (Safe Data Handling) ---
+  // এখানে আমরা চেক করছি ডেটা কোন নামে আছে, যাতে এরর না খায়
+  const safeName = product.productName || product.name || "Unnamed Product";
+  const safePrice = product.price || 0;
+  const safeDescription = product.description || "No description available.";
+  const safeCategory = product.category || "General";
+  const safeStock = product.availableQuantity ?? product.quantity ?? 0;
+  const safeMOQ = product.minOrderQuantity || product.moq || 1;
+  const safePayment = product.paymentMethod || product.paymentOption || "Cash on Delivery";
+  const safeVideo = product.demoVideo || product.videoLink || product.video || "";
+  
+  // Image List Logic: যদি images array থাকে তো ভালো, না থাকলে single image কে array বানাবো থাম্বনেইলের জন্য
+  const imageList = Array.isArray(product.images) && product.images.length > 0 
+    ? product.images 
+    : (product.image ? [product.image] : []);
+
+  // 4. Filter Related Products
   const relatedProducts = allProducts
     .filter(
-      (item) => item.category === product.category && item._id !== product._id
+      (item) => item.category === safeCategory && item._id !== product._id
     )
-    .slice(0, 3); // মাত্র ৩টা দেখাবো
+    .slice(0, 3);
 
-  // Button Logic
-  const isButtonDisabled =
-    isAdmin || isManager || product.availableQuantity < 1;
+  const isButtonDisabled = isAdmin || isManager || safeStock < 1;
 
   return (
     <div className="container mx-auto px-4 py-10">
       {/* --- Top Section: Details --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 bg-base-100 p-6 rounded-xl shadow-sm border border-gray-100">
+        
         {/* --- Left Side: Image Gallery --- */}
         <div className="flex flex-col gap-4">
           {/* Main Image */}
           <div className="h-[400px] w-full overflow-hidden rounded-lg border bg-gray-50 relative group">
             <img
               src={activeImage || "https://via.placeholder.com/400"}
-              alt={product.productName}
+              alt={safeName}
               className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
             />
-            {product.availableQuantity === 0 && (
+            {safeStock === 0 && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <span className="text-white font-bold text-2xl rotate-[-15deg] border-4 p-4 rounded">
                   OUT OF STOCK
@@ -96,10 +113,10 @@ const ProductDetails = () => {
             )}
           </div>
 
-          {/* Thumbnails */}
-          {product.images?.length > 1 && (
+          {/* Thumbnails (শুধুমাত্র যদি ১টার বেশি ইমেজ থাকে) */}
+          {imageList.length > 1 && (
             <div className="flex gap-4 overflow-x-auto pb-2">
-              {product.images.map((img, idx) => (
+              {imageList.map((img, idx) => (
                 <img
                   key={idx}
                   src={img}
@@ -120,22 +137,22 @@ const ProductDetails = () => {
         <div className="space-y-6">
           <div>
             <div className="badge badge-secondary badge-outline mb-2">
-              {product.category}
+              {safeCategory}
             </div>
             <h1 className="text-3xl font-bold text-gray-800">
-              {product.productName}
+              {safeName}
             </h1>
           </div>
 
           <p className="text-gray-600 leading-relaxed text-justify">
-            {product.description}
+            {safeDescription}
           </p>
 
           <div className="flex items-center gap-6 p-4 bg-base-200 rounded-lg">
             <div>
               <p className="text-sm text-gray-500">Price</p>
               <p className="text-3xl font-bold text-primary">
-                ${product.price}
+                ${safePrice}
               </p>
             </div>
             <div className="divider divider-horizontal"></div>
@@ -143,11 +160,11 @@ const ProductDetails = () => {
               <p className="text-sm text-gray-500">Stock Status</p>
               <p
                 className={`font-semibold ${
-                  product.availableQuantity > 0 ? "text-success" : "text-error"
+                  safeStock > 0 ? "text-success" : "text-error"
                 }`}
               >
-                {product.availableQuantity > 0
-                  ? `${product.availableQuantity} Available`
+                {safeStock > 0
+                  ? `${safeStock} Available`
                   : "Out of Stock"}
               </p>
             </div>
@@ -161,7 +178,7 @@ const ProductDetails = () => {
                   <td className="font-semibold text-gray-500">
                     Minimum Order:
                   </td>
-                  <td>{product.minOrderQuantity} Units</td>
+                  <td>{safeMOQ} Units</td>
                 </tr>
                 <tr>
                   <td className="font-semibold text-gray-500">
@@ -169,34 +186,24 @@ const ProductDetails = () => {
                   </td>
                   <td>
                     <span className="badge badge-ghost">
-                      {product.paymentMethod}
+                      {safePayment}
                     </span>
                   </td>
                 </tr>
-                {product.demoVideo && (
+                {safeVideo && (
                   <tr>
                     <td className="font-semibold text-gray-500">Demo Video:</td>
                     <td>
                       <a
-                        href={product.demoVideo}
+                        href={safeVideo}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="link link-primary flex items-center gap-1"
                       >
                         Watch Video
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-4 h-4"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
-                          />
+                        {/* SVG Icon */}
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                         </svg>
                       </a>
                     </td>
@@ -245,6 +252,7 @@ const ProductDetails = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {relatedProducts.map((item) => (
+              // Ensure ProductCard handles data safely as well
               <ProductCard key={item._id} product={item} />
             ))}
           </div>
