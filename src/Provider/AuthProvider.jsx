@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from 'react'; // ১. এখানে createContext যোগ করা হয়েছে
+import React, { createContext, useEffect, useState } from 'react';
 import { 
     GoogleAuthProvider, 
     createUserWithEmailAndPassword, 
@@ -9,10 +9,9 @@ import {
     signOut, 
     updateProfile 
 } from 'firebase/auth';
-
+import axios from 'axios'; // ১. Axios ইম্পোর্ট করতে হবে
 import app from '../Firebase/Firebase'; 
 
-// ৩. Context তৈরি এবং Export করা হচ্ছে
 export const AuthContext = createContext(null);
 
 const auth = getAuth(app);
@@ -54,13 +53,44 @@ const AuthProvider = ({ children }) => {
         });
     };
 
-    // 6. Observer
+    // 6. Observer (User state change handle + JWT Token Logic)
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, currentUser => {
             setUser(currentUser);
-            // console.log('Current User:', currentUser);
-            setLoading(false);
+            
+            // JWT Token Management
+            if (currentUser) {
+                // ইউজার লগইন থাকলে টোকেন জেনারেট এবং কুকি সেট করা
+                const userInfo = { email: currentUser.email };
+                
+                axios.post('http://localhost:2001/jwt', userInfo, { withCredentials: true })
+                    .then(res => {
+                        if (res.data.success) {
+                            // console.log('Token set successfully in cookie');
+                            setLoading(false); // টোকেন সেট হওয়ার পর লোডিং বন্ধ
+                        }
+                    })
+                    .catch(error => {
+                        console.error('JWT Error:', error);
+                        setLoading(false);
+                    });
+
+            } else {
+                // ইউজার লগআউট হলে কুকি মুছে ফেলা
+                axios.post('http://localhost:2001/logout', {}, { withCredentials: true })
+                    .then(res => {
+                        if (res.data.success) {
+                            // console.log('Token cleared');
+                            setLoading(false);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Logout Error:', error);
+                        setLoading(false);
+                    });
+            }
         });
+
         return () => {
             return unsubscribe();
         }
