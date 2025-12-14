@@ -1,11 +1,11 @@
 import axios from "axios";
 import { useEffect } from "react";
-import useAuth from "./useAuth"; // আপনার Auth Context হুক
+import useAuth from "../useAuth/useAuth"; 
 import { useNavigate } from "react-router";
 
 const axiosSecure = axios.create({
-    baseURL: 'http://localhost:2001', // আপনার ব্যাকএন্ড URL
-    withCredentials: true // এটি সবচেয়ে গুরুত্বপূর্ণ, কুকি পাঠানোর জন্য
+    baseURL: 'http://localhost:2001', // আপনার সার্ভার পোর্ট চেক করুন
+    withCredentials: true // এটি থাকতেই হবে, নাহলে কুকি যাবে না
 });
 
 const useAxiosSecure = () => {
@@ -16,14 +16,14 @@ const useAxiosSecure = () => {
         axiosSecure.interceptors.response.use(res => {
             return res;
         }, error => {
-            // যদি টোকেন না থাকে বা মেয়াদ শেষ হয় (401/403)
+            console.log('error tracked in the interceptor', error.response);
             if (error.response.status === 401 || error.response.status === 403) {
-                console.log('Logout user form interceptor');
+                console.log('logout the user');
                 logOut()
                     .then(() => {
                         navigate('/login');
                     })
-                    .catch(err => console.log(err));
+                    .catch(error => console.log(error));
             }
             return Promise.reject(error);
         });

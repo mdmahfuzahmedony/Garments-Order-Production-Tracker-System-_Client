@@ -1,31 +1,22 @@
-import {
-    useQuery
-} from "@tanstack/react-query";
-import {
-    useContext
-} from "react";
-import axios from "axios";
-import {
-    AuthContext
-} from "../../Provider/AuthProvider";
+import { useQuery } from "@tanstack/react-query";
+import useAuth from "../useAuth/useAuth";
+import useAxiosSecure from "../useAxiosSecure/useAxiosSecure";
 
 const useAdmin = () => {
-    const {
-        user,
-        loading
-    } = useContext(AuthContext);
+    const { user, loading } = useAuth();
+    const axiosSecure = useAxiosSecure(); // আমাদের তৈরি করা Secure Axios
 
-    const {
-        data: isAdmin,
-        isLoading: isAdminLoading
-    } = useQuery({
-        queryKey: [user ?.email, 'isAdmin'],
-        enabled: !loading && !!user ?.email, // ইউজার থাকলেই কল হবে
+    const { data: isAdmin, isPending: isAdminLoading } = useQuery({
+        queryKey: [user?.email, 'isAdmin'],
+        enabled: !loading && !!user?.email, // ইউজার লোড না হওয়া পর্যন্ত অপেক্ষা করবে
         queryFn: async () => {
-            const res = await axios.get(`http://localhost:2001/users/admin/${user.email}`);
-            return res.data.admin; // সার্ভার রিটার্ন করবে { admin: true/false }
+            // আপনার ব্যাকএন্ড রাউট অনুযায়ী
+            const res = await axiosSecure.get(`/users/admin/${user.email}`);
+            return res.data.admin;
         }
     });
+
     return [isAdmin, isAdminLoading];
 };
+
 export default useAdmin;

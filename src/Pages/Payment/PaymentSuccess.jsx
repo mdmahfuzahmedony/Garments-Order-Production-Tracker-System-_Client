@@ -1,30 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router"; // react-router-dom ব্যবহার করা ভালো
 import axios from "axios";
 import Swal from "sweetalert2";
 
 const PaymentSuccess = () => {
-  const { id } = useParams(); // URL থেকে Order ID
+  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const [updated, setUpdated] = useState(false); // যাতে ডাবল কল না হয়
+  const [updated, setUpdated] = useState(false);
 
   useEffect(() => {
-    // ১. URL থেকে Transaction ID বের করা
     const queryParams = new URLSearchParams(location.search);
     const transactionId = queryParams.get("transactionId");
 
     if (id && transactionId && !updated) {
-      // ২. ব্যাকএন্ডে জানিয়ে দেওয়া যে পেমেন্ট হয়েছে
+      
+      // 🔥 FIX: { withCredentials: true } যোগ করা হয়েছে 🔥
       axios
-        .patch(`http://localhost:2001/bookings/payment-success/${id}`, {
-          transactionId,
-        })
+        .patch(`http://localhost:2001/bookings/payment-success/${id}`, 
+          { transactionId },
+          { withCredentials: true } // এটি ছাড়া পেমেন্ট স্ট্যাটাস আপডেট হবে না
+        )
         .then((res) => {
           if (res.data.modifiedCount > 0) {
             setUpdated(true);
 
-            // ৩. সফল হওয়ার মেসেজ
             Swal.fire({
               title: "Payment Successful!",
               text: `Order Confirmed! Trans ID: ${transactionId}`,
@@ -49,7 +49,7 @@ const PaymentSuccess = () => {
       </h2>
       <span className="loading loading-spinner loading-lg text-success"></span>
       <p className="mt-2 text-gray-500">
-        Please wait, updating your order status.
+        Please wait, do not close this page.
       </p>
     </div>
   );

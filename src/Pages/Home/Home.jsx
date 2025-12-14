@@ -9,6 +9,7 @@ import CoreFeatures from "../../Component/CoreFeatures/CoreFeatures";
 import WhyChooseUs from "../../Component/WhyChooseUs/WhyChooseUs";
 import WorkProcess from "../../Component/WorkProcess/WorkProcess";
 import Testimonials from "../../Component/Testimonials/Testimonials";
+import HomeProduct from "../../Component/HomeProduct/HomeProduct";
 
 
 
@@ -17,16 +18,11 @@ const Home = () => {
     <div>
       <HeroSection></HeroSection>
       <StatsCounter></StatsCounter>
-      <AboutSection></AboutSection>
+      <HomeProduct></HomeProduct>
       <CoreFeatures></CoreFeatures>
-      <WhyChooseUs></WhyChooseUs>
       <WorkProcess></WorkProcess>
-      <ServicesSection></ServicesSection>
       <BlogSection></BlogSection>
-      <Testimonials></Testimonials>
-     <CTASection></CTASection>
-
-    
+     <CTASection></CTASection>   
     </div>
   );
 };

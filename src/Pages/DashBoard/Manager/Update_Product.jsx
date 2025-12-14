@@ -1,15 +1,16 @@
 import React from "react";
-import { useParams, useNavigate } from "react-router"; // useNavigate যোগ করা হয়েছে
+import { useParams, useNavigate } from "react-router"; // react-router-dom হবে
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import Swal from "sweetalert2";
 import { FaArrowLeft } from "react-icons/fa";
+import useAxiosSecure from "../../../Hooks/useAxiosSecure/useAxiosSecure"; // ১. হুক ইমপোর্ট
 
 const Update_Product = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const axiosSecure = useAxiosSecure(); // ২. হুক কল
 
-  // ১. ডাটা লোড করা
+  // ১. ডাটা লোড করা (Secure Call)
   const {
     data: product = {},
     isLoading,
@@ -17,9 +18,8 @@ const Update_Product = () => {
   } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
-      const res = await axios.get(
-        `http://localhost:2001/garments-products/${id}`
-      );
+      // axiosSecure ব্যবহার করা হলো
+      const res = await axiosSecure.get(`/garments-products/${id}`);
       return res.data;
     },
   });
@@ -32,18 +32,18 @@ const Update_Product = () => {
     );
   }
 
-  // ২. সেইফ ভ্যালু সেট করা (যাতে এরর না দেয়)
+  // ২. সেইফ ভ্যালু সেট করা
   const {
     name,
     category,
     price,
-    availableQuantity, // ডাটাবেসে এই নামেই আছে
-    quantity, // ব্যাকওয়ার্ড কম্প্যাটিবিলিটির জন্য
+    availableQuantity, 
+    quantity, 
     moq,
     description,
     image,
-    videoLink, // ডাটাবেসে এই নামেই আছে
-    video, // ব্যাকওয়ার্ড কম্প্যাটিবিলিটির জন্য
+    videoLink, 
+    video, 
     paymentOption,
     showOnHome,
   } = product;
@@ -56,21 +56,19 @@ const Update_Product = () => {
     const updatedProductInfo = {
       name: form.name.value,
       category: form.category.value,
-      price: parseFloat(form.price.value), // সংখ্যায় কনভার্ট করা ভালো
-      availableQuantity: parseInt(form.quantity.value), // ডাটাবেসে নাম availableQuantity
+      price: parseFloat(form.price.value),
+      availableQuantity: parseInt(form.quantity.value),
       moq: parseInt(form.moq.value),
       description: form.description.value,
       image: form.image.value,
-      videoLink: form.videoLink.value, // ডাটাবেসে নাম videoLink
+      videoLink: form.videoLink.value,
       paymentOption: form.paymentOption.value,
       showOnHome: form.showOnHome.checked,
     };
 
     try {
-      const res = await axios.put(
-        `http://localhost:2001/garments-products/${id}`,
-        updatedProductInfo
-      );
+      // ৩. আপডেট রিকোয়েস্ট (Secure Call)
+      const res = await axiosSecure.put(`/garments-products/${id}`, updatedProductInfo);
 
       if (res.data.modifiedCount > 0) {
         refetch();
@@ -80,14 +78,16 @@ const Update_Product = () => {
           icon: "success",
           confirmButtonText: "Ok",
         });
-        // আপডেটের পর প্রোডাক্ট লিস্ট বা ডিটেইলসে নিয়ে যেতে চাইলে:
-        // navigate('/dashboard/all-products'); 
+        // আপডেটের পর আগের পেজে ফেরত যেতে পারো
+        navigate(-1);
+      } else {
+        Swal.fire("Info", "No changes made to the product.", "info");
       }
     } catch (error) {
       console.error(error);
       Swal.fire({
         title: "Error!",
-        text: "Update Failed",
+        text: "Update Failed! Only Managers or Admins can update.",
         icon: "error",
       });
     }
@@ -102,7 +102,7 @@ const Update_Product = () => {
             <FaArrowLeft /> Back
         </button>
         <h2 className="text-2xl font-bold text-primary">Update Product</h2>
-        <div className="w-16"></div> {/* Spacer for centering */}
+        <div className="w-16"></div>
       </div>
 
       <div className="max-w-5xl mx-auto bg-base-100 p-8 rounded-xl shadow-xl border border-gray-200">
@@ -160,7 +160,6 @@ const Update_Product = () => {
               <input
                 type="number"
                 name="quantity"
-                // availableQuantity না থাকলে quantity (আগের ডাটা) নিবে
                 defaultValue={availableQuantity || quantity}
                 className="input input-bordered w-full"
                 required
@@ -214,7 +213,6 @@ const Update_Product = () => {
               <input
                 type="text"
                 name="videoLink"
-                // videoLink না থাকলে video (আগের ডাটা) নিবে
                 defaultValue={videoLink || video}
                 className="input input-bordered w-full"
               />
@@ -232,7 +230,6 @@ const Update_Product = () => {
                 defaultValue={paymentOption || "Cash on Delivery"}
                 className="select select-bordered w-full"
               >
-                {/* Add_Product এর সাথে মিলিয়ে অপশন রাখা হলো */}
                 <option value="Cash on Delivery">Cash on Delivery</option>
                 <option value="PayFirst">PayFirst</option>
               </select>

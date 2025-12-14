@@ -1,15 +1,15 @@
 import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate, useLocation } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router"; // react-router-dom হবে
 import { AuthContext } from "../../Provider/AuthProvider";
 import Swal from "sweetalert2";
+import axios from "axios"; // axios import করতে হবে
 
 const Login = () => {
   const { signIn, googleSignIn } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Redirect to where user came from, or home
   const from = location.state?.from?.pathname || "/";
 
   const {
@@ -21,15 +21,27 @@ const Login = () => {
   const onSubmit = (data) => {
     signIn(data.email, data.password)
       .then((result) => {
-        Swal.fire({
-          icon: "success",
-          title: "Login Successful",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-        navigate(from, { replace: true });
+        const loggedUser = result.user;
+        console.log(loggedUser);
+
+        // 🔥 ১. লগইন সফল হলে সার্ভার থেকে টোকেন আনতে হবে 🔥
+        const user = { email: loggedUser.email };
+        
+        axios.post('http://localhost:2001/jwt', user, { withCredentials: true })
+          .then(res => {
+              if(res.data.success){
+                  Swal.fire({
+                    icon: "success",
+                    title: "Login Successful",
+                    showConfirmButton: false,
+                    timer: 1500,
+                  });
+                  navigate(from, { replace: true });
+              }
+          })
       })
       .catch((error) => {
+        console.error(error);
         Swal.fire({
           icon: "error",
           title: "Login Failed",
@@ -41,14 +53,33 @@ const Login = () => {
   const handleGoogleLogin = () => {
     googleSignIn()
       .then((result) => {
-        // TODO: Save google user info to DB if needed
-        Swal.fire({
-          icon: "success",
-          title: "Google Login Successful",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-        navigate(from, { replace: true });
+        const loggedUser = result.user;
+        const userInfo = {
+            name: loggedUser.displayName,
+            email: loggedUser.email,
+            role: 'user', // ডিফল্ট রোল, সার্ভার এটা হ্যান্ডেল করবে যদি ইউজার অলরেডি থাকে
+            status: 'active'
+        };
+
+        // Google দিয়ে লগইন করলে দুইটা কাজ করতে হয়:
+        // ১. ইউজার ডাটাবেসে সেভ করা (যদি নতুন হয়)
+        axios.post('http://localhost:2001/users', userInfo)
+            .then(() => {
+                // ২. টোকেন জেনারেট করা
+                const user = { email: loggedUser.email };
+                axios.post('http://localhost:2001/jwt', user, { withCredentials: true })
+                .then(res => {
+                    if(res.data.success){
+                        Swal.fire({
+                          icon: "success",
+                          title: "Google Login Successful",
+                          showConfirmButton: false,
+                          timer: 1500,
+                        });
+                        navigate(from, { replace: true });
+                    }
+                })
+            })
       })
       .catch((error) => console.error(error));
   };
@@ -116,6 +147,7 @@ const Login = () => {
           onClick={handleGoogleLogin}
           className="w-full flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-white font-medium py-2.5 rounded-lg transition duration-200"
         >
+          {/* SVG Icon */}
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
               fill="currentColor"

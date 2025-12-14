@@ -1,11 +1,12 @@
 import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import Swal from "sweetalert2";
 import { AuthContext } from "../../../Provider/AuthProvider";
+import useAxiosSecure from "../../../Hooks/useAxiosSecure/useAxiosSecure"; // 1. Hook Import
 
 const Add_Product = () => {
   const { user } = useContext(AuthContext);
+  const axiosSecure = useAxiosSecure(); // 2. Hook Initialize
   const { register, handleSubmit, reset } = useForm();
   const [loading, setLoading] = useState(false);
 
@@ -24,12 +25,13 @@ const Add_Product = () => {
       paymentOption: data.paymentOption,
       showOnHome: data.showOnHome,
       status: "available",
-      managerEmail: user?.email,
+      // এই দুটি ফিল্ড খুবই গুরুত্বপূর্ণ, এগুলো ছাড়া ম্যানেজ পেজে ডাটা দেখাবে না
+      managerEmail: user?.email, 
       managerName: user?.displayName,
     };
 
-    axios
-      .post("http://localhost:2001/garments-products", productData)
+    // 3. axiosSecure ব্যবহার করা হলো (Full URL বা withCredentials লাগবে না, হুক এটা হ্যান্ডেল করবে)
+    axiosSecure.post("/garments-products", productData)
       .then((dbRes) => {
         if (dbRes.data.insertedId) {
           reset();
@@ -42,16 +44,17 @@ const Add_Product = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
-        Swal.fire("Error", "Something went wrong!", "error");
+        console.error(err);
+        Swal.fire("Error", "Could not add product. Please check connection.", "error");
+      })
+      .finally(() => {
+        setLoading(false);
       });
-
-    setLoading(false);
   };
 
   return (
     <div className="w-full max-w-5xl mx-auto p-4 lg:p-10 bg-base-200 rounded-2xl shadow-xl mt-5">
-      <h2 className="text-3xl text-green-600 font-bold mb-8 text-center text-primary border-b-2 border-primary/20 pb-4">
+      <h2 className="text-3xl text-green-600 font-bold mb-8 text-center border-b-2 border-primary/20 pb-4">
         Add New Product
       </h2>
 

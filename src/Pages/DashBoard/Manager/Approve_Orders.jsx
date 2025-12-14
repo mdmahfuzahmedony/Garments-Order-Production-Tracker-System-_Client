@@ -1,18 +1,18 @@
 import React, { useContext, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import Swal from "sweetalert2";
 import { 
     FaPlusCircle, 
     FaEye, 
-    FaTimes, 
     FaMapMarkerAlt, 
     FaClipboardList 
 } from "react-icons/fa";
 import { AuthContext } from "../../../Provider/AuthProvider";
+import useAxiosSecure from "../../../Hooks/useAxiosSecure/useAxiosSecure"; // 1. Hook Import
 
 const Approve_Orders = () => {
-    const { user } = useContext(AuthContext);
+    const { user, loading } = useContext(AuthContext);
+    const axiosSecure = useAxiosSecure(); // 2. Hook Initialize
     
     // মডাল এবং সিলেকশন স্টেট
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -27,13 +27,15 @@ const Approve_Orders = () => {
 
     const { data: approvedOrders = [], refetch, isLoading } = useQuery({
         queryKey: ['manager-approved', user?.email],
+        enabled: !loading && !!user?.email, // ইউজার লোড না হওয়া পর্যন্ত কল যাবে না
         queryFn: async () => {
-            const res = await axios.get(`http://localhost:2001/bookings/manager/approved/${user?.email}`);
+            // 3. axiosSecure ব্যবহার করা হয়েছে
+            const res = await axiosSecure.get(`/bookings/manager/approved/${user?.email}`);
             return res.data;
         }
     });
 
-    // নির্দিষ্ট স্ট্যাটাস অপশনগুলো (আপনার রিকোয়ারমেন্ট অনুযায়ী)
+    // নির্দিষ্ট স্ট্যাটাস অপশনগুলো
     const statusOptions = [
         "Cutting Completed",
         "Sewing Started",
@@ -69,7 +71,8 @@ const Approve_Orders = () => {
         };
 
         try {
-            const res = await axios.put(`http://localhost:2001/bookings/tracking/${selectedOrder._id}`, updateData);
+            // 4. Update এর জন্যও axiosSecure ব্যবহার করা হয়েছে
+            const res = await axiosSecure.put(`/bookings/tracking/${selectedOrder._id}`, updateData);
 
             if (res.data.modifiedCount > 0) {
                 document.getElementById('tracking_modal').close();
@@ -88,7 +91,7 @@ const Approve_Orders = () => {
         }
     };
 
-    if (isLoading) {
+    if (isLoading || loading) {
         return (
             <div className="flex justify-center items-center h-screen bg-base-200">
                 <span className="loading loading-spinner loading-lg text-primary"></span>
@@ -103,10 +106,10 @@ const Approve_Orders = () => {
                 <div className="badge badge-primary badge-lg">{approvedOrders.length} Items</div>
             </div>
 
-            {/* --- TABLE VIEW (Requirement Followed) --- */}
+            {/* --- TABLE VIEW --- */}
             <div className="overflow-x-auto shadow-xl rounded-xl border border-base-300 bg-base-100">
                 <table className="table bg-base-100 align-middle w-full">
-                    {/* Columns: Order ID | User | Product | Quantity | Approved Date | Actions */}
+                    {/* Columns */}
                     <thead className="bg-primary text-white text-sm uppercase font-bold">
                         <tr>
                             <th className="py-4 pl-4">Order ID</th>
@@ -194,7 +197,7 @@ const Approve_Orders = () => {
                 </table>
             </div>
 
-            {/* --- MODAL (For Add Tracking & View Timeline) --- */}
+            {/* --- MODAL --- */}
             <dialog id="tracking_modal" className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box bg-base-100 text-base-content">
                     <form method="dialog">
@@ -203,7 +206,6 @@ const Approve_Orders = () => {
 
                     {selectedOrder && (
                         <>
-                            {/* --- Header --- */}
                             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                                 {modalType === 'add' ? <FaPlusCircle className="text-primary"/> : <FaClipboardList className="text-info"/>}
                                 {modalType === 'add' ? "Update Tracking Status" : "Tracking Timeline"}
@@ -216,7 +218,6 @@ const Approve_Orders = () => {
                             {/* --- VIEW 1: ADD TRACKING FORM --- */}
                             {modalType === 'add' && (
                                 <form onSubmit={handleAddTracking} className="space-y-4">
-                                    {/* Status Dropdown */}
                                     <div className="form-control">
                                         <label className="label"><span className="label-text font-bold">Update Status</span></label>
                                         <select 
@@ -232,7 +233,6 @@ const Approve_Orders = () => {
                                         </select>
                                     </div>
 
-                                    {/* Location Input */}
                                     <div className="form-control">
                                         <label className="label"><span className="label-text font-bold">Current Location</span></label>
                                         <div className="relative">
@@ -248,7 +248,6 @@ const Approve_Orders = () => {
                                         </div>
                                     </div>
 
-                                    {/* Note Input */}
                                     <div className="form-control">
                                         <label className="label"><span className="label-text font-bold">Note (Optional)</span></label>
                                         <textarea 
@@ -269,7 +268,6 @@ const Approve_Orders = () => {
                             {modalType === 'view' && (
                                 <div className="py-4">
                                     <ul className="steps steps-vertical w-full">
-                                        {/* Default Step */}
                                         <li className="step step-primary" data-content="✓">
                                             <div className="text-left ml-2">
                                                 <div className="font-bold">Order Approved</div>
@@ -279,7 +277,6 @@ const Approve_Orders = () => {
                                             </div>
                                         </li>
 
-                                        {/* History Steps */}
                                         {selectedOrder.trackingHistory?.map((step, index) => (
                                             <li key={index} className="step step-primary" data-content="●">
                                                 <div className="text-left ml-2 mb-4 bg-base-200 p-3 rounded-lg w-full">

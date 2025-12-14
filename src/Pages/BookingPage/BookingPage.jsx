@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router"; 
+import { useParams, useNavigate } from "react-router"; // react-router-dom ব্যবহার করুন
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Swal from "sweetalert2"; 
@@ -10,11 +10,13 @@ const BookingPage = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  // 1. Fetch Product Data
+  // 1. Fetch Product Data (GET রিকোয়েস্টেও ক্রেডেনশিয়াল দেওয়া ভালো, যদি ব্যাকএন্ডে verifyToken থাকে)
   const { data: product, isLoading, error } = useQuery({
     queryKey: ["booking-product", id],
     queryFn: async () => {
-      const res = await axios.get(`http://localhost:2001/garments-products/${id}`);
+      const res = await axios.get(`http://localhost:2001/garments-products/${id}`, {
+         withCredentials: true 
+      });
       return res.data;
     },
   });
@@ -30,7 +32,7 @@ const BookingPage = () => {
     notes: "",
   });
 
-  // Safe Data Variables (যাতে এরর না হয়)
+  // Safe Data Variables
   const safeName = product?.productName || product?.name || "Unnamed Product";
   const safePrice = product?.price || 0;
   const safeStock = product?.availableQuantity ?? product?.quantity ?? 0;
@@ -44,8 +46,8 @@ const BookingPage = () => {
     }
   }, [product, safeMinOrder, safePrice]);
 
-  if (isLoading) return <div className="text-center mt-20"><span className="loading loading-spinner loading-lg"></span></div>;
-  if (error) return <div className="text-center mt-20 text-error">Something went wrong!</div>;
+  if (isLoading) return <div className="text-center mt-20"><span className="loading loading-spinner loading-lg text-primary"></span></div>;
+  if (error) return <div className="text-center mt-20 text-error">Product not found!</div>;
 
   // 3. Handle Quantity Change
   const handleQuantityChange = (e) => {
@@ -65,7 +67,7 @@ const BookingPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 5. Handle Submit (Save Order as Unpaid)
+  // 5. Handle Submit (Save Order)
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
 
@@ -79,12 +81,12 @@ const BookingPage = () => {
       return;
     }
 
-    // --- Prepare Data (FIXED HERE) ---
+    // Prepare Data
     const orderData = {
       productId: product._id,
       productName: safeName,
       productImage: product.image || (product.images && product.images[0]) || "",
-      userEmail: user?.email,
+      userEmail: user?.email, // ইউজার লগইন থাকা বাধ্যতামূলক
       userName: `${formData.firstName} ${formData.lastName}`,
       phone: formData.phone,
       address: formData.address,
@@ -92,16 +94,16 @@ const BookingPage = () => {
       quantity: parseInt(quantity),
       totalPrice: parseFloat(totalPrice),
       orderDate: new Date(),
-      status: "Pending", // অর্ডার স্ট্যাটাস
-      
-      // Payment Info (অবজেক্টের ভেতরে ঢোকানো হয়েছে)
+      status: "Pending",
       paymentMethod: product.paymentMethod || product.paymentOption || "Cash on Delivery", 
       paymentStatus: "Unpaid" 
     };
 
     try {
-      // Save to Database
-      const res = await axios.post("http://localhost:2001/bookings", orderData);
+      // 🔥 FIX: { withCredentials: true } যোগ করা হয়েছে 🔥
+      const res = await axios.post("http://localhost:2001/bookings", orderData, {
+        withCredentials: true 
+      });
 
       if (res.data.insertedId) {
         Swal.fire({
@@ -109,12 +111,16 @@ const BookingPage = () => {
           text: "Your order has been placed successfully. Please check My Orders page.",
           icon: "success",
         });
-        // সরাসরি My Orders পেজে পাঠিয়ে দেওয়া হবে
         navigate("/dashboard/my-orders");
       }
     } catch (err) {
-      console.error(err);
-      Swal.fire("Error", "Could not place order. Please try again.", "error");
+      console.error("Order Error:", err);
+      // এরর মেসেজ চেক করা
+      if (err.response && err.response.status === 401) {
+        Swal.fire("Unauthorized", "Please login again to place an order.", "error");
+      } else {
+        Swal.fire("Error", "Could not place order. Please try again.", "error");
+      }
     }
   };
 
@@ -126,19 +132,19 @@ const BookingPage = () => {
         <form onSubmit={handleBookingSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Read Only Info */}
           <div className="space-y-4">
-             <h3 className="text-xl font-bold">Product Info</h3>
+             <h3 className="text-xl font-bold border-b pb-2">Product Info</h3>
              <div className="form-control">
-                <label className="label">Product Name</label>
+                <label className="label font-semibold">Product Name</label>
                 <input value={safeName} readOnly className="input input-bordered bg-gray-100" />
              </div>
              <div className="form-control">
-                <label className="label">Price (Total: ${totalPrice})</label>
-                <input value={`$${safePrice} x ${quantity}`} readOnly className="input input-bordered bg-gray-100" />
+                <label className="label font-semibold">Total Price</label>
+                <input value={`$${totalPrice} (for ${quantity} items)`} readOnly className="input input-bordered bg-gray-100 font-bold text-green-600" />
              </div>
 
              {/* Quantity Input */}
              <div className="form-control">
-                <label className="label font-bold text-primary">Quantity</label>
+                <label className="label font-bold text-primary">Quantity (Stock: {safeStock})</label>
                 <input 
                   type="number" 
                   value={quantity} 
@@ -153,15 +159,16 @@ const BookingPage = () => {
 
           {/* User Info Form */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold">Shipping Info</h3>
+            <h3 className="text-xl font-bold border-b pb-2">Shipping Details</h3>
             <div className="grid grid-cols-2 gap-2">
                 <input name="firstName" onChange={handleInputChange} placeholder="First Name" className="input input-bordered" required />
                 <input name="lastName" onChange={handleInputChange} placeholder="Last Name" className="input input-bordered" required />
             </div>
             <input name="phone" onChange={handleInputChange} placeholder="Phone Number" className="input input-bordered" required />
-            <textarea name="address" onChange={handleInputChange} placeholder="Address" className="textarea textarea-bordered" required></textarea>
+            <textarea name="address" onChange={handleInputChange} placeholder="Shipping Address" className="textarea textarea-bordered h-24" required></textarea>
+            <input name="notes" onChange={handleInputChange} placeholder="Additional Notes (Optional)" className="input input-bordered" />
             
-            <button type="submit" className="btn btn-primary w-full mt-4 text-white font-bold text-lg">
+            <button type="submit" className="btn btn-primary w-full mt-4 text-white font-bold text-lg hover:scale-105 transition-transform">
                 Confirm Order
             </button>
           </div>

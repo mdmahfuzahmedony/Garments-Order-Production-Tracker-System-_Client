@@ -1,129 +1,137 @@
 import React from "react";
-import { createBrowserRouter } from "react-router"; // react-router-dom হবে
+import { createBrowserRouter } from "react-router"; // react-router-dom ব্যবহার করুন
 import MainLayout from "./MainRouter";
 import Home from "../Pages/Home/Home";
 import Register from "../Pages/Register/Register";
 import Login from "../Pages/Login/Login";
-import AllProduct from "../Pages/AllProduct/AllProduct";
+import AllProduct from "../Pages/AllProduct/AllProduct"; 
 import ProductDetails from "../Pages/ProductDetails/ProductDetails";
 import BookingPage from "../Pages/BookingPage/BookingPage";
 import Dashboard from "../Pages/DashBoard/DashBoard";
 import ManageUsers from "../Pages/DashBoard/Admin/ManagesUsers";
 import AllOrders from "../Pages/DashBoard/Admin/AllOrder";
-import AllProducts from "../Pages/DashBoard/Admin/AllProducts";
 import MyProfile from "../Pages/DashBoard/Buyer/MyProfile";
 import MyOrders from "../Pages/DashBoard/Buyer/MyOrders";
 import TrackOrder from "../Pages/DashBoard/Buyer/TrackOrder";
 import Add_Product from "../Pages/DashBoard/Manager/Add_Product";
 import Approve_Orders from "../Pages/DashBoard/Manager/Approve_Orders";
 import Manage_Products from "../Pages/DashBoard/Manager/Manage_Products";
-import My_Profile from "../Pages/DashBoard/Manager/My_Profile";
 import Pending_Orders from "../Pages/DashBoard/Manager/Pending_Orders";
 import Update_Product from "../Pages/DashBoard/Manager/Update_Product";
-import PaymentPage from "../Component/PaymentPage/PaymentPage";
 import PaymentSuccess from "../Pages/Payment/PaymentSuccess";
+import PrivateRoute from "./PrivateRoute";
+import All_Products from './../Pages/DashBoard/Admin/AllProducts'; 
+import AboutSection from "../Component/About/AboutSection";
+import About from "../Pages/About/About";
+import Contact from "../Pages/Contact/Contact";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout />, // Component এর বদলে element ব্যবহার করা স্ট্যান্ডার্ড
+    element: <MainLayout />,
     children: [
       {
         index: true,
-        Component: Home,
+        element: <Home />,
       },
       {
         path: "/home",
-        Component: Home,
+        element: <Home />,
       },
       {
-        path: "/garments-products",
-        Component: AllProduct,
+        path:"/about",
+        Component:About,
+      },
+      {
+       path:"/contact",
+       Component:Contact
+      },
+      {
+        path: "/all-products",
+        element: <AllProduct />,
       },
       {
         path: "/product-details/:id",
-        Component: ProductDetails,
-      },
+        element: <PrivateRoute><ProductDetails /></PrivateRoute>
+      }, 
       {
         path: "/login",
-        Component: Login,
+        element: <Login />,
       },
       {
         path: "/register",
-        Component: Register,
+        element: <Register />,
       },
       {
         path: "/book-product/:id",
-        Component: BookingPage,
+        element: <PrivateRoute><BookingPage /></PrivateRoute>, 
       },
-      {
-        path: "/payment/:id",
-        Component: PaymentPage,
-      },
-
+      
       // DASHBOARD ROUTES
       {
         path: "/dashboard",
-        element: <Dashboard />,
+        element: <PrivateRoute><Dashboard /></PrivateRoute>, 
         children: [
+          // ❌ PaymentPage এর রাউটটি মুছে ফেলা হয়েছে কারণ আমরা ডিরেক্ট Stripe এ যাচ্ছি
+
+          // ✅ Success Page (এটি লাগবে)
           {
             path: "payment/success/:id",
-            Component: PaymentSuccess,
+            element: <PaymentSuccess />,
           },
           
           // --- Admin Part ---
           {
             path: "manage-users",
-            Component: ManageUsers,
+            element: <PrivateRoute><ManageUsers /></PrivateRoute>
           },
           {
             path: "all-orders",
-            Component: AllOrders,
+            element: <PrivateRoute><AllOrders /></PrivateRoute>
           },
           {
             path: "all-products",
-            Component: AllProducts,
+            element: <PrivateRoute><All_Products /></PrivateRoute> 
           },
 
           // --- Buyer Part ---
           {
             path: "my-profile",
-            Component: MyProfile,
+            element: <PrivateRoute><MyProfile /></PrivateRoute>
           },
           {
             path: "my-orders",
-            Component: MyOrders,
+            element: <PrivateRoute><MyOrders /></PrivateRoute>
           },
-          // ✅ FIXED HERE (track-order/:orderId)
           {
             path: "track-order/:orderId", 
-            Component: TrackOrder,
+            element: <PrivateRoute><TrackOrder /></PrivateRoute>,
           },
 
           // --- Manager Part ---
           {
             path: "add-product",
-            Component: Add_Product,
+            element: <PrivateRoute><Add_Product /></PrivateRoute>
           },
           {
             path: "approved-orders",
-            Component: Approve_Orders,
+            element: <PrivateRoute><Approve_Orders /></PrivateRoute>
           },
           {
             path: "manage-products",
-            Component: Manage_Products,
+            element: <PrivateRoute><Manage_Products /></PrivateRoute>
           },
           {
             path: "profile",
-            Component: My_Profile,
+            element: <PrivateRoute><MyProfile /></PrivateRoute>
           },
           {
             path: "pending-orders",
-            Component: Pending_Orders,
+            element: <PrivateRoute><Pending_Orders /></PrivateRoute>
           },
           {
             path: "update-product/:id",
-            Component: Update_Product,
+            element: <PrivateRoute><Update_Product /></PrivateRoute>,
           },
         ],
       },

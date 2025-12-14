@@ -2,12 +2,12 @@ import React, { useState, useEffect, useContext } from "react";
 import { useParams, Link } from "react-router"; // react-router-dom হতে পারে, চেক করে নিয়েন
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-// import { AuthContext } from "../../Provider/AuthProvider"; 
-import ProductCard from "../../Component/SingleCard/SingleCard";
+// import { AuthContext } from "../../Provider/AuthProvider";
+import ProductCard from "../../Component/ProductCard/PrpductCard";
 
 const ProductDetails = () => {
   const { id } = useParams();
-  
+
   // Auth logic (আপনার প্রয়োজন অনুযায়ী আনকমেন্ট করুন)
   const isAdmin = false;
   const isManager = false;
@@ -23,7 +23,9 @@ const ProductDetails = () => {
   } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
-      const res = await axios.get(`http://localhost:2001/garments-products/${id}`);
+      const res = await axios.get(
+        `http://localhost:2001/garments-products/${id}`
+      );
       return res.data;
     },
   });
@@ -57,7 +59,7 @@ const ProductDetails = () => {
         <span className="loading loading-spinner loading-lg"></span>
       </div>
     );
-    
+
   if (error || !product)
     return (
       <div className="text-center mt-20 text-red-500">
@@ -73,13 +75,18 @@ const ProductDetails = () => {
   const safeCategory = product.category || "General";
   const safeStock = product.availableQuantity ?? product.quantity ?? 0;
   const safeMOQ = product.minOrderQuantity || product.moq || 1;
-  const safePayment = product.paymentMethod || product.paymentOption || "Cash on Delivery";
-  const safeVideo = product.demoVideo || product.videoLink || product.video || "";
-  
+  const safePayment =
+    product.paymentMethod || product.paymentOption || "Cash on Delivery";
+  const safeVideo =
+    product.demoVideo || product.videoLink || product.video || "";
+
   // Image List Logic: যদি images array থাকে তো ভালো, না থাকলে single image কে array বানাবো থাম্বনেইলের জন্য
-  const imageList = Array.isArray(product.images) && product.images.length > 0 
-    ? product.images 
-    : (product.image ? [product.image] : []);
+  const imageList =
+    Array.isArray(product.images) && product.images.length > 0
+      ? product.images
+      : product.image
+      ? [product.image]
+      : [];
 
   // 4. Filter Related Products
   const relatedProducts = allProducts
@@ -94,7 +101,6 @@ const ProductDetails = () => {
     <div className="container mx-auto px-4 py-10">
       {/* --- Top Section: Details --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 bg-base-100 p-6 rounded-xl shadow-sm border border-gray-100">
-        
         {/* --- Left Side: Image Gallery --- */}
         <div className="flex flex-col gap-4">
           {/* Main Image */}
@@ -139,9 +145,7 @@ const ProductDetails = () => {
             <div className="badge badge-secondary badge-outline mb-2">
               {safeCategory}
             </div>
-            <h1 className="text-3xl font-bold text-gray-800">
-              {safeName}
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-800">{safeName}</h1>
           </div>
 
           <p className="text-gray-600 leading-relaxed text-justify">
@@ -151,9 +155,7 @@ const ProductDetails = () => {
           <div className="flex items-center gap-6 p-4 bg-base-200 rounded-lg">
             <div>
               <p className="text-sm text-gray-500">Price</p>
-              <p className="text-3xl font-bold text-primary">
-                ${safePrice}
-              </p>
+              <p className="text-3xl font-bold text-primary">${safePrice}</p>
             </div>
             <div className="divider divider-horizontal"></div>
             <div>
@@ -163,9 +165,7 @@ const ProductDetails = () => {
                   safeStock > 0 ? "text-success" : "text-error"
                 }`}
               >
-                {safeStock > 0
-                  ? `${safeStock} Available`
-                  : "Out of Stock"}
+                {safeStock > 0 ? `${safeStock} Available` : "Out of Stock"}
               </p>
             </div>
           </div>
@@ -185,9 +185,7 @@ const ProductDetails = () => {
                     Payment Option:
                   </td>
                   <td>
-                    <span className="badge badge-ghost">
-                      {safePayment}
-                    </span>
+                    <span className="badge badge-ghost">{safePayment}</span>
                   </td>
                 </tr>
                 {safeVideo && (
@@ -202,8 +200,19 @@ const ProductDetails = () => {
                       >
                         Watch Video
                         {/* SVG Icon */}
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-4 h-4"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+                          />
                         </svg>
                       </a>
                     </td>

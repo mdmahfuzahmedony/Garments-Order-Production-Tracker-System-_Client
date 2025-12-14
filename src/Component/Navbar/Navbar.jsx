@@ -61,7 +61,7 @@ const Navbar = () => {
       </li>
       <li>
         <NavLink
-          to="/garments-products"
+          to="/all-products"
           className={({ isActive }) =>
             `font-bold uppercase text-sm tracking-wide transition-colors duration-300 ${
               isActive

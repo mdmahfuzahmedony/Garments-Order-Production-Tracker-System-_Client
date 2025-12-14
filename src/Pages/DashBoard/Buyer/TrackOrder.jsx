@@ -1,210 +1,177 @@
-import React from "react";
-import { useParams, useNavigate } from "react-router"; // react-router-dom ব্যবহার করুন
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import React from 'react';
+import { useParams, Link } from 'react-router'; // react-router-dom হবে
+import { useQuery } from '@tanstack/react-query';
 import { 
-    FaBoxOpen, 
-    FaShippingFast, 
     FaMapMarkerAlt, 
+    FaClock, 
+    FaClipboardList, 
     FaArrowLeft, 
-    FaClipboardCheck,
-    FaClock
-} from "react-icons/fa";
+    FaBoxOpen, 
+    FaCheckCircle,
+    FaTruck,
+    FaCut,
+    FaTshirt,
+    FaShippingFast
+} from 'react-icons/fa';
+import useAxiosSecure from '../../../Hooks/useAxiosSecure/useAxiosSecure'; 
 
-const TrackOrder = () => {
-    const { orderId } = useParams();
-    const navigate = useNavigate();
+const Track_Order = () => {
+    // 🔥 FIX 1: useParams থেকে সঠিক নামটা নিতে হবে
+    // তোমার রাউটে যদি path="track-order/:orderId" থাকে, তাহলে এখানে orderId লিখতে হবে
+    // আর যদি path="track-order/:id" থাকে, তাহলে id লিখতে হবে।
+    // নিরাপদ থাকার জন্য আমি ধরে নিচ্ছি রাউটে :id বা :orderId আছে।
+    
+    const params = useParams(); 
+    const id = params.id || params.orderId; // যেটাই আসুক, সেটা id তে রাখবে
 
-    // 1. Fetch Order Details
-    const { data: order, isLoading } = useQuery({
-        queryKey: ["track-order", orderId],
+    const axiosSecure = useAxiosSecure();
+
+    const { data: order = {}, isLoading } = useQuery({
+        queryKey: ['track-order', id],
+        enabled: !!id, // id না থাকলে কল করবে না (Error 500 বন্ধ হবে)
         queryFn: async () => {
-            const res = await axios.get(`http://localhost:2001/bookings/${orderId}`);
+            // 🔥 FIX 2: id চেক করে কল যাবে
+            const res = await axiosSecure.get(`/bookings/${id}`);
             return res.data;
         }
     });
 
+    // আইকন সিলেকশন লজিক
+    const getIcon = (status) => {
+        if (!status) return <FaClipboardList />;
+        const s = status.toLowerCase();
+        if (s.includes('cut')) return <FaCut />;
+        if (s.includes('sew')) return <FaTshirt />;
+        if (s.includes('pack')) return <FaBoxOpen />;
+        if (s.includes('ship') || s.includes('delivery')) return <FaShippingFast />;
+        if (s.includes('delivered')) return <FaCheckCircle />;
+        return <FaClipboardList />;
+    };
+
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center min-h-screen bg-base-200">
+            <div className="flex justify-center items-center h-screen bg-base-200">
                 <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
         );
     }
 
-    // 2. Prepare Timeline Data
-    // রিকোয়ারমেন্ট অনুযায়ী ক্রোনোলজিক্যাল অর্ডারে সাজানো (Start to End)
-    // ডিফল্ট হিসেবে "Order Placed" সবার আগে থাকবে
-    const baseStep = {
-        status: "Order Placed",
-        date: order.orderDate,
-        note: "Your order has been received successfully.",
-        location: "System"
-    };
-
-    // যদি ট্র্যাকিং হিস্ট্রি থাকে তবে সেটা নিবে, নাহলে বেস স্টেপ দেখাবে
-    const timeline = order.trackingHistory && order.trackingHistory.length > 0 
-        ? [baseStep, ...order.trackingHistory] 
-        : [baseStep, { 
-            status: order.status, 
-            date: order.updatedAt || order.orderDate, 
-            note: "Current Status", 
-            location: "Warehouse" 
-          }];
+    const timeline = order.trackingHistory || [];
 
     return (
-        <div className="min-h-screen bg-base-200 p-4 md:p-10">
-            <div className="max-w-6xl mx-auto">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-10 font-sans">
+            {/* --- Header Navigation --- */}
+            <div className="max-w-6xl mx-auto mb-6">
+                <Link to="/dashboard/my-orders" className="btn btn-sm btn-ghost gap-2 text-gray-600 dark:text-gray-300">
+                    <FaArrowLeft /> Back to Orders
+                </Link>
+            </div>
+
+            <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                {/* --- Header Section --- */}
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-8">
-                    <button 
-                        onClick={() => navigate(-1)} 
-                        className="btn btn-circle btn-ghost hover:bg-base-300"
-                    >
-                        <FaArrowLeft className="text-xl text-base-content" />
-                    </button>
-                    <div>
-                        <h2 className="text-3xl font-bold text-base-content">Track Order</h2>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className="text-base-content/70">Order ID:</span>
-                            <span className="badge badge-primary font-mono p-3">#{order._id.slice(-6).toUpperCase()}</span>
+                {/* --- LEFT COLUMN: TIMELINE --- */}
+                <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-10">
+                    <h2 className="text-2xl font-bold mb-8 flex items-center gap-3 text-primary">
+                        <FaTruck /> Tracking Timeline
+                    </h2>
+
+                    {timeline.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-10 text-center opacity-60">
+                            <FaBoxOpen className="text-6xl mb-4 text-gray-400" />
+                            <h3 className="text-xl font-bold">Order Placed Successfully</h3>
+                            <p>Detailed production updates will appear here soon.</p>
                         </div>
-                    </div>
-                </div>
+                    ) : (
+                        <div className="relative border-l-4 border-blue-100 dark:border-gray-700 ml-4 space-y-10">
+                            {timeline.map((step, index) => {
+                                const isLatest = index === timeline.length - 1;
+                                return (
+                                    <div key={index} className="relative pl-8 md:pl-12 group">
+                                        <div className={`absolute -left-[14px] top-0 w-10 h-10 rounded-full flex items-center justify-center border-4 transition-all duration-300 ${
+                                            isLatest 
+                                            ? 'bg-primary text-white border-blue-200 scale-110 shadow-lg shadow-primary/40' 
+                                            : 'bg-white dark:bg-gray-700 text-gray-500 border-gray-200 dark:border-gray-600'
+                                        }`}>
+                                            {getIcon(step.status)}
+                                        </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
-                    {/* --- Left Side: Timeline View --- */}
-                    <div className="lg:col-span-2">
-                        <div className="bg-base-100 p-6 md:p-8 rounded-2xl shadow-xl border border-base-300">
-                            <h3 className="text-xl font-bold mb-8 flex items-center gap-2 text-base-content border-b border-base-200 pb-4">
-                                <FaShippingFast className="text-primary" /> Production & Shipment Timeline
-                            </h3>
-                            
-                            <ul className="steps steps-vertical w-full">
-                                {timeline.map((step, index) => {
-                                    // লেটেস্ট স্টেপ কিনা চেক করা (হাইলাইটের জন্য)
-                                    const isLatest = index === timeline.length - 1;
-
-                                    return (
-                                        <li 
-                                            key={index} 
-                                            className={`step ${isLatest ? 'step-primary' : 'step-neutral'} w-full`}
-                                            data-content={isLatest ? "●" : "✓"}
-                                        >
-                                            <div className={`flex flex-col items-start text-left ml-4 mb-8 w-full p-4 rounded-xl border ${
-                                                isLatest 
-                                                ? 'bg-primary/10 border-primary shadow-md' 
-                                                : 'bg-base-200/50 border-base-200'
-                                            }`}>
-                                                {/* Header: Status & Time */}
-                                                <div className="flex flex-col md:flex-row md:items-center justify-between w-full mb-2">
-                                                    <h4 className={`font-bold text-lg ${isLatest ? 'text-primary' : 'text-base-content'}`}>
-                                                        {step.status}
-                                                        {isLatest && <span className="ml-2 badge badge-xs badge-error animate-pulse">Live</span>}
-                                                    </h4>
-                                                    <div className="flex items-center gap-1 text-xs font-mono text-base-content/60 mt-1 md:mt-0">
-                                                        <FaClock /> {new Date(step.date).toLocaleString()}
-                                                    </div>
-                                                </div>
-
-                                                {/* Note / Description */}
-                                                <p className="text-sm text-base-content/80 bg-base-100 p-3 rounded-lg w-full border border-base-200">
-                                                    {step.note || "Processing..."}
-                                                </p>
-
-                                                {/* Location */}
-                                                <div className="mt-3 flex items-center gap-2 text-xs font-bold text-secondary">
-                                                    <FaMapMarkerAlt /> 
-                                                    <span>{step.location || "Production Unit"}</span>
-                                                </div>
+                                        <div className={`p-5 rounded-xl border transition-all hover:shadow-md ${
+                                            isLatest 
+                                            ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' 
+                                            : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700'
+                                        }`}>
+                                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2">
+                                                <h4 className={`text-lg font-bold uppercase tracking-wide ${
+                                                    isLatest ? 'text-primary' : 'text-gray-700 dark:text-gray-200'
+                                                }`}>
+                                                    {step.status}
+                                                </h4>
+                                                <span className="text-xs font-mono text-gray-500 flex items-center gap-1 mt-1 sm:mt-0">
+                                                    <FaClock /> {new Date(step.date).toLocaleString()}
+                                                </span>
                                             </div>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        </div>
-                    </div>
 
-                    {/* --- Right Side: Order Summary & Map --- */}
-                    <div className="space-y-8">
-                        
-                        {/* 1. Order Summary Card */}
-                        <div className="bg-base-100 p-6 rounded-2xl shadow-xl border border-base-300">
-                            <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-base-content">
-                                <FaBoxOpen className="text-secondary" /> Order Summary
-                            </h3>
-                            
-                            <div className="flex gap-4 mb-4 bg-base-200 p-3 rounded-xl">
-                                <img 
-                                    src={order.productImage || "https://via.placeholder.com/80"} 
-                                    alt="Product" 
-                                    className="w-20 h-20 rounded-lg object-cover border border-base-300" 
-                                />
-                                <div className="flex-1">
-                                    <h4 className="font-bold text-base-content line-clamp-1" title={order.productName}>
-                                        {order.productName}
-                                    </h4>
-                                    <div className="flex justify-between items-center mt-2">
-                                        <span className="text-xs text-base-content/60">Qty: {order.quantity}</span>
-                                        <span className="text-primary font-bold">${order.totalPrice}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="divider my-2"></div>
-                            
-                            <div className="space-y-3 text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-base-content/70">Payment:</span>
-                                    <span className="badge badge-ghost font-bold">{order.paymentMethod}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-base-content/70">Current Status:</span>
-                                    <span className={`badge font-bold text-white ${
-                                        order.status === 'Delivered' ? 'badge-success' : 'badge-info'
-                                    }`}>
-                                        {order.status}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                                            {step.location && (
+                                                <div className="flex items-center gap-2 text-sm text-secondary font-semibold mb-3">
+                                                    <FaMapMarkerAlt />
+                                                    <span>{step.location}</span>
+                                                </div>
+                                            )}
 
-                        {/* 2. Interactive Map (Visual Representation) */}
-                        <div className="bg-base-100 p-6 rounded-2xl shadow-xl border border-base-300">
-                            <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-base-content">
-                                <FaMapMarkerAlt className="text-red-500" /> Live Location
-                            </h3>
-                            
-                            <div className="relative w-full h-56 rounded-xl overflow-hidden group border border-base-300">
-                                {/* Map Image (Placeholder with Dark Mode Support logic needed visually) */}
-                                <img 
-                                    src="https://i.imgur.com/8Qj8XlU.png" 
-                                    alt="Map" 
-                                    className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
-                                />
-                                
-                                {/* Overlay Marker */}
-                                <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
-                                    <div className="relative">
-                                        <div className="w-4 h-4 bg-red-500 rounded-full animate-ping absolute"></div>
-                                        <div className="bg-base-100 text-base-content px-4 py-2 rounded-full font-bold shadow-lg text-xs flex items-center gap-2 z-10 relative">
-                                            <FaMapMarkerAlt className="text-red-500" />
-                                            {timeline[timeline.length - 1]?.location || "Processing Center"}
+                                            {step.note && (
+                                                <div className="bg-base-100 dark:bg-gray-900 p-3 rounded-lg text-sm text-gray-600 dark:text-gray-300 italic border-l-4 border-gray-300">
+                                                    "{step.note}"
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            
-                            <div className="mt-4 flex gap-3">
-                                <FaClipboardCheck className="text-success text-xl" />
-                                <p className="text-xs text-base-content/60">
-                                    Map updates automatically when the product reaches a new checkpoint (Cutting, Sewing, QC, etc.).
-                                </p>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+
+                {/* --- RIGHT COLUMN: ORDER INFO --- */}
+                <div className="space-y-8">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
+                        <h3 className="font-bold text-gray-500 text-sm uppercase tracking-wider mb-4">Order Summary</h3>
+                        <div className="flex items-center gap-4 mb-4">
+                            <img src={order.productImage} alt="Product" className="w-20 h-20 rounded-lg object-cover border" />
+                            <div>
+                                <h4 className="font-bold text-lg leading-tight">{order.productName}</h4>
+                                <span className="badge badge-sm badge-warning mt-1">Order #{order._id?.slice(-6).toUpperCase()}</span>
                             </div>
                         </div>
+                        <div className="divider"></div>
+                        <div className="flex justify-between text-sm mb-2">
+                            <span className="opacity-70">Quantity:</span>
+                            <span className="font-bold">{order.quantity} pcs</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="opacity-70">Total Price:</span>
+                            <span className="font-bold text-primary">${order.totalPrice}</span>
+                        </div>
+                    </div>
 
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+                        <div className="p-4 bg-gray-100 dark:bg-gray-700 border-b dark:border-gray-600 flex justify-between items-center">
+                            <h3 className="font-bold text-sm uppercase flex items-center gap-2">
+                                <FaMapMarkerAlt className="text-red-500"/> Current Location
+                            </h3>
+                            <span className="text-xs font-mono opacity-70">Live Update</span>
+                        </div>
+                        <div className="relative h-64 w-full bg-blue-50 group">
+                            <div className="absolute inset-0 opacity-40 bg-[url('https://i.ibb.co/wzkP5Kk/map-pattern.png')] bg-cover bg-center"></div>
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                                <span className="relative flex h-8 w-8">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-8 w-8 bg-red-500 border-4 border-white shadow-xl"></span>
+                                </span>
+                                <div className="bg-white px-3 py-1 rounded-full shadow-lg mt-2 text-xs font-bold text-gray-800 whitespace-nowrap">
+                                    {timeline.length > 0 ? timeline[timeline.length - 1].location : "Processing Center"}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -212,4 +179,4 @@ const TrackOrder = () => {
     );
 };
 
-export default TrackOrder;
+export default Track_Order;
