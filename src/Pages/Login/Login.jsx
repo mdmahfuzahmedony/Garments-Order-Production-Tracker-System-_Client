@@ -26,19 +26,24 @@ const Login = () => {
 
         // 🔥 ১. লগইন সফল হলে সার্ভার থেকে টোকেন আনতে হবে 🔥
         const user = { email: loggedUser.email };
-        
-        axios.post('http://localhost:2001/jwt', user, { withCredentials: true })
-          .then(res => {
-              if(res.data.success){
-                  Swal.fire({
-                    icon: "success",
-                    title: "Login Successful",
-                    showConfirmButton: false,
-                    timer: 1500,
-                  });
-                  navigate(from, { replace: true });
-              }
-          })
+
+        axios
+          .post(
+            "https://garments-order-production-tracker-s-hazel.vercel.app/jwt",
+            user,
+            { withCredentials: true }
+          )
+          .then((res) => {
+            if (res.data.success) {
+              Swal.fire({
+                icon: "success",
+                title: "Login Successful",
+                showConfirmButton: false,
+                timer: 1500,
+              });
+              navigate(from, { replace: true });
+            }
+          });
       })
       .catch((error) => {
         console.error(error);
@@ -55,31 +60,40 @@ const Login = () => {
       .then((result) => {
         const loggedUser = result.user;
         const userInfo = {
-            name: loggedUser.displayName,
-            email: loggedUser.email,
-            role: 'user', // ডিফল্ট রোল, সার্ভার এটা হ্যান্ডেল করবে যদি ইউজার অলরেডি থাকে
-            status: 'active'
+          name: loggedUser.displayName,
+          email: loggedUser.email,
+          role: "user", // ডিফল্ট রোল, সার্ভার এটা হ্যান্ডেল করবে যদি ইউজার অলরেডি থাকে
+          status: "active",
         };
 
         // Google দিয়ে লগইন করলে দুইটা কাজ করতে হয়:
         // ১. ইউজার ডাটাবেসে সেভ করা (যদি নতুন হয়)
-        axios.post('http://localhost:2001/users', userInfo)
-            .then(() => {
-                // ২. টোকেন জেনারেট করা
-                const user = { email: loggedUser.email };
-                axios.post('http://localhost:2001/jwt', user, { withCredentials: true })
-                .then(res => {
-                    if(res.data.success){
-                        Swal.fire({
-                          icon: "success",
-                          title: "Google Login Successful",
-                          showConfirmButton: false,
-                          timer: 1500,
-                        });
-                        navigate(from, { replace: true });
-                    }
-                })
-            })
+        axios
+          .post(
+            "https://garments-order-production-tracker-s-hazel.vercel.app/users",
+            userInfo
+          )
+          .then(() => {
+            // ২. টোকেন জেনারেট করা
+            const user = { email: loggedUser.email };
+            axios
+              .post(
+                "https://garments-order-production-tracker-s-hazel.vercel.app/jwt",
+                user,
+                { withCredentials: true }
+              )
+              .then((res) => {
+                if (res.data.success) {
+                  Swal.fire({
+                    icon: "success",
+                    title: "Google Login Successful",
+                    showConfirmButton: false,
+                    timer: 1500,
+                  });
+                  navigate(from, { replace: true });
+                }
+              });
+          });
       })
       .catch((error) => console.error(error));
   };

@@ -24,7 +24,9 @@ const MyProfile = () => {
     queryKey: ["userProfile", user?.email],
     enabled: !!user?.email,
     queryFn: async () => {
-      const res = await axios.get(`http://localhost:2001/users/${user?.email}`);
+      const res = await axios.get(
+        `https://garments-order-production-tracker-s-hazel.vercel.app/users/${user?.email}`
+      );
       return res.data;
     },
   });
@@ -41,7 +43,9 @@ const MyProfile = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .patch(`http://localhost:2001/users/request-manager/${dbUser._id}`)
+          .patch(
+            `https://garments-order-production-tracker-s-hazel.vercel.app/users/request-manager/${dbUser._id}`
+          )
           .then((res) => {
             if (res.data.modifiedCount > 0) {
               refetch();
@@ -69,7 +73,6 @@ const MyProfile = () => {
 
         {/* Profile Info Wrapper */}
         <div className="px-6 pb-6 relative flex flex-col md:flex-row items-center md:items-end -mt-16 md:-mt-12 gap-6">
-          
           {/* Avatar Image */}
           <div className="avatar online">
             <div className="w-32 md:w-40 rounded-full ring-4 ring-base-100 bg-base-100 shadow-lg">
@@ -84,7 +87,9 @@ const MyProfile = () => {
           <div className="text-center md:text-left flex-1">
             <h1 className="text-3xl md:text-4xl font-bold text-base-content flex items-center gap-2 justify-center md:justify-start">
               {user?.displayName}
-              {dbUser?.role === 'manager' && <FaCrown className="text-yellow-500 text-2xl" title="Manager" />}
+              {dbUser?.role === "manager" && (
+                <FaCrown className="text-yellow-500 text-2xl" title="Manager" />
+              )}
             </h1>
             <p className="text-base-content/70 font-medium flex items-center gap-2 justify-center md:justify-start mt-1">
               <FaEnvelope className="text-primary" /> {user?.email}
@@ -147,7 +152,7 @@ const MyProfile = () => {
                   <p className="text-xs opacity-70">Check My Orders page</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-red-100 rounded-lg dark:bg-red-900/30">
                   <FaMapMarkerAlt className="text-red-500" />
@@ -165,8 +170,10 @@ const MyProfile = () => {
                 <div className="flex-1">
                   <p className="font-bold text-sm">Last Login</p>
                   <p className="text-xs opacity-70">
-                     {user?.metadata?.lastSignInTime
-                      ? new Date(user.metadata.lastSignInTime).toLocaleDateString()
+                    {user?.metadata?.lastSignInTime
+                      ? new Date(
+                          user.metadata.lastSignInTime
+                        ).toLocaleDateString()
                       : "Today"}
                   </p>
                 </div>
@@ -178,29 +185,36 @@ const MyProfile = () => {
 
       {/* --- Action Section (Manager Request) --- */}
       <div className="mt-10 mb-10">
-        {(!dbUser.role || dbUser.role === "user" || dbUser.role === "buyer") && !dbUser.requestedRole && (
-          <div className="card bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-base-300 dark:to-base-200 border border-blue-100 dark:border-base-content/10 shadow-lg">
-             <div className="card-body flex-row items-center justify-between flex-wrap gap-4">
+        {(!dbUser.role || dbUser.role === "user" || dbUser.role === "buyer") &&
+          !dbUser.requestedRole && (
+            <div className="card bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-base-300 dark:to-base-200 border border-blue-100 dark:border-base-content/10 shadow-lg">
+              <div className="card-body flex-row items-center justify-between flex-wrap gap-4">
                 <div>
-                   <h2 className="card-title text-primary">Interested in Selling?</h2>
-                   <p className="text-base-content/70 text-sm">Upgrade your account to Manager to start your business.</p>
+                  <h2 className="card-title text-primary">
+                    Interested in Selling?
+                  </h2>
+                  <p className="text-base-content/70 text-sm">
+                    Upgrade your account to Manager to start your business.
+                  </p>
                 </div>
-                <button 
-                  onClick={handleRequestManager} 
+                <button
+                  onClick={handleRequestManager}
                   className="btn btn-primary text-white shadow-lg hover:shadow-primary/50"
                 >
                   Apply for Manager
                 </button>
-             </div>
-          </div>
-        )}
+              </div>
+            </div>
+          )}
 
         {dbUser.requestedRole === "manager" && (
           <div className="alert alert-warning shadow-lg mt-6">
             <span className="loading loading-ring loading-md"></span>
             <div>
               <h3 className="font-bold">Application Pending</h3>
-              <div className="text-xs">Admin is reviewing your request to become a Manager.</div>
+              <div className="text-xs">
+                Admin is reviewing your request to become a Manager.
+              </div>
             </div>
           </div>
         )}

@@ -14,10 +14,10 @@ const PaymentSuccess = () => {
     const transactionId = queryParams.get("transactionId");
 
     if (id && transactionId && !updated) {
-      
       // 🔥 FIX: { withCredentials: true } যোগ করা হয়েছে 🔥
       axios
-        .patch(`http://localhost:2001/bookings/payment-success/${id}`, 
+        .patch(
+          `https://garments-order-production-tracker-s-hazel.vercel.app/bookings/payment-success/${id}`,
           { transactionId },
           { withCredentials: true } // এটি ছাড়া পেমেন্ট স্ট্যাটাস আপডেট হবে না
         )
@@ -48,9 +48,7 @@ const PaymentSuccess = () => {
         Payment Processing...
       </h2>
       <span className="loading loading-spinner loading-lg text-success"></span>
-      <p className="mt-2 text-gray-500">
-        Please wait, do not close this page.
-      </p>
+      <p className="mt-2 text-gray-500">Please wait, do not close this page.</p>
     </div>
   );
 };

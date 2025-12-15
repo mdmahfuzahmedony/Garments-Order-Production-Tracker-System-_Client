@@ -14,9 +14,12 @@ const Manage_Users = () => {
     queryKey: ["users"],
     queryFn: async () => {
       // 🔥 FIX: { withCredentials: true } যোগ করা হয়েছে যাতে কুকি পাঠানো হয়
-      const res = await axios.get("http://localhost:2001/users", {
-        withCredentials: true 
-      });
+      const res = await axios.get(
+        "https://garments-order-production-tracker-s-hazel.vercel.app/users",
+        {
+          withCredentials: true,
+        }
+      );
       return res.data;
     },
   });
@@ -53,7 +56,7 @@ const Manage_Users = () => {
     try {
       // 🔥 FIX: আপডেটের সময়ও { withCredentials: true } দিতে হবে
       const res = await axios.patch(
-        `http://localhost:2001/users/update/${selectedUser._id}`,
+        `https://garments-order-production-tracker-s-hazel.vercel.app/users/update/${selectedUser._id}`,
         { role, status },
         { withCredentials: true }
       );
@@ -187,7 +190,8 @@ const Manage_Users = () => {
       <dialog id="user_modal" className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg mb-4 text-center border-b pb-2">
-            Update User: <span className="text-primary">{selectedUser?.name}</span>
+            Update User:{" "}
+            <span className="text-primary">{selectedUser?.name}</span>
           </h3>
           {selectedUser && (
             <form onSubmit={handleUpdateUser}>
@@ -228,22 +232,24 @@ const Manage_Users = () => {
               </div>
 
               <div className="modal-action flex justify-between">
-                 {/* Close Button Inside Form (as type button) to not submit */}
-                 <button 
-                    type="button" 
-                    className="btn btn-ghost"
-                    onClick={() => document.getElementById("user_modal").close()}
-                 >
-                    Cancel
-                 </button>
-                 <button type="submit" className="btn btn-primary px-8">Save Changes</button>
+                {/* Close Button Inside Form (as type button) to not submit */}
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => document.getElementById("user_modal").close()}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary px-8">
+                  Save Changes
+                </button>
               </div>
             </form>
           )}
         </div>
         {/* Background Click Close */}
         <form method="dialog" className="modal-backdrop">
-            <button>close</button>
+          <button>close</button>
         </form>
       </dialog>
     </div>

@@ -4,7 +4,6 @@ import axios from "axios";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import ProductCard from "../../Component/ProductCard/PrpductCard";
 
-
 const AllProduct = () => {
   // 1. States
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,7 +19,9 @@ const AllProduct = () => {
   } = useQuery({
     queryKey: ["allProducts"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:2001/garments-products");
+      const res = await axios.get(
+        "https://garments-order-production-tracker-s-hazel.vercel.app/garments-products"
+      );
       return res.data;
     },
   });
