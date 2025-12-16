@@ -69,8 +69,7 @@ const ProductDetails = () => {
       </div>
     );
 
-  // --- DATA NORMALIZATION (Safe Data Handling) ---
-  // এখানে আমরা চেক করছি ডেটা কোন নামে আছে, যাতে এরর না খায়
+
   const safeName = product.productName || product.name || "Unnamed Product";
   const safePrice = product.price || 0;
   const safeDescription = product.description || "No description available.";
@@ -82,7 +81,7 @@ const ProductDetails = () => {
   const safeVideo =
     product.demoVideo || product.videoLink || product.video || "";
 
-  // Image List Logic: যদি images array থাকে তো ভালো, না থাকলে single image কে array বানাবো থাম্বনেইলের জন্য
+
   const imageList =
     Array.isArray(product.images) && product.images.length > 0
       ? product.images
@@ -121,7 +120,7 @@ const ProductDetails = () => {
             )}
           </div>
 
-          {/* Thumbnails (শুধুমাত্র যদি ১টার বেশি ইমেজ থাকে) */}
+
           {imageList.length > 1 && (
             <div className="flex gap-4 overflow-x-auto pb-2">
               {imageList.map((img, idx) => (
