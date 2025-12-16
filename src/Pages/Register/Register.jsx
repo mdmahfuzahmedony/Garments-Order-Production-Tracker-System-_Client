@@ -44,7 +44,7 @@ const Register = () => {
           // ৩. ডাটাবেসে সেভ করা
           axios
             .post(
-              "https://garments-order-production-tracker-s-hazel.vercel.app/users",
+              "https://garments-order-production-tracker-s-nu.vercel.app/users",
               userInfo
             )
             .then((res) => {
@@ -93,7 +93,7 @@ const Register = () => {
 
         axios
           .post(
-            "https://garments-order-production-tracker-s-hazel.vercel.app/users",
+            "https://garments-order-production-tracker-s-nu.vercel.app/users",
             userInfo
           )
           .then(() => {

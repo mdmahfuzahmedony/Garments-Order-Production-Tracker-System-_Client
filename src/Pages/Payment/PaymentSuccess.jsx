@@ -17,7 +17,7 @@ const PaymentSuccess = () => {
       // 🔥 FIX: { withCredentials: true } যোগ করা হয়েছে 🔥
       axios
         .patch(
-          `https://garments-order-production-tracker-s-hazel.vercel.app/bookings/payment-success/${id}`,
+          `https://garments-order-production-tracker-s-nu.vercel.app/bookings/payment-success/${id}`,
           { transactionId },
           { withCredentials: true } // এটি ছাড়া পেমেন্ট স্ট্যাটাস আপডেট হবে না
         )

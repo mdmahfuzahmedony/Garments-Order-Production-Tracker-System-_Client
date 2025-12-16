@@ -65,7 +65,7 @@ const AuthProvider = ({ children }) => {
 
         axios
           .post(
-            "https://garments-order-production-tracker-s-hazel.vercel.app/jwt",
+            "https://garments-order-production-tracker-s-nu.vercel.app/jwt",
             userInfo,
             { withCredentials: true }
           )
@@ -83,7 +83,7 @@ const AuthProvider = ({ children }) => {
         // ইউজার লগআউট হলে কুকি মুছে ফেলা
         axios
           .post(
-            "https://garments-order-production-tracker-s-hazel.vercel.app/logout",
+            "https://garments-order-production-tracker-s-nu.vercel.app/logout",
             {},
             { withCredentials: true }
           )

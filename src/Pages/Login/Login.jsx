@@ -29,7 +29,7 @@ const Login = () => {
 
         axios
           .post(
-            "https://garments-order-production-tracker-s-hazel.vercel.app/jwt",
+            "https://garments-order-production-tracker-s-nu.vercel.app/jwt",
             user,
             { withCredentials: true }
           )
@@ -70,7 +70,7 @@ const Login = () => {
         // ১. ইউজার ডাটাবেসে সেভ করা (যদি নতুন হয়)
         axios
           .post(
-            "https://garments-order-production-tracker-s-hazel.vercel.app/users",
+            "https://garments-order-production-tracker-s-nu.vercel.app/users",
             userInfo
           )
           .then(() => {
@@ -78,7 +78,7 @@ const Login = () => {
             const user = { email: loggedUser.email };
             axios
               .post(
-                "https://garments-order-production-tracker-s-hazel.vercel.app/jwt",
+                "https://garments-order-production-tracker-s-nu.vercel.app/jwt",
                 user,
                 { withCredentials: true }
               )

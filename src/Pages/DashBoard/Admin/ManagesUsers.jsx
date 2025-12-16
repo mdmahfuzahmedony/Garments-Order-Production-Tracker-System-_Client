@@ -15,7 +15,7 @@ const Manage_Users = () => {
     queryFn: async () => {
       // 🔥 FIX: { withCredentials: true } যোগ করা হয়েছে যাতে কুকি পাঠানো হয়
       const res = await axios.get(
-        "https://garments-order-production-tracker-s-hazel.vercel.app/users",
+        "https://garments-order-production-tracker-s-nu.vercel.app/users",
         {
           withCredentials: true,
         }
@@ -56,7 +56,7 @@ const Manage_Users = () => {
     try {
       // 🔥 FIX: আপডেটের সময়ও { withCredentials: true } দিতে হবে
       const res = await axios.patch(
-        `https://garments-order-production-tracker-s-hazel.vercel.app/users/update/${selectedUser._id}`,
+        `https://garments-order-production-tracker-s-nu.vercel.app/users/update/${selectedUser._id}`,
         { role, status },
         { withCredentials: true }
       );

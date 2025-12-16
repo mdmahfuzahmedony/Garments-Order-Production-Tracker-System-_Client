@@ -20,7 +20,7 @@ const AllProduct = () => {
     queryKey: ["allProducts"],
     queryFn: async () => {
       const res = await axios.get(
-        "https://garments-order-production-tracker-s-hazel.vercel.app/garments-products"
+        "https://garments-order-production-tracker-s-nu.vercel.app/garments-products"
       );
       return res.data;
     },

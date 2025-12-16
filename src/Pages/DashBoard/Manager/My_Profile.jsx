@@ -26,7 +26,7 @@ const MyProfile = () => {
     enabled: !!user?.email,
     queryFn: async () => {
       const res = await axios.get(
-        `https://garments-order-production-tracker-s-hazel.vercel.app/users/${user?.email}`
+        `https://garments-order-production-tracker-s-nu.vercel.app/users/${user?.email}`
       );
       return res.data;
     },
@@ -46,7 +46,7 @@ const MyProfile = () => {
       if (result.isConfirmed) {
         axios
           .patch(
-            `https://garments-order-production-tracker-s-hazel.vercel.app/users/request-manager/${dbUser._id}`
+            `https://garments-order-production-tracker-s-nu.vercel.app/users/request-manager/${dbUser._id}`
           )
           .then((res) => {
             if (res.data.modifiedCount > 0) {

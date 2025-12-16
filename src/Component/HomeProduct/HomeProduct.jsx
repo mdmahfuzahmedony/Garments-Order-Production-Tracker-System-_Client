@@ -9,7 +9,7 @@ const HomeProduct = () => {
     queryKey: ["home-products"],
     queryFn: async () => {
       const res = await axios.get(
-        "https://garments-order-production-tracker-s-hazel.vercel.app/garments-products"
+        "https://garments-order-production-tracker-s-nu.vercel.app/garments-products"
       );
       // শুধুমাত্র showOnHome: true এবং প্রথম ৬টি প্রোডাক্ট
       return res.data.filter((item) => item.showOnHome === true).slice(0, 6);

@@ -24,7 +24,7 @@ const ProductDetails = () => {
     queryKey: ["product", id],
     queryFn: async () => {
       const res = await axios.get(
-        `https://garments-order-production-tracker-s-hazel.vercel.app/garments-products/${id}`
+        `https://garments-order-production-tracker-s-nu.vercel.app/garments-products/${id}`
       );
       return res.data;
     },
@@ -35,7 +35,7 @@ const ProductDetails = () => {
     queryKey: ["relatedProducts"],
     queryFn: async () => {
       const res = await axios.get(
-        "https://garments-order-production-tracker-s-hazel.vercel.app/garments-products"
+        "https://garments-order-production-tracker-s-nu.vercel.app/garments-products"
       );
       return res.data;
     },
