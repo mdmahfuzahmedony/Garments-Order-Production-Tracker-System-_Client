@@ -122,7 +122,7 @@ const HomeProduct = () => {
                       to={`/product-details/${product._id}`}
                       className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2 hover:gap-3 transition-all"
                     >
-                      Order Now <FaArrowRight className="text-teal-500" />
+                    View Details <FaArrowRight className="text-teal-500" />
                     </Link>
                   </div>
                 </div>
