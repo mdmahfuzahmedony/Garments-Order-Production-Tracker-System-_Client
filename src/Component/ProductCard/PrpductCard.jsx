@@ -95,7 +95,7 @@ const ProductCard = ({ product }) => {
                         to={`/product-details/${_id}`}
                         className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2 hover:gap-3 transition-all group-hover:text-teal-500"
                     >
-                        Order Now <FaArrowRight className="text-teal-500" />
+                    View Details <FaArrowRight className="text-teal-500" />
                     </Link>
                 </div>
             </div>
