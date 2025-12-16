@@ -35,27 +35,34 @@ const WorkProcess = () => {
   ];
 
   return (
-    <section className="py-24 bg-[#03131E] font-sans relative">
-      {/* Background Texture (Optional) */}
+    // 1. Background: Updated to Gradient (Matched with CTASection)
+    <section className="py-24 font-sans relative overflow-hidden transition-colors duration-300
+      bg-gradient-to-br from-gray-50 to-teal-50/30 
+      dark:from-[#0b1120] dark:to-[#020d14]">
+      
+      {/* Background Texture (Dots) */}
       <div
-        className="absolute inset-0 opacity-5 pointer-events-none"
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.1] pointer-events-none"
         style={{
-          backgroundImage:
-            "linear-gradient(45deg, #ffffff 1px, transparent 1px)",
-          backgroundSize: "30px 30px",
+          backgroundImage: "radial-gradient(#14b8a6 1px, transparent 1px)", // Teal dots
+          backgroundSize: "20px 20px",
         }}
       ></div>
 
       <div className="max-w-[1500px] mx-auto px-6 relative z-10">
-        {/* Header */}
+        
+        {/* Header Section */}
         <div className="text-center mb-20">
-          <span className="text-[#8CD6B3] font-bold tracking-widest uppercase text-sm">
+          <p className="text-teal-500 dark:text-teal-400 font-bold tracking-widest uppercase text-sm mb-2">
             How It Works
-          </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-white mt-3">
-            Simple 4-Step <span className="text-[#8CD6B3]">Workflow</span>
+          </p>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mt-3">
+            Simple 4-Step{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500">
+              Workflow
+            </span>
           </h2>
-          <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto text-lg">
             We have simplified the complex garment manufacturing process into a
             user-friendly digital flow.
           </p>
@@ -64,15 +71,26 @@ const WorkProcess = () => {
         {/* Steps Container */}
         <div className="relative">
           {/* Connecting Dashed Line (Visible only on Desktop) */}
-          <div className="hidden md:block absolute top-[50px] left-0 w-full h-0.5 border-t-2 border-dashed border-gray-700 z-0"></div>
+          <div className="hidden md:block absolute top-[50px] left-0 w-full h-0.5 border-t-2 border-dashed border-gray-300 dark:border-gray-700 z-0"></div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-6">
             {steps.map((step) => (
               <div key={step.id} className="relative z-10 text-center group">
-                {/* Icon Container */}
-                <div className="w-24 h-24 mx-auto bg-[#0E2A3B] border-4 border-[#03131E] rounded-full flex items-center justify-center text-3xl text-white mb-8 group-hover:border-[#8CD6B3] group-hover:text-[#8CD6B3] transition-all duration-300 shadow-xl relative">
+                
+                {/* Icon Container Circle */}
+                {/* 
+                   Note on Border: Even with gradient bg, we use solid border colors 
+                   closest to the gradient start to hide the dashed line effectively.
+                */}
+                <div className="w-24 h-24 mx-auto rounded-full flex items-center justify-center text-3xl mb-8 relative transition-all duration-300 shadow-lg
+                bg-white dark:bg-[#151f32]
+                border-4 border-gray-50 dark:border-[#0b1120]
+                text-gray-400 dark:text-gray-500
+                group-hover:border-teal-400 group-hover:text-teal-500 group-hover:scale-110 group-hover:shadow-teal-500/20">
+                  
                   {/* Small Number Badge */}
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-[#8CD6B3] rounded-full flex items-center justify-center text-[#03131E] font-bold text-sm shadow-md">
+                  <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-md text-white
+                  bg-gradient-to-r from-teal-400 to-emerald-500">
                     {step.id}
                   </div>
 
@@ -80,10 +98,10 @@ const WorkProcess = () => {
                 </div>
 
                 {/* Text Content */}
-                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-[#8CD6B3] transition-colors">
+                <h3 className="text-xl font-bold mb-3 transition-colors text-gray-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400">
                   {step.title}
                 </h3>
-                <p className="text-gray-400 text-sm leading-relaxed px-2">
+                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed px-2">
                   {step.desc}
                 </p>
               </div>

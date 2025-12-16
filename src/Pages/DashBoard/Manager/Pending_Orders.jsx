@@ -11,13 +11,14 @@ import {
     FaBoxOpen
 } from "react-icons/fa";
 import { AuthContext } from "../../../Provider/AuthProvider";
-import useAxiosSecure from "../../../Hooks/useAxiosSecure/useAxiosSecure"; // পাথ ঠিক করা হয়েছে
+import useAxiosSecure from "../../../Hooks/useAxiosSecure/useAxiosSecure"; 
 
 const Pending_Orders = () => {
     const { user, loading } = useContext(AuthContext);
     const axiosSecure = useAxiosSecure(); 
     const [selectedOrder, setSelectedOrder] = useState(null);
 
+    // ১. ডাটা লোড - লজিক অপরিবর্তিত
     const { data: pendingOrders = [], refetch, isLoading } = useQuery({
         queryKey: ['manager-pending', user?.email],
         enabled: !loading && !!user?.email, 
@@ -27,10 +28,9 @@ const Pending_Orders = () => {
         }
     });
 
-    // --- Approve Handler ---
+    // ২. অ্যাপ্রুভ হ্যান্ডলার - লজিক অপরিবর্তিত
     const handleApprove = async (id) => {
         try {
-            // স্ট্যাটাস আপডেট করে 'Approved' করা হচ্ছে
             const res = await axiosSecure.patch(`/bookings/status/${id}`, { status: 'Approved' });
             
             if (res.data.modifiedCount > 0) {
@@ -41,7 +41,7 @@ const Pending_Orders = () => {
                     timer: 1500,
                     showConfirmButton: false
                 });
-                refetch(); // টেবিল রিফ্রেশ
+                refetch(); 
                 if(selectedOrder) document.getElementById('view_order_modal').close();
             }
         } catch (error) {
@@ -50,7 +50,7 @@ const Pending_Orders = () => {
         }
     };
 
-    // --- Reject Handler ---
+    // ৩. রিজেক্ট হ্যান্ডলার - লজিক অপরিবর্তিত
     const handleReject = (id) => {
         Swal.fire({
             title: "Reject Order?",
@@ -58,6 +58,7 @@ const Pending_Orders = () => {
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
+            cancelButtonColor: "#14b8a6", // Teal Cancel Button
             confirmButtonText: "Yes, Reject it!"
         }).then((result) => {
             if (result.isConfirmed) {
@@ -72,7 +73,7 @@ const Pending_Orders = () => {
         });
     };
 
-    // --- View Modal Handler ---
+    // ৪. মডাল হ্যান্ডলার - লজিক অপরিবর্তিত
     const handleViewOrder = (order) => {
         setSelectedOrder(order);
         document.getElementById('view_order_modal').showModal();
@@ -80,119 +81,205 @@ const Pending_Orders = () => {
 
     if (isLoading || loading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-base-200">
-                <span className="loading loading-spinner loading-lg text-primary"></span>
+            <div className="flex justify-center items-center h-screen bg-gray-50 dark:bg-[#03131E]">
+                <span className="loading loading-bars loading-lg text-teal-500"></span>
             </div>
         );
     }
 
     if (pendingOrders.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center h-[60vh] bg-base-200 text-base-content/60">
-                <FaBoxOpen className="text-6xl mb-4 opacity-50" />
-                <h2 className="text-2xl font-bold">No Pending Approvals</h2>
-                <p>All orders have been processed.</p>
+            // Empty State (Matched Background)
+            <div className="flex flex-col items-center justify-center min-h-screen font-sans transition-colors duration-300 relative
+                bg-gradient-to-br from-gray-50 to-teal-50/30 
+                dark:from-[#03131E] dark:to-[#0b1120]">
+                
+                {/* Background Texture */}
+                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.1] pointer-events-none"
+                    style={{ backgroundImage: "radial-gradient(#14b8a6 1px, transparent 1px)", backgroundSize: "25px 25px" }}>
+                </div>
+
+                <div className="relative z-10 flex flex-col items-center opacity-60">
+                    <FaBoxOpen className="text-8xl mb-4 text-teal-300 dark:text-teal-900" />
+                    <h2 className="text-2xl font-bold text-gray-500 dark:text-gray-400">No Pending Approvals</h2>
+                    <p className="text-gray-400">All orders have been processed.</p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="p-4 md:p-10 bg-base-200 min-h-screen">
-            <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-bold text-base-content">Pending Orders</h2>
-                <div className="badge badge-warning badge-lg font-bold">{pendingOrders.length} Pending</div>
-            </div>
+        // 1. Background: Matched with other pages (Gradient & Texture)
+        <div className="w-full min-h-screen p-6 font-sans transition-colors duration-300 relative
+            bg-gradient-to-br from-gray-50 to-teal-50/30 
+            dark:from-[#03131E] dark:to-[#0b1120]">
             
-            <div className="overflow-x-auto shadow-xl rounded-xl border border-base-300 bg-base-100">
-                <table className="table bg-base-100 align-middle w-full">
-                    <thead className="bg-primary text-white text-sm uppercase font-bold">
-                        <tr>
-                            <th className="py-4 pl-4">Order ID</th>
-                            <th>User</th>
-                            <th>Product</th>
-                            <th className="text-center">Quantity</th>
-                            <th>Order Date</th>
-                            <th className="text-center pr-4">Actions</th>
-                        </tr>
-                    </thead>
-                    
-                    <tbody className="divide-y divide-base-300 text-base-content">
-                        {pendingOrders.map((order) => (
-                            <tr key={order._id} className="hover:bg-base-200 transition duration-200">
-                                <td className="pl-4 font-mono font-bold text-xs opacity-70">#{order._id.slice(-6).toUpperCase()}</td>
-                                <td>
-                                    <div className="flex flex-col">
-                                        <span className="font-bold">{order.userName}</span>
-                                        <span className="text-xs opacity-60">{order.userEmail}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="flex items-center gap-3">
-                                        <div className="avatar">
-                                            <div className="mask mask-squircle w-10 h-10 bg-base-300">
-                                                <img src={order.productImage} alt="Prod" />
-                                            </div>
-                                        </div>
-                                        <div className="font-semibold text-sm line-clamp-1 max-w-[150px]">{order.productName}</div>
-                                    </div>
-                                </td>
-                                <td className="text-center font-bold"><span className="badge badge-ghost font-mono">{order.quantity}</span></td>
-                                <td className="text-sm">
-                                    {new Date(order.orderDate).toLocaleDateString()}
-                                </td>
-                                <td className="pr-4 text-center">
-                                    <div className="flex items-center justify-center gap-2">
-                                        <button onClick={() => handleViewOrder(order)} className="btn btn-sm btn-square btn-ghost text-info tooltip" data-tip="View Details">
-                                            <FaEye className="text-lg" />
-                                        </button>
-                                        <button onClick={() => handleApprove(order._id)} className="btn btn-sm btn-square btn-ghost text-success tooltip" data-tip="Approve" disabled={order.paymentMethod !== 'Cash on Delivery' && order.paymentStatus === 'Unpaid'}>
-                                            <FaCheck className="text-lg" />
-                                        </button>
-                                        <button onClick={() => handleReject(order._id)} className="btn btn-sm btn-square btn-ghost text-error tooltip" data-tip="Reject">
-                                            <FaTimes className="text-lg" />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            {/* Background Texture (Dots) */}
+            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.1] pointer-events-none"
+                style={{ backgroundImage: "radial-gradient(#14b8a6 1px, transparent 1px)", backgroundSize: "25px 25px" }}>
             </div>
 
-            {/* Modal remains same as your code */}
-            <dialog id="view_order_modal" className="modal modal-bottom sm:modal-middle">
-                 <div className="modal-box bg-base-100 text-base-content">
-                    <form method="dialog">
-                        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-                    </form>
-                    {selectedOrder && (
-                        <>
-                            <h3 className="font-bold text-lg mb-4 text-primary border-b border-base-300 pb-2">Order Details</h3>
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
-                                    <img src={selectedOrder.productImage} alt="" className="w-16 h-16 rounded object-cover"/>
-                                    <div>
-                                        <p className="font-bold">{selectedOrder.productName}</p>
-                                        <p className="text-xs opacity-70">ID: #{selectedOrder._id}</p>
+            <div className="relative z-10 max-w-7xl mx-auto">
+                {/* Header Section */}
+                <div className="flex items-center justify-between mb-8">
+                    <div>
+                        <p className="text-teal-500 dark:text-teal-400 font-bold tracking-widest uppercase text-xs mb-1">Order Management</p>
+                        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+                            Pending <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500">Approvals</span>
+                        </h2>
+                    </div>
+                    <div className="badge bg-orange-100 text-orange-600 border border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800 p-4 font-bold rounded-lg shadow-sm">
+                        {pendingOrders.length} Pending
+                    </div>
+                </div>
+                
+                {/* Table Section */}
+                <div className="overflow-x-auto">
+                    {/* border-separate এবং border-spacing-y-4 ব্যবহার করে রো গুলোর মাঝে ফাঁকা রাখা হয়েছে */}
+                    <table className="table w-full border-separate border-spacing-y-4">
+                        <thead className="text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wider">
+                            <tr>
+                                <th className="bg-transparent border-0 pl-6">Order ID</th>
+                                <th className="bg-transparent border-0">User</th>
+                                <th className="bg-transparent border-0">Product</th>
+                                <th className="bg-transparent border-0 text-center">Quantity</th>
+                                <th className="bg-transparent border-0">Order Date</th>
+                                <th className="bg-transparent border-0 text-center pr-6">Actions</th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody>
+                            {pendingOrders.map((order) => (
+                                <tr 
+                                    key={order._id} 
+                                    // Row Styling: Card look, hover shadow, transition
+                                    className="group bg-white dark:bg-[#151f32] shadow-sm hover:shadow-xl hover:shadow-teal-500/10 hover:-translate-y-1 transition-all duration-300 rounded-xl"
+                                >
+                                    <td className="pl-6 font-mono font-bold text-xs text-gray-400 rounded-l-xl border-y border-l border-gray-100 dark:border-gray-800 group-hover:border-teal-500/30">
+                                        #{order._id.slice(-6).toUpperCase()}
+                                    </td>
+                                    
+                                    <td className="border-y border-gray-100 dark:border-gray-800 group-hover:border-teal-500/30">
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-gray-800 dark:text-white">{order.userName}</span>
+                                            <span className="text-xs text-gray-400">{order.userEmail}</span>
+                                        </div>
+                                    </td>
+                                    
+                                    <td className="border-y border-gray-100 dark:border-gray-800 group-hover:border-teal-500/30">
+                                        <div className="flex items-center gap-3">
+                                            <div className="avatar">
+                                                <div className="mask mask-squircle w-10 h-10 ring-1 ring-gray-100 dark:ring-gray-700 bg-gray-50 dark:bg-gray-800">
+                                                    <img src={order.productImage} alt="Prod" />
+                                                </div>
+                                            </div>
+                                            <div className="font-semibold text-sm line-clamp-1 max-w-[150px] text-gray-700 dark:text-gray-300">{order.productName}</div>
+                                        </div>
+                                    </td>
+                                    
+                                    <td className="text-center font-bold text-gray-700 dark:text-gray-300 border-y border-gray-100 dark:border-gray-800 group-hover:border-teal-500/30">
+                                        <span className="badge border-0 bg-gray-100 dark:bg-gray-800 font-mono text-gray-600 dark:text-gray-400">{order.quantity}</span>
+                                    </td>
+                                    
+                                    <td className="text-sm text-gray-500 dark:text-gray-400 border-y border-gray-100 dark:border-gray-800 group-hover:border-teal-500/30">
+                                        {new Date(order.orderDate).toLocaleDateString()}
+                                    </td>
+                                    
+                                    <td className="pr-6 text-center rounded-r-xl border-y border-r border-gray-100 dark:border-gray-800 group-hover:border-teal-500/30">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <button 
+                                                onClick={() => handleViewOrder(order)} 
+                                                className="btn btn-sm btn-square btn-ghost text-teal-500 hover:bg-teal-50 dark:hover:bg-teal-900/20 tooltip" 
+                                                data-tip="View Details"
+                                            >
+                                                <FaEye className="text-lg" />
+                                            </button>
+                                            
+                                            <button 
+                                                onClick={() => handleApprove(order._id)} 
+                                                className="btn btn-sm btn-square btn-ghost text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 tooltip" 
+                                                data-tip="Approve" 
+                                                disabled={order.paymentMethod !== 'Cash on Delivery' && order.paymentStatus === 'Unpaid'}
+                                            >
+                                                <FaCheck className="text-lg" />
+                                            </button>
+                                            
+                                            <button 
+                                                onClick={() => handleReject(order._id)} 
+                                                className="btn btn-sm btn-square btn-ghost text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 tooltip" 
+                                                data-tip="Reject"
+                                            >
+                                                <FaTimes className="text-lg" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Modal (Styled) */}
+                <dialog id="view_order_modal" className="modal modal-bottom sm:modal-middle backdrop-blur-sm">
+                     <div className="modal-box bg-white dark:bg-[#151f32] text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700 shadow-2xl p-0 overflow-hidden">
+                        <form method="dialog">
+                            <button className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 z-20">✕</button>
+                        </form>
+                        
+                        {selectedOrder && (
+                            <>
+                                <div className="bg-gray-50 dark:bg-[#0b1120] p-6 border-b border-gray-100 dark:border-gray-700">
+                                    <h3 className="font-bold text-lg text-teal-500">Order Details</h3>
+                                    <p className="text-xs text-gray-400 mt-1">Review the order before approving.</p>
+                                </div>
+                                
+                                <div className="p-6 space-y-4">
+                                    <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-[#0b1120] rounded-xl border border-gray-100 dark:border-gray-700">
+                                        <img src={selectedOrder.productImage} alt="" className="w-16 h-16 rounded-lg object-cover ring-1 ring-gray-200 dark:ring-gray-700"/>
+                                        <div>
+                                            <p className="font-bold text-gray-800 dark:text-white">{selectedOrder.productName}</p>
+                                            <p className="text-xs text-gray-400 font-mono mt-1">ID: #{selectedOrder._id}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div className="p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                                            <p className="font-bold flex items-center gap-2 text-gray-600 dark:text-gray-300 mb-1"><FaUser className="text-teal-500 text-xs"/> Customer</p>
+                                            <p className="text-gray-500 dark:text-gray-400 text-xs">{selectedOrder.userName}</p>
+                                        </div>
+                                        <div className="p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                                            <p className="font-bold flex items-center gap-2 text-gray-600 dark:text-gray-300 mb-1"><FaMoneyBillWave className="text-teal-500 text-xs"/> Payment</p>
+                                            <p className="text-gray-500 dark:text-gray-400 text-xs">{selectedOrder.paymentMethod}</p>
+                                        </div>
+                                        <div className="col-span-2 p-3 rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-[#0b1120]">
+                                            <p className="font-bold flex items-center gap-2 text-gray-600 dark:text-gray-300 mb-2"><FaCalendarAlt className="text-teal-500 text-xs"/> Delivery Address</p>
+                                            <p className="text-gray-500 dark:text-gray-400 text-xs italic">{selectedOrder.address}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex justify-between items-center bg-teal-50 dark:bg-teal-900/20 p-4 rounded-xl border border-teal-100 dark:border-teal-900/30">
+                                        <span className="font-bold text-teal-700 dark:text-teal-400">Total Price:</span>
+                                        <span className="text-2xl font-extrabold text-teal-600 dark:text-teal-300">${selectedOrder.totalPrice}</span>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4 text-sm">
-                                    <div><p className="font-bold flex items-center gap-1"><FaUser className="text-xs"/> Customer</p><p className="opacity-80">{selectedOrder.userName}</p></div>
-                                    <div><p className="font-bold flex items-center gap-1"><FaMoneyBillWave className="text-xs"/> Payment</p><p className="opacity-80">{selectedOrder.paymentMethod}</p></div>
-                                    <div className="col-span-2"><p className="font-bold flex items-center gap-1"><FaCalendarAlt className="text-xs"/> Address</p><p className="opacity-80 p-2 bg-base-200 rounded text-xs mt-1">{selectedOrder.address}</p></div>
+                                
+                                <div className="modal-action p-6 pt-0 flex justify-end">
+                                    <button 
+                                        onClick={() => handleApprove(selectedOrder._id)} 
+                                        className="btn bg-gradient-to-r from-teal-400 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 border-0 text-white shadow-lg w-full" 
+                                        disabled={selectedOrder.paymentMethod !== 'Cash on Delivery' && selectedOrder.paymentStatus === 'Unpaid'}
+                                    >
+                                        Approve Now
+                                    </button>
                                 </div>
-                                <div className="flex justify-between items-center bg-primary/10 p-3 rounded-lg mt-4">
-                                    <span className="font-bold">Total Price:</span>
-                                    <span className="text-xl font-bold text-primary">${selectedOrder.totalPrice}</span>
-                                </div>
-                            </div>
-                            <div className="modal-action">
-                                <button onClick={() => handleApprove(selectedOrder._id)} className="btn btn-success text-white" disabled={selectedOrder.paymentMethod !== 'Cash on Delivery' && selectedOrder.paymentStatus === 'Unpaid'}>Approve Now</button>
-                            </div>
-                        </>
-                    )}
-                </div>
-            </dialog>
+                            </>
+                        )}
+                    </div>
+                    <form method="dialog" className="modal-backdrop">
+                        <button className="cursor-default">close</button>
+                    </form>
+                </dialog>
+            </div>
         </div>
     );
 };

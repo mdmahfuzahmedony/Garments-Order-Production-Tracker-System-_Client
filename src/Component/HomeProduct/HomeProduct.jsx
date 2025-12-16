@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { FaArrowRight, FaShoppingCart, FaEye } from "react-icons/fa";
+import { FaArrowRight, FaEye } from "react-icons/fa";
 import { Link } from "react-router";
 
 const HomeProduct = () => {
@@ -11,25 +11,40 @@ const HomeProduct = () => {
       const res = await axios.get(
         "https://garments-order-production-tracker-s-nu.vercel.app/garments-products"
       );
-      // শুধুমাত্র showOnHome: true এবং প্রথম ৬টি প্রোডাক্ট
+      // Filter: showOnHome: true and slice first 6
       return res.data.filter((item) => item.showOnHome === true).slice(0, 6);
     },
   });
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-24 bg-gray-50 dark:bg-[#0b1120]">
+      <div className="flex justify-center items-center py-32 bg-gray-50 dark:bg-[#03131E]">
         <span className="loading loading-bars loading-lg text-teal-400"></span>
       </div>
     );
   }
 
   return (
-    <section className="py-20 bg-gray-50 dark:bg-[#0b1120] transition-colors duration-300 font-sans">
-      <div className="max-w-[1500px] mx-auto px-6">
-        {/* --- HEADER SECTION (Matching your Screenshot Style) --- */}
+    // 1. Background: Updated to Gradient (Matched with Hero & CTA)
+    // Light: Gray to Teal Fade | Dark: Footer Color (#03131E) -> Site Theme (#0b1120)
+    <section className="py-20 relative overflow-hidden transition-colors duration-300 font-sans
+      bg-gradient-to-br from-gray-50 to-teal-50/30 
+      dark:from-[#03131E] dark:to-[#0b1120]">
+      
+      {/* Background Texture (Teal Dots) */}
+      <div
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.1] pointer-events-none"
+        style={{
+          backgroundImage: "radial-gradient(#14b8a6 1px, transparent 1px)",
+          backgroundSize: "25px 25px",
+        }}
+      ></div>
+
+      <div className="max-w-[1500px] mx-auto px-6 relative z-10">
+        
+        {/* --- HEADER SECTION --- */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
-          <div className="max-w-[1500px]">
+          <div className="max-w-2xl">
             <p className="text-teal-500 dark:text-teal-400 font-bold tracking-widest uppercase text-sm mb-2">
               Exclusive Collection
             </p>
@@ -47,10 +62,10 @@ const HomeProduct = () => {
 
           <Link
             to="/all-products"
-            className="group flex items-center gap-2 text-gray-800 dark:text-white font-bold hover:text-teal-500 transition-all"
+            className="group flex items-center gap-2 text-gray-900 dark:text-white font-bold hover:text-teal-500 transition-all"
           >
             View All Products
-            <span className="group-hover:translate-x-1 transition-transform">
+            <span className="group-hover:translate-x-1 transition-transform text-teal-500">
               <FaArrowRight />
             </span>
           </Link>
@@ -58,7 +73,7 @@ const HomeProduct = () => {
 
         {/* --- PRODUCTS GRID --- */}
         {products.length === 0 ? (
-          <div className="text-center py-16 bg-white dark:bg-[#151f32] rounded-2xl border border-gray-200 dark:border-gray-800">
+          <div className="text-center py-16 bg-white dark:bg-[#151f32] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
             <p className="text-xl text-gray-400">
               No featured products currently available.
             </p>
@@ -68,8 +83,12 @@ const HomeProduct = () => {
             {products.map((product) => (
               <div
                 key={product._id}
-                className="group relative bg-white dark:bg-[#151f32] rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-2xl hover:shadow-teal-500/10 transition-all duration-300"
+                className="group relative bg-white dark:bg-[#151f32] rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-2xl hover:shadow-teal-500/10 transition-all duration-300 hover:-translate-y-1"
               >
+                
+                {/* Optional: Top Accent Line Animation (Added for consistency with other cards) */}
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 to-emerald-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left z-10"></div>
+
                 {/* Image Section */}
                 <div className="relative h-72 overflow-hidden bg-gray-100 dark:bg-gray-800">
                   <img
@@ -82,7 +101,7 @@ const HomeProduct = () => {
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
                     <Link
                       to={`/product-details/${product._id}`}
-                      className="btn btn-circle btn-white text-gray-900 hover:bg-teal-400 hover:text-white border-0 shadow-lg"
+                      className="btn btn-circle bg-white text-gray-900 hover:bg-teal-500 hover:text-white border-0 shadow-lg"
                       title="View Details"
                     >
                       <FaEye className="text-lg" />
@@ -120,9 +139,9 @@ const HomeProduct = () => {
 
                     <Link
                       to={`/product-details/${product._id}`}
-                      className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2 hover:gap-3 transition-all"
+                      className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2 hover:gap-3 transition-all group-hover:text-teal-500"
                     >
-                    View Details <FaArrowRight className="text-teal-500" />
+                      View Details <FaArrowRight className="text-teal-500" />
                     </Link>
                   </div>
                 </div>

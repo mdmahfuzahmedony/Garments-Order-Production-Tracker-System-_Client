@@ -34,17 +34,38 @@ const BlogSection = () => {
     ];
 
     return (
-        // 1. Main Background: Light = White, Dark = Deep Navy (#020d14)
-        <section className="py-20 font-sans transition-colors duration-300 bg-white dark:bg-[#020d14]">
-            <div className="max-w-[1500px] mx-auto px-6">
+        // 1. Background: 
+        // - Uses 'bg-gradient-to-l' so color flows from RIGHT to LEFT.
+        // - Right side is lighter/colorful, Left side matches the site theme.
+        <section className="py-20 relative overflow-hidden font-sans transition-colors duration-300
+            bg-gradient-to-l from-teal-50/50 via-gray-50 to-gray-50
+            dark:from-[#0b1d2e] dark:via-[#06131c] dark:to-[#03131E]">
+            
+            {/* Background Texture (Dots) */}
+            <div
+                className="absolute inset-0 opacity-[0.03] dark:opacity-[0.1] pointer-events-none"
+                style={{
+                    backgroundImage: "radial-gradient(#14b8a6 1px, transparent 1px)",
+                    backgroundSize: "25px 25px",
+                }}
+            ></div>
+
+            {/* --- RIGHT SIDE COLOR GLOW (Special Request) --- */}
+            {/* This adds a big soft Teal light on the right side */}
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+            <div className="max-w-[1500px] mx-auto px-6 relative z-10">
                 
                 {/* Header Text */}
                 <div className="text-center mb-16 space-y-4">
-                    <span className="font-medium border-b-2 border-[#8CD6B3] pb-1 transition-colors duration-300 text-[#0e2a3b] dark:text-[#8CD6B3]">
+                    <p className="text-teal-500 dark:text-teal-400 font-bold tracking-widest uppercase text-sm">
                         Our Blog
-                    </span>
-                    <h2 className="text-4xl font-bold transition-colors duration-300 text-[#03131E] dark:text-white">
-                        Latest Blog & Articles
+                    </p>
+                    <h2 className="text-4xl font-extrabold transition-colors duration-300 text-gray-900 dark:text-white">
+                        Latest Blog &{" "}
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500">
+                            Articles
+                        </span>
                     </h2>
                 </div>
 
@@ -53,51 +74,52 @@ const BlogSection = () => {
                     {blogPosts.map((post) => (
                         <div 
                             key={post.id} 
-                            // 2. Card Styles & Animation Classes
-                            className="group relative p-5 rounded-xl border transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl overflow-hidden
-                            bg-gray-50 border-gray-100 
-                            dark:bg-[#0E2A3B] dark:border-gray-800"
+                            // 2. Card Styles
+                            className="group relative p-6 rounded-2xl border transition-all duration-300 hover:-translate-y-2 overflow-hidden
+                            bg-white dark:bg-[#151f32]
+                            border-gray-100 dark:border-gray-800
+                            shadow-sm hover:shadow-2xl hover:shadow-teal-500/10"
                         >
                             
                             {/* --- TOP ACCENT LINE ANIMATION --- */}
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#03131E] to-[#8CD6B3] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 to-emerald-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
 
                             {/* TOP SECTION: Image (Left) + Title/Info (Right) */}
-                            <div className="flex flex-row gap-5 mb-5">
+                            <div className="flex flex-col sm:flex-row gap-6 mb-5">
                                 
                                 {/* 1. IMAGE BOX (Left) */}
-                                <div className="w-1/2 overflow-hidden rounded-lg">
+                                <div className="w-full sm:w-1/2 overflow-hidden rounded-xl h-48 sm:h-auto">
                                     <img 
                                         src={post.image} 
                                         alt={post.title} 
-                                        className="w-full h-40 object-cover transform group-hover:scale-110 transition duration-500"
+                                        className="w-full h-full object-cover transform group-hover:scale-110 transition duration-700"
                                     />
                                 </div>
 
                                 {/* 2. OTHER INFO BOX (Right) */}
-                                <div className="w-1/2 flex flex-col justify-center">
+                                <div className="w-full sm:w-1/2 flex flex-col justify-center">
                                     {/* Meta Data */}
-                                    <div className="flex items-center gap-3 text-xs mb-2 transition-colors duration-300 text-gray-500 dark:text-gray-400">
-                                        <div className="flex items-center gap-1">
-                                            <FaCalendarAlt className="text-[#8CD6B3]" /> {post.date}
+                                    <div className="flex items-center gap-3 text-xs mb-3 transition-colors duration-300 text-gray-500 dark:text-gray-400">
+                                        <div className="flex items-center gap-1 font-semibold">
+                                            <FaCalendarAlt className="text-teal-500 text-sm" /> {post.date}
                                         </div>
                                     </div>
 
                                     {/* Title */}
-                                    <h3 className="text-lg font-bold leading-tight mb-3 transition-colors duration-300 cursor-pointer text-[#03131E] dark:text-white group-hover:text-[#8CD6B3]">
+                                    <h3 className="text-lg font-bold leading-tight mb-4 transition-colors duration-300 cursor-pointer text-gray-900 dark:text-white group-hover:text-teal-500">
                                         {post.title}
                                     </h3>
 
                                     {/* Read More Link */}
-                                    <a href="#" className="inline-flex items-center font-bold text-sm hover:underline gap-1 mt-auto text-[#8CD6B3]">
+                                    <a href="#" className="inline-flex items-center font-bold text-sm hover:gap-2 transition-all gap-1 mt-auto text-teal-600 dark:text-teal-400">
                                         Read More <FaArrowRight />
                                     </a>
                                 </div>
                             </div>
 
                             {/* BOTTOM SECTION: Description */}
-                            <div className="w-full border-t pt-4 transition-colors duration-300 border-gray-200 dark:border-gray-700">
-                                <p className="text-sm leading-relaxed transition-colors duration-300 text-gray-600 dark:text-gray-300">
+                            <div className="w-full border-t pt-4 transition-colors duration-300 border-gray-100 dark:border-gray-700">
+                                <p className="text-sm leading-relaxed transition-colors duration-300 text-gray-500 dark:text-gray-400 line-clamp-2">
                                     {post.desc}
                                 </p>
                             </div>

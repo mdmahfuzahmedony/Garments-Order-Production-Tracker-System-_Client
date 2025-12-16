@@ -122,7 +122,7 @@ const Navbar = () => {
 
   return (
     <div className="font-sans">
-      <div className="bg-[#020d14] text-white py-2.5 px-4 hidden md:block transition-colors duration-300">
+      <div className="bg-[#020d14] text-white py-4 px-4 hidden md:block transition-colors duration-300">
         <div className="max-w-[1500px] mx-auto flex justify-between items-center text-xs lg:text-sm">
           <div className="flex gap-6">
             <div className="flex items-center gap-2">

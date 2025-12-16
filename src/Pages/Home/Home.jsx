@@ -8,8 +8,9 @@ import StatsCounter from "../../Component/StatsCounter/StatsCounter";
 import CoreFeatures from "../../Component/CoreFeatures/CoreFeatures";
 import WhyChooseUs from "../../Component/WhyChooseUs/WhyChooseUs";
 import WorkProcess from "../../Component/WorkProcess/WorkProcess";
-import Testimonials from "../../Component/Testimonials/Testimonials";
+
 import HomeProduct from "../../Component/HomeProduct/HomeProduct";
+import Testimonials from "../../../../../Assignment_10/Assigment_10_client_side/src/Component/TestimonialSection";
 
 
 
@@ -22,6 +23,7 @@ const Home = () => {
       <CoreFeatures></CoreFeatures>
       <WorkProcess></WorkProcess>
       <BlogSection></BlogSection>
+      <Testimonials></Testimonials>
      <CTASection></CTASection>   
     </div>
   );

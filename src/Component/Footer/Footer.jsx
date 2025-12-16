@@ -188,7 +188,7 @@ const Footer = () => {
                 <p
                   className={`${themeColors.textMain} text-sm font-semibold hover:text-white transition`}
                 >
-                  (+62) 81 589 2581
+                  01312646505
                 </p>
               </div>
             </div>

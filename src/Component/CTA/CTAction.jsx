@@ -3,16 +3,22 @@ import { Link } from 'react-router';
 
 const CTASection = () => {
     return (
-        // 1. Background: Light = Light Grayish Blue, Dark = Very Dark Navy
-        <section className="py-24 relative overflow-hidden transition-colors duration-300 bg-[#F0F4F8] dark:bg-[#020d14] font-sans">
+        // 1. Background: Gradient applied (Light: Gray->Teal Fade | Dark: #0b1120 -> #020d14)
+        <section className="py-24 relative overflow-hidden font-sans transition-colors duration-300 
+            bg-gradient-to-br from-gray-50 to-teal-50/30 
+            dark:from-[#0b1120] dark:to-[#020d14]">
             
-            {/* Background Pattern (Optional - for texture) */}
-            <div className="absolute inset-0 opacity-5 pointer-events-none dark:opacity-10 dark:invert" 
-                 style={{ 
-                     backgroundImage: "url('https://www.transparenttextures.com/patterns/seigaiha.png')", 
-                     backgroundSize: 'cover' 
-                 }}>
-            </div>
+            {/* Background Pattern (Teal Dots) */}
+            <div 
+                className="absolute inset-0 opacity-[0.03] dark:opacity-[0.1] pointer-events-none"
+                style={{ 
+                    backgroundImage: "radial-gradient(#14b8a6 1px, transparent 1px)", 
+                    backgroundSize: '30px 30px' 
+                }}
+            ></div>
+
+            {/* Optional: Central Glow Effect for Dark Mode */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-teal-500/10 blur-[100px] rounded-full pointer-events-none"></div>
 
             <div className="max-w-[1500px] mx-auto px-6 relative z-10">
                 
@@ -20,24 +26,27 @@ const CTASection = () => {
                 <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
                     
                     {/* Heading */}
-                    <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight transition-colors duration-300 text-[#03131E] dark:text-white">
+                    <h2 className="text-3xl md:text-5xl font-extrabold mb-6 leading-tight transition-colors duration-300 text-gray-900 dark:text-white">
                         Do You Want Custom Project With <br className="hidden md:block"/> 
-                        <span className="text-[#8CD6B3]">Textilery?</span> Contact Us Now
+                        {/* Gradient Text for Brand Name */}
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500">
+                            Textilery?
+                        </span>{" "}
+                        Contact Us Now
                     </h2>
                     
                     {/* Description */}
-                    <p className="mb-10 text-base md:text-lg leading-relaxed transition-colors duration-300 text-gray-500 dark:text-gray-400">
+                    <p className="mb-10 text-base md:text-lg leading-relaxed transition-colors duration-300 text-gray-600 dark:text-gray-400 max-w-2xl">
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
                         sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                     </p>
 
-                    {/* Button */}
+                    {/* Button - Gradient Style */}
                     <Link 
                         to="/contact" 
-                        className="inline-block px-10 py-4 font-bold text-sm uppercase tracking-wide rounded shadow-lg transition-all duration-300
-                        bg-[#8CD6B3] text-[#03131E] 
-                        hover:bg-[#03131E] hover:text-white 
-                        dark:hover:bg-white dark:hover:text-[#03131E]"
+                        className="inline-block px-12 py-4 font-bold text-sm uppercase tracking-widest rounded-full shadow-lg hover:shadow-teal-500/30 transition-all duration-300 transform hover:-translate-y-1
+                        bg-gradient-to-r from-teal-400 to-emerald-500 text-white
+                        hover:from-emerald-500 hover:to-teal-400"
                     >
                         Contact Us
                     </Link>

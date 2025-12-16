@@ -21,9 +21,9 @@ import Update_Product from "../Pages/DashBoard/Manager/Update_Product";
 import PaymentSuccess from "../Pages/Payment/PaymentSuccess";
 import PrivateRoute from "./PrivateRoute";
 import All_Products from './../Pages/DashBoard/Admin/AllProducts'; 
-import AboutSection from "../Component/About/AboutSection";
 import About from "../Pages/About/About";
 import Contact from "../Pages/Contact/Contact";
+
 
 export const router = createBrowserRouter([
   {
@@ -76,8 +76,9 @@ export const router = createBrowserRouter([
 
           // ✅ Success Page (এটি লাগবে)
           {
-            path: "payment/success/:id",
-            element: <PaymentSuccess />,
+            path: "payment/success/:tranId",
+            Component:PaymentSuccess
+            
           },
           
           // --- Admin Part ---

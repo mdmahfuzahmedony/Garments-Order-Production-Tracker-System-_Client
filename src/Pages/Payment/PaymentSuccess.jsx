@@ -1,56 +1,33 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router"; // react-router-dom ব্যবহার করা ভালো
-import axios from "axios";
-import Swal from "sweetalert2";
+import React, { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router'; 
+import Swal from 'sweetalert2';
 
 const PaymentSuccess = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [updated, setUpdated] = useState(false);
+    const { tranId } = useParams(); 
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const transactionId = queryParams.get("transactionId");
+    useEffect(() => {
+        // ১. সাকসেস অ্যালার্ট দেখানো
+        Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: 'Payment Successful!',
+            text: `Transaction ID: ${tranId}`,
+            showConfirmButton: false,
+            timer: 2000
+        });
 
-    if (id && transactionId && !updated) {
-      // 🔥 FIX: { withCredentials: true } যোগ করা হয়েছে 🔥
-      axios
-        .patch(
-          `https://garments-order-production-tracker-s-nu.vercel.app/bookings/payment-success/${id}`,
-          { transactionId },
-          { withCredentials: true } // এটি ছাড়া পেমেন্ট স্ট্যাটাস আপডেট হবে না
-        )
-        .then((res) => {
-          if (res.data.modifiedCount > 0) {
-            setUpdated(true);
+        // ২. সাথে সাথে My Orders পেজে পাঠিয়ে দেওয়া
+        navigate('/dashboard/my-orders');
+        
+    }, [tranId, navigate]);
 
-            Swal.fire({
-              title: "Payment Successful!",
-              text: `Order Confirmed! Trans ID: ${transactionId}`,
-              icon: "success",
-              confirmButtonText: "See My Orders",
-              allowOutsideClick: false,
-            }).then((result) => {
-              if (result.isConfirmed) {
-                navigate("/dashboard/my-orders");
-              }
-            });
-          }
-        })
-        .catch((err) => console.error("Update failed:", err));
-    }
-  }, [id, location.search, navigate, updated]);
-
-  return (
-    <div className="h-screen flex flex-col justify-center items-center">
-      <h2 className="text-3xl font-bold text-success mb-4">
-        Payment Processing...
-      </h2>
-      <span className="loading loading-spinner loading-lg text-success"></span>
-      <p className="mt-2 text-gray-500">Please wait, do not close this page.</p>
-    </div>
-  );
+    // যতক্ষণ রিডাইরেক্ট হচ্ছে, ততক্ষণ শুধু একটা লোডিং স্পিনার ঘুরবে
+    return (
+        <div className="flex justify-center items-center h-screen bg-base-200">
+            <span className="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+    );
 };
 
 export default PaymentSuccess;
