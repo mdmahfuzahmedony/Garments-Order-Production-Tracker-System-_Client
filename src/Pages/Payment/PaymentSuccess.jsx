@@ -1,26 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router'; // Link import ঠিক আছে
+import React, { useEffect, useRef } from 'react'; // useRef import করুন
+import { useParams, useSearchParams, useNavigate } from 'react-router';
 import useAxiosSecure from '../../Hooks/useAxiosSecure/useAxiosSecure';
 import Swal from 'sweetalert2';
 
 const PaymentSuccess = () => {
-    const { id } = useParams(); // URL থেকে orderId (booking id) পাবো
+    const { id } = useParams(); 
     const [searchParams] = useSearchParams();
-    const transactionId = searchParams.get('transactionId'); // আপনার ব্যাকএন্ড URL এ 'transactionId' নাম দিয়েছেন
+    const transactionId = searchParams.get('transactionId');
     const axiosSecure = useAxiosSecure();
     const navigate = useNavigate();
-    const [isProcessing, setIsProcessing] = useState(true);
+    
+    // ডাবল কল আটকাতে useRef ব্যবহার
+    const isCalled = useRef(false);
 
     useEffect(() => {
         const savePaymentInfo = async () => {
+            // যদি আগে একবার কল হয়ে থাকে, তবে আর কল করবে না
+            if (isCalled.current) return;
+            isCalled.current = true;
+
             if (id && transactionId) {
                 try {
-                    // 🔥 আপনার ব্যাকএন্ড রাউট এবং মেথড (PATCH) অনুযায়ী আপডেট করা হলো
                     const res = await axiosSecure.patch(`/bookings/payment-success/${id}`, {
                         transactionId: transactionId
                     });
 
-                    if (res.data.modifiedCount > 0) {
+                    // 🔥 ফিক্স: modifiedCount > 0 অথবা matchedCount > 0 চেক করা
+                    // matchedCount > 0 মানে ডাটা পাওয়া গেছে (হয়তো আগেই আপডেট হয়েছে)
+                    if (res.data.modifiedCount > 0 || res.data.matchedCount > 0) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Payment Successful!',
@@ -37,34 +44,21 @@ const PaymentSuccess = () => {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
-                        text: 'Payment verified but failed to update database.',
+                        text: 'Failed to update payment info.',
                     });
-                } finally {
-                    setIsProcessing(false);
                 }
             }
         };
 
-        // ডাবল কল এড়াতে চেকিং
-        if(isProcessing) {
-             savePaymentInfo();
-        }
+        savePaymentInfo();
        
     }, [id, transactionId, axiosSecure, navigate]);
 
-    if (isProcessing) {
-        return (
-            <div className="flex justify-center items-center min-h-screen">
-                <span className="loading loading-spinner loading-lg text-success"></span>
-                <p className="ml-4 text-xl font-bold">Verifying Payment...</p>
-            </div>
-        );
-    }
-
     return (
-        <div className="text-center mt-20">
-            <h2 className="text-3xl font-bold text-success">Payment Confirmed!</h2>
-            <p className="text-gray-500 mt-2">Redirecting to orders...</p>
+        <div className="flex flex-col justify-center items-center min-h-screen gap-4">
+            <span className="loading loading-spinner loading-lg text-success"></span>
+            <h2 className="text-3xl font-bold text-success">Processing Payment...</h2>
+            <p className="text-gray-500">Please wait while we confirm your order.</p>
         </div>
     );
 };

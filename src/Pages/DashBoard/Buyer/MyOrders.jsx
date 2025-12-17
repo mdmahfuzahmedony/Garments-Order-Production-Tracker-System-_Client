@@ -10,7 +10,7 @@ const My_Orders = () => {
     const { user, loading } = useContext(AuthContext);
     const axiosSecure = useAxiosSecure(); 
 
-    const { data: orders = [], refetch, isLoading } = useQuery({
+    const { data: orders = [],  isLoading } = useQuery({
         queryKey: ['my-orders', user?.email],
         enabled: !loading && !!user?.email,
         queryFn: async () => {
