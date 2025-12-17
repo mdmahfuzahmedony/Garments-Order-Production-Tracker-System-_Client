@@ -49,7 +49,7 @@ const Navbar = () => {
         <NavLink
           to="/"
           className={({ isActive }) =>
-            `font-bold uppercase text-sm tracking-wide transition-colors duration-300 ${
+            `font-bold uppercase text-[16PX] tracking-wide transition-colors duration-300 ${
               isActive
                 ? "text-[#8CD6B3]"
                 : "text-[#03131E] dark:text-gray-200 hover:text-[#8CD6B3]"
@@ -63,7 +63,7 @@ const Navbar = () => {
         <NavLink
           to="/all-products"
           className={({ isActive }) =>
-            `font-bold uppercase text-sm tracking-wide transition-colors duration-300 ${
+            `font-bold uppercase text-[16PX] tracking-wide transition-colors duration-300 ${
               isActive
                 ? "text-[#8CD6B3]"
                 : "text-[#03131E] dark:text-gray-200 hover:text-[#8CD6B3]"
@@ -77,7 +77,7 @@ const Navbar = () => {
         <NavLink
           to="/about"
           className={({ isActive }) =>
-            `font-bold uppercase text-sm tracking-wide transition-colors duration-300 ${
+            `font-bold uppercase text-[16PX] tracking-wide transition-colors duration-300 ${
               isActive
                 ? "text-[#8CD6B3]"
                 : "text-[#03131E] dark:text-gray-200 hover:text-[#8CD6B3]"
@@ -91,7 +91,7 @@ const Navbar = () => {
         <NavLink
           to="/contact"
           className={({ isActive }) =>
-            `font-bold uppercase text-sm tracking-wide transition-colors duration-300 ${
+            `font-bold uppercase text-[16PX] tracking-wide transition-colors duration-300 ${
               isActive
                 ? "text-[#8CD6B3]"
                 : "text-[#03131E] dark:text-gray-200 hover:text-[#8CD6B3]"
@@ -106,7 +106,7 @@ const Navbar = () => {
           <NavLink
             to="/dashboard"
             className={({ isActive }) =>
-              `font-bold uppercase text-sm tracking-wide transition-colors duration-300 ${
+              `font-bold uppercase text-[16PX] tracking-wide transition-colors duration-300 ${
                 isActive
                   ? "text-[#8CD6B3]"
                   : "text-[#03131E] dark:text-gray-200 hover:text-[#8CD6B3]"

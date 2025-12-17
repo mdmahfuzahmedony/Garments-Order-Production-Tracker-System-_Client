@@ -71,12 +71,15 @@ const Testimonials = () => {
           <p className="text-teal-500 dark:text-teal-400 font-bold tracking-widest uppercase text-sm">
             Client Stories
           </p>
-          <h2 className="text-3xl md:text-5xl font-extrabold transition-colors duration-300 text-gray-900 dark:text-white">
+          <h2 className="text-3xl md:text-4xl font-extrabold transition-colors duration-300 text-gray-900 dark:text-white">
             What People{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500">
               Say
             </span>
           </h2>
+          <p className="text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto text-lg">
+            Finding a manufacturer who understands complex designs is difficult. Textilery not only matched our fabric requirements perfectly but also delivered the samples faster than we expected. Their finishing quality is world-class.
+          </p>
         </div>
 
         {/* --- SWIPER SLIDER --- */}

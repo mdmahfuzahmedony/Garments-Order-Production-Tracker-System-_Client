@@ -67,6 +67,10 @@ const BlogSection = () => {
                             Articles
                         </span>
                     </h2>
+                    
+                    <p className="text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto text-lg">
+            Merchandising acts as the bridge between design and production.Learn how effective planning ensures the right product reaches the right market at the right time.
+          </p>
                 </div>
 
                 {/* Blog Grid */}

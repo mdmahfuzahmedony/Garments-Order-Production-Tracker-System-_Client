@@ -120,7 +120,7 @@ const Dashboard = () => {
         
         {/* Mobile Menu Button */}
         <div className="w-full lg:hidden p-4 bg-[#0b1120] border-b border-gray-800 flex justify-between items-center sticky top-0 z-50 shadow-md">
-            <h2 className="font-bold text-lg text-white">TexTrack</h2>
+          
             <label htmlFor="my-drawer-2" className="btn btn-square btn-ghost text-emerald-500">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-6 h-6 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </label>

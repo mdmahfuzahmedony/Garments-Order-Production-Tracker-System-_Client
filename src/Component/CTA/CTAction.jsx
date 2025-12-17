@@ -37,8 +37,8 @@ const CTASection = () => {
                     
                     {/* Description */}
                     <p className="mb-10 text-base md:text-lg leading-relaxed transition-colors duration-300 text-gray-600 dark:text-gray-400 max-w-2xl">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
-                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                        From concept to bulk production, we deliver high-quality garments tailored to your brand’s needs. Let's discuss your requirements today.
+.
                     </p>
 
                     {/* Button - Gradient Style */}
