@@ -1,5 +1,5 @@
 import React from "react";
-import {  createHashRouter } from "react-router"; // react-router-dom ব্যবহার করুন
+import {  createBrowserRouter } from "react-router"; // react-router-dom ব্যবহার করুন
 import MainLayout from "./MainRouter";
 import Home from "../Pages/Home/Home";
 import Register from "../Pages/Register/Register";
@@ -26,7 +26,7 @@ import Contact from "../Pages/Contact/Contact";
 import PaymentSuccess from "../Pages/Payment/PaymentSuccess";
 
 
-export const router = createHashRouter([
+export const router = createBrowserRouter([
   {
     path: "/",
     element: <MainLayout />,

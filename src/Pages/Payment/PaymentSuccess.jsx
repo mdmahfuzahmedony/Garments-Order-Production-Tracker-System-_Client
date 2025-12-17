@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'; // useRef import করুন
+import React, { useEffect,useRef } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router';
 import useAxiosSecure from '../../Hooks/useAxiosSecure/useAxiosSecure';
 import Swal from 'sweetalert2';
@@ -9,44 +9,67 @@ const PaymentSuccess = () => {
     const transactionId = searchParams.get('transactionId');
     const axiosSecure = useAxiosSecure();
     const navigate = useNavigate();
-    
-    // ডাবল কল আটকাতে useRef ব্যবহার
     const isCalled = useRef(false);
 
     useEffect(() => {
         const savePaymentInfo = async () => {
-            // যদি আগে একবার কল হয়ে থাকে, তবে আর কল করবে না
+            // 1. চেক করছি প্যারামিটারগুলো ঠিক আছে কিনা
+            console.log("🟢 Step 1: Checking Params", { id, transactionId });
+
+            if (!id || !transactionId) {
+                console.error("🔴 Missing ID or TransactionID");
+                return;
+            }
+
             if (isCalled.current) return;
             isCalled.current = true;
 
-            if (id && transactionId) {
-                try {
-                    const res = await axiosSecure.patch(`/bookings/payment-success/${id}`, {
-                        transactionId: transactionId
-                    });
+            try {
+                console.log("🟡 Step 2: Sending Request to Backend...");
+                
+                // API কল করা হচ্ছে
+                const res = await axiosSecure.patch(`/bookings/payment-success/${id}`, {
+                    transactionId: transactionId
+                });
 
-                    // 🔥 ফিক্স: modifiedCount > 0 অথবা matchedCount > 0 চেক করা
-                    // matchedCount > 0 মানে ডাটা পাওয়া গেছে (হয়তো আগেই আপডেট হয়েছে)
-                    if (res.data.modifiedCount > 0 || res.data.matchedCount > 0) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Payment Successful!',
-                            text: `Transaction ID: ${transactionId}`,
-                            confirmButtonText: 'See Orders'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                navigate('/dashboard/my-orders');
-                            }
-                        });
-                    }
-                } catch (error) {
-                    console.error("Payment Save Error", error);
+                console.log("🟢 Step 3: Backend Response:", res.data);
+
+                // রেসপন্স চেক করা
+                if (res.data.modifiedCount > 0 || res.data.matchedCount > 0) {
+                    console.log("✅ Success! Showing Alert.");
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Failed to update payment info.',
+                        icon: 'success',
+                        title: 'Payment Successful!',
+                        text: `Transaction ID: ${transactionId}`,
+                        confirmButtonText: 'See Orders'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            navigate('/dashboard/my-orders');
+                        }
                     });
+                } else {
+                    console.warn("⚠️ Data not modified. Response:", res.data);
+                    // যদি আপডেট না হয়, তবুও ইউজারকে জানিয়ে দেওয়া
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Already Updated',
+                        text: 'This order is already marked as Paid.',
+                        confirmButtonText: 'Go to Orders'
+                    }).then(() => navigate('/dashboard/my-orders'));
                 }
+
+            } catch (error) {
+                console.error("🔴 Step 4: Error Occurred:", error);
+                // এররটি বিস্তারিত দেখার জন্য
+                if(error.response) {
+                     console.error("Server Error Data:", error.response.data);
+                     console.error("Server Error Status:", error.response.status);
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Update Failed!',
+                    text: error.message,
+                });
             }
         };
 
@@ -58,7 +81,7 @@ const PaymentSuccess = () => {
         <div className="flex flex-col justify-center items-center min-h-screen gap-4">
             <span className="loading loading-spinner loading-lg text-success"></span>
             <h2 className="text-3xl font-bold text-success">Processing Payment...</h2>
-            <p className="text-gray-500">Please wait while we confirm your order.</p>
+            <p className="text-gray-500">Please check console (F12) if stuck.</p>
         </div>
     );
 };

@@ -19,7 +19,7 @@ const BookingPage = () => {
     queryKey: ["booking-product", id],
     queryFn: async () => {
       const res = await axios.get(
-        `https://garments-order-production-tracker-s-nu.vercel.app/garments-products/${id}`,
+        `http://localhost:2001/garments-products/${id}`,
         {
           withCredentials: true,
         }
@@ -119,7 +119,7 @@ const BookingPage = () => {
     try {
       // 🔥 FIX: { withCredentials: true } যোগ করা হয়েছে 🔥
       const res = await axios.post(
-        "https://garments-order-production-tracker-s-nu.vercel.app/bookings",
+        "http://localhost:2001/bookings",
         orderData,
         {
           withCredentials: true,

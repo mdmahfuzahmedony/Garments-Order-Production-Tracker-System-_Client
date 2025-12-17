@@ -4,8 +4,13 @@ import useAuth from "../useAuth/useAuth";
 import { useNavigate } from "react-router";
 
 const axiosSecure = axios.create({
-  baseURL: "https://garments-order-production-tracker-s-nu.vercel.app", // আপনার সার্ভার পোর্ট চেক করুন
-  withCredentials: true, // এটি থাকতেই হবে, নাহলে কুকি যাবে না
+  // 🔥 গুরত্বপূর্ণ পরিবর্তন: এখন কাজ করার জন্য লোকাল লিংক দিন
+  baseURL: "http://localhost:2001",
+
+  // পরে যখন Vercel এ আপলোড করবেন তখন এটা চালু করবেন:
+  // baseURL: "http://localhost:2001",
+
+  withCredentials: true,
 });
 
 const useAxiosSecure = () => {
@@ -19,7 +24,7 @@ const useAxiosSecure = () => {
       },
       (error) => {
         console.log("error tracked in the interceptor", error.response);
-        if (error.response.status === 401 || error.response.status === 403) {
+        if (error.response?.status === 401 || error.response?.status === 403) {
           console.log("logout the user");
           logOut()
             .then(() => {

@@ -64,11 +64,9 @@ const AuthProvider = ({ children }) => {
         const userInfo = { email: currentUser.email };
 
         axios
-          .post(
-            "https://garments-order-production-tracker-s-nu.vercel.app/jwt",
-            userInfo,
-            { withCredentials: true }
-          )
+          .post("http://localhost:2001/jwt", userInfo, {
+            withCredentials: true,
+          })
           .then((res) => {
             if (res.data.success) {
               // console.log('Token set successfully in cookie');
@@ -82,11 +80,7 @@ const AuthProvider = ({ children }) => {
       } else {
         // ইউজার লগআউট হলে কুকি মুছে ফেলা
         axios
-          .post(
-            "https://garments-order-production-tracker-s-nu.vercel.app/logout",
-            {},
-            { withCredentials: true }
-          )
+          .post("http://localhost:2001/logout", {}, { withCredentials: true })
           .then((res) => {
             if (res.data.success) {
               // console.log('Token cleared');

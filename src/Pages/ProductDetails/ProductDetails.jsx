@@ -24,7 +24,7 @@ const ProductDetails = () => {
     queryKey: ["product", id],
     queryFn: async () => {
       const res = await axios.get(
-        `https://garments-order-production-tracker-s-nu.vercel.app/garments-products/${id}`
+        `http://localhost:2001/garments-products/${id}`
       );
       return res.data;
     },
@@ -34,9 +34,7 @@ const ProductDetails = () => {
   const { data: allProducts = [] } = useQuery({
     queryKey: ["relatedProducts"],
     queryFn: async () => {
-      const res = await axios.get(
-        "https://garments-order-production-tracker-s-nu.vercel.app/garments-products"
-      );
+      const res = await axios.get("http://localhost:2001/garments-products");
       return res.data;
     },
   });
@@ -69,7 +67,6 @@ const ProductDetails = () => {
       </div>
     );
 
-
   const safeName = product.productName || product.name || "Unnamed Product";
   const safePrice = product.price || 0;
   const safeDescription = product.description || "No description available.";
@@ -80,7 +77,6 @@ const ProductDetails = () => {
     product.paymentMethod || product.paymentOption || "Cash on Delivery";
   const safeVideo =
     product.demoVideo || product.videoLink || product.video || "";
-
 
   const imageList =
     Array.isArray(product.images) && product.images.length > 0
@@ -119,7 +115,6 @@ const ProductDetails = () => {
               </div>
             )}
           </div>
-
 
           {imageList.length > 1 && (
             <div className="flex gap-4 overflow-x-auto pb-2">

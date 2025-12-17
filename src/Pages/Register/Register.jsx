@@ -43,10 +43,7 @@ const Register = () => {
 
           // ৩. ডাটাবেসে সেভ করা
           axios
-            .post(
-              "https://garments-order-production-tracker-s-nu.vercel.app/users",
-              userInfo
-            )
+            .post("http://localhost:2001/users", userInfo)
             .then((res) => {
               if (res.data.insertedId) {
                 reset();
@@ -91,20 +88,15 @@ const Register = () => {
           image: user.photoURL,
         };
 
-        axios
-          .post(
-            "https://garments-order-production-tracker-s-nu.vercel.app/users",
-            userInfo
-          )
-          .then(() => {
-            Swal.fire({
-              icon: "success",
-              title: "Google Sign-in Successful",
-              showConfirmButton: false,
-              timer: 1500,
-            });
-            navigate(from, { replace: true });
+        axios.post("http://localhost:2001/users", userInfo).then(() => {
+          Swal.fire({
+            icon: "success",
+            title: "Google Sign-in Successful",
+            showConfirmButton: false,
+            timer: 1500,
           });
+          navigate(from, { replace: true });
+        });
       })
       .catch((error) => console.error(error));
   };

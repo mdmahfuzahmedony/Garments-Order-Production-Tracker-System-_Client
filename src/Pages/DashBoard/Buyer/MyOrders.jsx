@@ -1,25 +1,26 @@
 import React, { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import Swal from 'sweetalert2';
+// import Swal from 'sweetalert2'; // লাগলে আনকমেন্ট করবেন
 import { FaEye, FaCreditCard } from 'react-icons/fa';
-import { Link } from 'react-router'; // 1. Link import করা হলো
+import { Link } from 'react-router'; 
 import { AuthContext } from '../../../Provider/AuthProvider';
-import useAxiosSecure from "../../../Hooks/useAxiosSecure/useAxiosSecure"; // পাথ ঠিক করে নিও
+import useAxiosSecure from "../../../Hooks/useAxiosSecure/useAxiosSecure"; 
 
-const My_Orders = () => {
+const MyOrders = () => {
     const { user, loading } = useContext(AuthContext);
     const axiosSecure = useAxiosSecure(); 
 
-    const { data: orders = [],  isLoading } = useQuery({
+    const { data: orders = [], isLoading, refetch } = useQuery({ // refetch আনলাম
         queryKey: ['my-orders', user?.email],
         enabled: !loading && !!user?.email,
         queryFn: async () => {
             const res = await axiosSecure.get(`/bookings?email=${user.email}`);
             return res.data;
-        }
+        },
+        // 🔥 এই লাইনটি খুব জরুরি: পেজে আসার সাথে সাথে নতুন ডাটা আনবে
+        refetchOnMount: true 
     });
 
-    // --- পেমেন্ট লজিক ---
     const handlePay = async (order) => {
         try {
             const res = await axiosSecure.post('/create-checkout-session', {
@@ -28,7 +29,11 @@ const My_Orders = () => {
                 orderId: order._id,
                 image: order.productImage
             });
+
+              console.log(res);
+
             if (res.data.url) window.location.replace(res.data.url);
+
         } catch (error) {
             console.error("Payment Error", error);
         }
@@ -82,6 +87,7 @@ const My_Orders = () => {
                                         </span>
                                     </td>
                                     <td>
+                                        {/* 🔥 Payment Status Logic Check */}
                                         {order.paymentStatus === 'Paid' ? (
                                             <div className="badge badge-success text-white font-bold">Paid</div>
                                         ) : (
@@ -91,12 +97,7 @@ const My_Orders = () => {
                                         )}
                                     </td>
                                     
-                                    {/* Action Column Update */}
                                     <td className="flex items-center gap-2 mt-2">
-                                        {/* 
-                                            2. এখানে মডালের বদলে Link ব্যবহার করা হয়েছে।
-                                            এটি এখন /dashboard/track-order/:id পেজে নিয়ে যাবে 
-                                        */}
                                         <Link 
                                             to={`/dashboard/track-order/${order._id}`}
                                             className="btn btn-sm btn-square btn-ghost text-info tooltip"
@@ -113,9 +114,8 @@ const My_Orders = () => {
                     </tbody>
                 </table>
             </div>
-            {/* মডাল কোডটি সম্পূর্ণ মুছে ফেলা হয়েছে কারণ এখন আমরা আলাদা পেজ ব্যবহার করছি */}
         </div>
     );
 };
 
-export default My_Orders;
+export default MyOrders;
