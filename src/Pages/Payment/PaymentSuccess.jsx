@@ -1,31 +1,70 @@
-import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router'; 
+import React, { useEffect, useState } from 'react';
+import { useParams, useSearchParams, useNavigate } from 'react-router'; // Link import ঠিক আছে
+import useAxiosSecure from '../../Hooks/useAxiosSecure/useAxiosSecure';
 import Swal from 'sweetalert2';
 
 const PaymentSuccess = () => {
-    const { tranId } = useParams(); 
+    const { id } = useParams(); // URL থেকে orderId (booking id) পাবো
+    const [searchParams] = useSearchParams();
+    const transactionId = searchParams.get('transactionId'); // আপনার ব্যাকএন্ড URL এ 'transactionId' নাম দিয়েছেন
+    const axiosSecure = useAxiosSecure();
     const navigate = useNavigate();
+    const [isProcessing, setIsProcessing] = useState(true);
 
     useEffect(() => {
-        // ১. সাকসেস অ্যালার্ট দেখানো
-        Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: 'Payment Successful!',
-            text: `Transaction ID: ${tranId}`,
-            showConfirmButton: false,
-            timer: 2000
-        });
+        const savePaymentInfo = async () => {
+            if (id && transactionId) {
+                try {
+                    // 🔥 আপনার ব্যাকএন্ড রাউট এবং মেথড (PATCH) অনুযায়ী আপডেট করা হলো
+                    const res = await axiosSecure.patch(`/bookings/payment-success/${id}`, {
+                        transactionId: transactionId
+                    });
 
-        // ২. সাথে সাথে My Orders পেজে পাঠিয়ে দেওয়া
-        navigate('/dashboard/my-orders');
-        
-    }, [tranId, navigate]);
+                    if (res.data.modifiedCount > 0) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Payment Successful!',
+                            text: `Transaction ID: ${transactionId}`,
+                            confirmButtonText: 'See Orders'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                navigate('/dashboard/my-orders');
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error("Payment Save Error", error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Payment verified but failed to update database.',
+                    });
+                } finally {
+                    setIsProcessing(false);
+                }
+            }
+        };
 
-    // যতক্ষণ রিডাইরেক্ট হচ্ছে, ততক্ষণ শুধু একটা লোডিং স্পিনার ঘুরবে
+        // ডাবল কল এড়াতে চেকিং
+        if(isProcessing) {
+             savePaymentInfo();
+        }
+       
+    }, [id, transactionId, axiosSecure, navigate]);
+
+    if (isProcessing) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <span className="loading loading-spinner loading-lg text-success"></span>
+                <p className="ml-4 text-xl font-bold">Verifying Payment...</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="flex justify-center items-center h-screen bg-base-200">
-            <span className="loading loading-spinner loading-lg text-primary"></span>
+        <div className="text-center mt-20">
+            <h2 className="text-3xl font-bold text-success">Payment Confirmed!</h2>
+            <p className="text-gray-500 mt-2">Redirecting to orders...</p>
         </div>
     );
 };

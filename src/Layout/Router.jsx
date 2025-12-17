@@ -1,5 +1,5 @@
 import React from "react";
-import { createBrowserRouter } from "react-router"; // react-router-dom ব্যবহার করুন
+import {  createHashRouter } from "react-router"; // react-router-dom ব্যবহার করুন
 import MainLayout from "./MainRouter";
 import Home from "../Pages/Home/Home";
 import Register from "../Pages/Register/Register";
@@ -18,14 +18,15 @@ import Approve_Orders from "../Pages/DashBoard/Manager/Approve_Orders";
 import Manage_Products from "../Pages/DashBoard/Manager/Manage_Products";
 import Pending_Orders from "../Pages/DashBoard/Manager/Pending_Orders";
 import Update_Product from "../Pages/DashBoard/Manager/Update_Product";
-import PaymentSuccess from "../Pages/Payment/PaymentSuccess";
+
 import PrivateRoute from "./PrivateRoute";
 import All_Products from './../Pages/DashBoard/Admin/AllProducts'; 
 import About from "../Pages/About/About";
 import Contact from "../Pages/Contact/Contact";
+import PaymentSuccess from "../Pages/Payment/PaymentSuccess";
 
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     path: "/",
     element: <MainLayout />,
@@ -76,8 +77,8 @@ export const router = createBrowserRouter([
 
           // ✅ Success Page (এটি লাগবে)
           {
-            path: "payment/success/:tranId",
-            Component:PaymentSuccess
+            path: "payment/success/:id",
+            element:<PaymentSuccess></PaymentSuccess>
             
           },
           
