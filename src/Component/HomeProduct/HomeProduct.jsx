@@ -8,7 +8,9 @@ const HomeProduct = () => {
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["home-products"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:2001/garments-products");
+      const res = await axios.get(
+        "https://garments-order-production-tracker-s-nu.vercel.app/garments-products"
+      );
       // Filter: showOnHome: true and slice first 6
       return res.data.filter((item) => item.showOnHome === true).slice(0, 6);
     },

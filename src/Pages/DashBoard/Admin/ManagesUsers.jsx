@@ -17,9 +17,12 @@ const Manage_Users = () => {
   } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:2001/users", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        "https://garments-order-production-tracker-s-nu.vercel.app/users",
+        {
+          withCredentials: true,
+        }
+      );
       return res.data;
     },
   });
@@ -52,7 +55,7 @@ const Manage_Users = () => {
 
     try {
       const res = await axios.patch(
-        `http://localhost:2001/users/update/${selectedUser._id}`,
+        `https://garments-order-production-tracker-s-nu.vercel.app/users/update/${selectedUser._id}`,
         { role, status },
         { withCredentials: true }
       );

@@ -5,10 +5,10 @@ import { useNavigate } from "react-router";
 
 const axiosSecure = axios.create({
   // 🔥 গুরত্বপূর্ণ পরিবর্তন: এখন কাজ করার জন্য লোকাল লিংক দিন
-  baseURL: "http://localhost:2001",
+  baseURL: "https://garments-order-production-tracker-s-nu.vercel.app",
 
   // পরে যখন Vercel এ আপলোড করবেন তখন এটা চালু করবেন:
-  // baseURL: "http://localhost:2001",
+  // baseURL: "https://garments-order-production-tracker-s-nu.vercel.app",
 
   withCredentials: true,
 });

@@ -28,7 +28,11 @@ const Login = () => {
         const user = { email: loggedUser.email };
 
         axios
-          .post("http://localhost:2001/jwt", user, { withCredentials: true })
+          .post(
+            "https://garments-order-production-tracker-s-nu.vercel.app/jwt",
+            user,
+            { withCredentials: true }
+          )
           .then((res) => {
             if (res.data.success) {
               Swal.fire({
@@ -64,23 +68,32 @@ const Login = () => {
 
         // Google দিয়ে লগইন করলে দুইটা কাজ করতে হয়:
         // ১. ইউজার ডাটাবেসে সেভ করা (যদি নতুন হয়)
-        axios.post("http://localhost:2001/users", userInfo).then(() => {
-          // ২. টোকেন জেনারেট করা
-          const user = { email: loggedUser.email };
-          axios
-            .post("http://localhost:2001/jwt", user, { withCredentials: true })
-            .then((res) => {
-              if (res.data.success) {
-                Swal.fire({
-                  icon: "success",
-                  title: "Google Login Successful",
-                  showConfirmButton: false,
-                  timer: 1500,
-                });
-                navigate(from, { replace: true });
-              }
-            });
-        });
+        axios
+          .post(
+            "https://garments-order-production-tracker-s-nu.vercel.app/users",
+            userInfo
+          )
+          .then(() => {
+            // ২. টোকেন জেনারেট করা
+            const user = { email: loggedUser.email };
+            axios
+              .post(
+                "https://garments-order-production-tracker-s-nu.vercel.app/jwt",
+                user,
+                { withCredentials: true }
+              )
+              .then((res) => {
+                if (res.data.success) {
+                  Swal.fire({
+                    icon: "success",
+                    title: "Google Login Successful",
+                    showConfirmButton: false,
+                    timer: 1500,
+                  });
+                  navigate(from, { replace: true });
+                }
+              });
+          });
       })
       .catch((error) => console.error(error));
   };

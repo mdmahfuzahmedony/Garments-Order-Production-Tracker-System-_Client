@@ -19,7 +19,9 @@ const AllProduct = () => {
   } = useQuery({
     queryKey: ["allProducts"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:2001/garments-products");
+      const res = await axios.get(
+        "https://garments-order-production-tracker-s-nu.vercel.app/garments-products"
+      );
       return res.data;
     },
   });
