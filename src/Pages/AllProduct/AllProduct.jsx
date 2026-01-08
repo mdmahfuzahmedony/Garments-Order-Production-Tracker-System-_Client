@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
-import ProductCard from "../../Component/ProductCard/PrpductCard";
+import ProductCard from "../../Component/ProductCard/ProductCard";
 
 const AllProduct = () => {
   // 1. States
